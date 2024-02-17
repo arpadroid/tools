@@ -4,10 +4,7 @@
     "type": "module",
     "description": "A Javascript utility library",
     "main": "index.js",
-    "exports": {
-        ".": "./index.js",
-        "./src/*": "./src/*.js"
-    },
+    "exports": "./index.js",
     "files": [
         "src",
         "*.md"
