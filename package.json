@@ -1,0 +1,30 @@
+{
+    "name": "@arpadroid/tools",
+    "version": "0.0.1",
+    "description": "A Javascript utility library",
+    "exports": "./src/",
+    "scripts": {
+        "test": "jest"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/arpadroid/tools.git"
+    },
+    "keywords": [
+        "Javascript utility library"
+    ],
+    "author": "Andres Vaquero @arpadroid <web.andresvaquero@gmail.com>",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/arpadroid/tools/issues"
+    },
+    "homepage": "https://github.com/arpadroid/tools#readme",
+    "devDependencies": {
+        "@babel/plugin-syntax-import-assertions": "^7.23.3",
+        "@babel/preset-env": "^7.23.9",
+        "jest": "^29.7.0",
+        "jest-environment-jsdom": "^29.7.0",
+        "jest-junit": "^16.0.0",
+        "jsdom": "^24.0.0"
+    }
+}
