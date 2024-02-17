@@ -2,13 +2,21 @@
     "name": "@arpadroid/tools",
     "version": "0.0.4",
     "type": "module",
-    "exports": {
-        "./*": "./src/*.js"
-    },
     "description": "A Javascript utility library",
     "main": "index.js",
+    "exports": {
+        ".": "./index.js",
+        "./src/*": "./src/*.js"
+    },
+    "files": [
+        "src",
+        "*.md"
+    ],
     "scripts": {
         "test": "jest"
+    },
+    "engines": {
+        "node": ">=16.0.0"
     },
     "repository": {
         "type": "git",

@@ -29,3 +29,21 @@ export const RegexTool = _RegexTool;
 export const StringTool = _StringTool;
 export const UrlTool = _UrlTool;
 export const ValidationTool = _ValidationTool;
+
+export default {
+    ObjectTool: _ObjectTool,
+    ArrayTool: _ArrayTool,
+    ColorTool: _ColorTool,
+    CsvTool: _CsvTool,
+    DateTimeTool: _DateTimeTool,
+    DeviceTool: _DeviceTool,
+    FileTool: _FileTool,
+    ImageTool: _ImageTool,
+    NodeTool: _NodeTool,
+    ObserverTool: _ObserverTool,
+    PageTool: _PageTool,
+    RegexTool: _RegexTool,
+    StringTool: _StringTool,
+    UrlTool: _UrlTool,
+    ValidationTool: _ValidationTool
+};
