@@ -1,6 +1,10 @@
 {
     "name": "@arpadroid/tools",
     "version": "0.0.3",
+    "type": "module",
+    "exports": {
+        "./*": "./src/*.js"
+    },
     "description": "A Javascript utility library",
     "main": "index.js",
     "scripts": {
