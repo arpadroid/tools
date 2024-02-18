@@ -3,7 +3,7 @@
  * @param {number} time - The time value.
  * @returns {string} - The normalized time string.
  */
-export function normalizeZeroes(time) {
+export function normalizeTimeZeroes(time) {
     time = parseFloat(time);
     return time < 10 ? '0' + time : time.toString();
 }
@@ -15,9 +15,9 @@ export function normalizeZeroes(time) {
  * @returns {string} - The formatted time string.
  */
 export function getTimeString(date = new Date(), hasSeconds = true) {
-    const hours = normalizeZeroes(date.getHours());
-    const minutes = normalizeZeroes(date.getMinutes());
-    const seconds = normalizeZeroes(date.getSeconds());
+    const hours = normalizeTimeZeroes(date.getHours());
+    const minutes = normalizeTimeZeroes(date.getMinutes());
+    const seconds = normalizeTimeZeroes(date.getSeconds());
     let time = `${hours}:${minutes}`;
     if (hasSeconds) {
         time += `:${seconds}`;
@@ -167,11 +167,11 @@ export function formatDate(_date, format = 'DD-MM-YYYY HH:mm:ss', addOffset = fa
         date = addTimezoneOffset(date);
     }
     const year = date.getFullYear();
-    const month = normalizeZeroes(date.getMonth() + 1);
-    const day = normalizeZeroes(date.getDate());
-    const hours = normalizeZeroes(date.getHours());
-    const minutes = normalizeZeroes(date.getMinutes());
-    const seconds = normalizeZeroes(date.getSeconds());
+    const month = normalizeTimeZeroes(date.getMonth() + 1);
+    const day = normalizeTimeZeroes(date.getDate());
+    const hours = normalizeTimeZeroes(date.getHours());
+    const minutes = normalizeTimeZeroes(date.getMinutes());
+    const seconds = normalizeTimeZeroes(date.getSeconds());
     return format
         .replace('YYYY', year)
         .replace('YY', year.toString().substr(-2))
@@ -225,7 +225,7 @@ export function getTimeAgo(date, referenceDate, format = '[D] [MON] YY at HH:mm'
  * @param {string} format - The format string to validate.
  * @returns {boolean} - True if the format is valid, false otherwise.
  */
-export function validateFormat(format) {
+export function validateDateFormat(format) {
     const regex = /YYYY|MM|DD|HH|mm|ss/g;
     return regex.test(format);
 }

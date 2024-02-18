@@ -1,6 +1,6 @@
 const { rgbToHex, validateColor } = require('./colorTool');
 
-describe('colorTool', () => {
+describe('ColorTool', () => {
     describe('rgbToHex', () => {
         it('should convert RGB color value to hexadecimal color value', () => {
             const rgbColor = 'rgb(255, 0, 0)';

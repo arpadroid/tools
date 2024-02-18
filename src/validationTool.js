@@ -1,4 +1,4 @@
-import { validateColor as colorValidate } from './colorTool';
+import { validateColor } from './colorTool.js';
 import RegexTool from './regexTool.js';
 
 /**
@@ -110,6 +110,6 @@ export function validateNumber(_value) {
  * @param {string} value - The value to be checked.
  * @returns {boolean} - True if the value is a valid color, false otherwise.
  */
-export function validateColor(value) {
-    return colorValidate(value);
+export function validateColour(value) {
+    return validateColor(value);
 }

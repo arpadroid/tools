@@ -1,6 +1,6 @@
 import { encodeValueCommas, decodeValueCommas, csvToJson } from './csvTool';
 
-describe('csvTool', () => {
+describe('CsvTool', () => {
     describe('encodeValueCommas', () => {
         it('should encode commas within double quotes in a text', () => {
             const text = 'John,Doe,"Hello, World",42';

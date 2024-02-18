@@ -7,7 +7,7 @@ let initializedScroll = false;
  * Initializes the resize event listener and sets the flag indicating it has been initialized.
  * @param {Function} callback - The callback function to be executed on resize.
  */
-export function initializeResize(callback) {
+function initializeResize(callback) {
     window.addEventListener('resize', callback);
     initializedResize = true;
 }
@@ -53,7 +53,7 @@ export function onResize(callback) {
  * Initializes the scroll event listener and sets the flag indicating it has been initialized.
  * @param {Function} callback - The callback function to be executed on scroll.
  */
-export function initializeOnScroll(callback) {
+function initializeOnScroll(callback) {
     window.addEventListener('scroll', callback);
     initializedScroll = true;
 }

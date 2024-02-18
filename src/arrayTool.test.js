@@ -1,5 +1,5 @@
 import { arrayUnique, arrayEmpty, arrayToNumbers, areArraysEqual } from './arrayTool';
-describe('arrayTool', () => {
+describe('ArrayTool', () => {
     describe('arrayUnique', () => {
         it('should return an array with unique values', () => {
             expect(arrayUnique([1, 2, 3, 2, 4])).toEqual([1, 2, 3, 4]);

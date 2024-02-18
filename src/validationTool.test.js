@@ -6,7 +6,7 @@ import {
     validateSize,
     validateRegex,
     validateNumber,
-    validateColor,
+    validateColour,
 } from './validationTool';
 
 describe('Validation Tool', () => {
@@ -82,11 +82,11 @@ describe('Validation Tool', () => {
 
     describe('color', () => {
         it('should return true if value is a valid color', () => {
-            expect(validateColor('#FF0000')).toBe(true);
+            expect(validateColour('#FF0000')).toBe(true);
         });
 
         it('should return false if value is not a valid color', () => {
-            expect(validateColor('hello')).toBe(false);
+            expect(validateColour('hello')).toBe(false);
         });
     });
 });

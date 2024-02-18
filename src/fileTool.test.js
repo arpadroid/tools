@@ -7,9 +7,9 @@ import {
     formatBytes,
     eventContainsFiles,
     processFile
-} from './fileTool';
+} from './fileTool.js';
 
-describe('fileTool', () => {
+describe('FileTool', () => {
     describe('getExtension', () => {
         it('should return the extension of a file', () => {
             const file = new File([''], 'example.txt');

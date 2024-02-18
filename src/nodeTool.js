@@ -23,20 +23,6 @@ export function attr(node, attributes = {}) {
 }
 
 /**
- * Sets content to a node.
- * @param {HTMLElement} node
- * @param {*} content
- */
-export function setContent(node, content) {
-    if (typeof content === 'string') {
-        node.textContent = content;
-    } else if (content instanceof HTMLElement) {
-        node.innerHTML = '';
-        node.appendChild(content);
-    }
-}
-
-/**
  * Checks if a node is in the viewport.
  * @param {HTMLElement} node
  * @returns {boolean}
@@ -60,6 +46,20 @@ export function addContent(node, content) {
     if (typeof content === 'string') {
         node.textContent += content;
     } else if (content instanceof HTMLElement) {
+        node.appendChild(content);
+    }
+}
+
+/**
+ * Sets content to a node.
+ * @param {HTMLElement} node
+ * @param {*} content
+ */
+export function setContent(node, content) {
+    if (typeof content === 'string') {
+        node.textContent = content;
+    } else if (content instanceof HTMLElement) {
+        node.innerHTML = '';
         node.appendChild(content);
     }
 }
