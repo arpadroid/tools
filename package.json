@@ -2,8 +2,9 @@
     "name": "@arpadroid/tools",
     "version": "0.0.10",
     "description": "A Javascript utility library",
-    "main": "dist/index.js",
-    "module": "dist/index.js",
+    "main": "./dist/index.js",
+    "module": "./dist/index.js",
+    "type": "module",
     "sideEffects": false,
     "files": [
         "src",
