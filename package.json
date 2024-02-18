@@ -1,8 +1,8 @@
 {
     "name": "@arpadroid/tools",
-    "version": "0.0.7",
+    "version": "0.0.8",
     "description": "A Javascript utility library",
-    "main": "dist/index.js", 
+    "main": "dist/index.js",
     "module": "dist/index.js",
     "sideEffects": false,
     "files": [
