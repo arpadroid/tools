@@ -1,5 +1,5 @@
 {
-    "name": "@arpadroid/utils",
+    "name": "@arpadroid/tools",
     "version": "0.0.7",
     "description": "A Javascript utility library",
     "module": "index.js",
