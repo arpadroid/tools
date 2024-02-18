@@ -2,7 +2,8 @@
     "name": "@arpadroid/tools",
     "version": "0.0.7",
     "description": "A Javascript utility library",
-    "module": "index.js",
+    "main": "dist/index.js", 
+    "module": "dist/index.js",
     "sideEffects": false,
     "files": [
         "src",
@@ -12,6 +13,7 @@
         "README.md"
     ],
     "scripts": {
+        "prepublish": "npm run build",
         "build": "webpack --mode production",
         "test": "jest",
         "test:coverage": "jest --coverage"
