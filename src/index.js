@@ -11,7 +11,7 @@ export * from './fileTool.js';
 export * from './imageTool.js';
 export * from './nodeTool.js';
 export * from './objectTool.js';
-export { default } from './observerTool.js';
+export { default as ObserverTool } from './observerTool.js';
 export * from './pageTool.js';
 export * from './regexTool.js';
 export * from './stringTool.js';
