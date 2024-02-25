@@ -37,7 +37,7 @@ export function getURLParams(url) {
 /**
  * Transforms an array into a URL query string.
  * @param {string} propName - The name of the property.
- * @param {[]} array - The array to be converted into a query string.
+ * @param {string[]} array - The array to be converted into a query string.
  * @param {boolean} encode - Whether or not to encode the query string values.
  * @returns {string} - A URL query string.
  */

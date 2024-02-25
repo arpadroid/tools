@@ -2,11 +2,11 @@ import ObserverTool from './observerTool';
 
 class TestClass {
     testProperty = false;
-    /** @type {(property: string, value: unknown) => void} signal */
+    /** @type {Function} */
     signal;
-    /** @type {(property: string, callback: () => unknown) => () => void} listen */
+    /** @type {Function} */
     listen;
-    /** @type {(id: string, callback: () => unknown) => void} listen */
+    /** @type {Function} */
     initializeObservers;
 
     constructor() {

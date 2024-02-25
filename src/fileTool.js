@@ -112,7 +112,7 @@ export function eventContainsFiles(event) {
 /**
  * Given a file object, returns a new object with processed data.
  * @param {File} file
- * @returns {import("../modules/form/components/fields/fileField/components/fileItem/fileItemInterface").FileItemInterface}
+ * @returns {Record<string, unknown>}
  */
 export function processFile(file) {
     return {

@@ -3,7 +3,7 @@
  * It acts as a mixin, and should be used as such via the mixin method.
  */
 class ObserverTool {
-    /** @type {Record<string, boolean>} subscriptionsInitialized */
+    /** @property {Record<string, boolean>} subscriptionsInitialized - Key value pair of initialized subscription states. */
     observersInitialized;
     /**
      * Binds the subscribe, callSubscribers, initializeSubscriptions and unsubscribeProperty methods to the instance.
@@ -23,7 +23,7 @@ class ObserverTool {
      * Subscribes to a property.
      * @param {string} property
      * @param {never} callback
-     * @returns {() => void}
+     * @returns {Function}
      */
     static listen(property, callback) {
         if (!Array.isArray(this[`${property}_observers`])) {
@@ -35,9 +35,9 @@ class ObserverTool {
 
     /**
      * Unsubscribes from a property.
-     * @param {[]} observers
-     * @param {() => void} callback
-     * @returns {() => void}
+     * @param {Function[]} observers
+     * @param {Function} callback
+     * @returns {Function}
      */
     static unsubscribe(observers, callback) {
         return () => {
@@ -64,7 +64,7 @@ class ObserverTool {
     /**
      * Initializes subscriptions for a property, used as a means to prevent accidental duplication of subscriptions.
      * @param {string} id
-     * @param {() => unknown} callback
+     * @param {Function} callback
      * @returns {this}
      */
     initializeObservers(id, callback) {
