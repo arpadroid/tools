@@ -17,3 +17,4 @@ export * from './regexTool.js';
 export * from './stringTool.js';
 export * from './urlTool.js';
 export * from './validationTool.js';
+export * from './uiTool.js';
