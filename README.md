@@ -274,6 +274,9 @@ It acts as a mixin, and should be used as such via the mixin method.</p>
 <dt><a href="#getInitials">getInitials(str)</a> ⇒ <code>string</code></dt>
 <dd><p>Retrieves the initials from a string.</p>
 </dd>
+<dt><a href="#processTemplate">processTemplate(template, props)</a> ⇒ <code>string</code></dt>
+<dd><p>Processes a template string and replaces the placeholders with the provided props.</p>
+</dd>
 <dt><a href="#getURLParams">getURLParams(url)</a> ⇒ <code>object</code></dt>
 <dd><p>Extracts query string parameters from a string representing a URL and returns them in an object.</p>
 </dd>
@@ -1453,6 +1456,19 @@ Retrieves the initials from a string.
 | Param | Type | Description |
 | --- | --- | --- |
 | str | <code>string</code> | The input string. |
+
+<a name="processTemplate"></a>
+
+## processTemplate(template, props) ⇒ <code>string</code>
+Processes a template string and replaces the placeholders with the provided props.
+
+**Kind**: global function  
+**Returns**: <code>string</code> - The processed template.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| template | <code>string</code> | The template string. |
+| props | <code>Record.&lt;string, string&gt;</code> | The props to replace the placeholders with. |
 
 <a name="getURLParams"></a>
 
