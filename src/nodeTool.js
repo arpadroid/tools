@@ -9,7 +9,7 @@ export function attr(node, attributes = {}) {
     }
     for (const [key, value] of Object.entries(attributes)) {
         let val = value;
-        if ([false, undefined, null].includes(value)) {
+        if ([false, undefined, null, 'undefined'].includes(value)) {
             node.removeAttribute(key);
             continue;
         }

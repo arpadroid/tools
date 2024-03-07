@@ -106,8 +106,8 @@ export function removeURLOrigin(url) {
     try {
         const _url = new URL(url);
         return url.replace(_url.origin, '');
-    } catch(error) {
-        return url.replace(window.location.origin, '');;
+    } catch (error) {
+        return url.replace(window.location.origin, '');
     }
 }
 

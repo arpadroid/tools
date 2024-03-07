@@ -74,6 +74,23 @@ export function mechanize(str) {
     return rv.replace(/([^a-zA-Z0-9\_\-])/g, '').toLowerCase();
 }
 
+window.arpaSafeIDs = {};
+/**
+ * Generates a safe HTML ID.
+ * @param {string} _id - The input string.
+ * @returns {string} The safe HTML ID.
+ */
+export function getSafeHtmlId(_id) {
+    let id = mechanize(_id);
+    let index = 1;
+    while (window.arpaSafeIDs[id]) {
+        index++;
+        id = mechanize(_id) + '-' + index;
+    }
+    window.arpaSafeIDs[id] = true;
+    return id;
+}
+
 /**
  * Removes white spaces from a string.
  * @param {string} str - The input string.
