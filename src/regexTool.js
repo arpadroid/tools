@@ -3,7 +3,7 @@ const RegexTool = {
     alphaLowerEnforce: /[^a-z0-9]/,
     alphaLowerCommas: /^[a-z0-9,]+$/,
     alphaLowerCommasEnforce: /[^a-z0-9,]/,
-    email: /^([A-Za-z0-9_\-\+.])+@([A-Za-z0-9_\-.])+.([A-Za-z]{2,4})$/,
+    email: /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
     float: /^([-+]?[0-9]*.?[0-9]+)$/,
     hourFormat: /([01]?[0-9]|2[0-3]):([0-5][0-9])$/,
     length: /^.{[minLength],[maxLength]}$/,

@@ -1,4 +1,8 @@
 /**
+ * @typedef {(signalName: string, payload: unknown, event:Event) => void} ObserverSignalInterface - Interface for observer signal method.
+ * @typedef {(signalName: string, callback: (payload:unknown, event: unknown) => () => void) => unknown} ObserverListenInterface
+ */
+/**
  * A class that provides a means to subscribe to properties of an instance via observer pattern.
  * It acts as a mixin, and should be used as such via the mixin method.
  */
@@ -20,21 +24,21 @@ class ObserverTool {
     }
 
     /**
-     * Subscribes to a property.
-     * @param {string} property
+     * Subscribes to a signal.
+     * @param {string} signalName
      * @param {never} callback
      * @returns {Function}
      */
-    static listen(property, callback) {
-        if (!Array.isArray(this[`${property}_observers`])) {
-            this[`${property}_observers`] = [];
+    static listen(signalName, callback) {
+        if (!Array.isArray(this[`${signalName}_observers`])) {
+            this[`${signalName}_observers`] = [];
         }
-        this[`${property}_observers`].push(callback);
-        return ObserverTool.unsubscribe(this[`${property}_observers`], callback);
+        this[`${signalName}_observers`].push(callback);
+        return ObserverTool.unsubscribe(this[`${signalName}_observers`], callback);
     }
 
     /**
-     * Unsubscribes from a property.
+     * Unsubscribes from a signal.
      * @param {Function[]} observers
      * @param {Function} callback
      * @returns {Function}
@@ -49,13 +53,13 @@ class ObserverTool {
     }
 
     /**
-     * Calls all subscribers of a property.
-     * @param {string} property
+     * Calls all subscribers of a signal.
+     * @param {string} signalName
      * @param {unknown} value
      * @param {unknown} event
      */
-    static signal(property, value, event) {
-        const observers = this[`${property}_observers`];
+    static signal(signalName, value, event) {
+        const observers = this[`${signalName}_observers`];
         if (Array.isArray(observers)) {
             observers.forEach(observer => observer(value, event));
         }
