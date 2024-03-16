@@ -1,11 +1,27 @@
 /**
- * @typedef {(signalName: string, payload: unknown, event:Event) => void} ObserverSignalInterface - Interface for observer signal method.
- * @typedef {(signalName: string, callback: (payload:unknown, event: unknown) => () => void) => unknown} ObserverListenInterface
- */
-/**
  * A class that provides a means to subscribe to properties of an instance via observer pattern.
  * It acts as a mixin, and should be used as such via the mixin method.
  */
+
+/**
+ * @typedef {Function} ObserverTool_SignalType - Interface for observer signal method.
+ * @property {string} signalName - The name of the signal being emitted.
+ * @property {unknown} value - The value to signal.
+ * @property {unknown} event - The event to signal.
+ */
+
+/**
+ * @typedef {Function} ObserverTool_ListenType
+ * @property {string} signalName - The name of the signal to listen to.
+ * @property {(value: unknown, event: unknown) => void} callback - The callback to call when the signal is emitted.
+ */
+
+/**
+ * @typedef {Function} ObserverTool_InitializeObserversType
+ * @property {string} signalName - The name of the signal to listen to.
+ * @property {(value: unknown, event: unknown) => void} callback - The callback to call when the signal is emitted.
+ */
+
 class ObserverTool {
     /** @property {Record<string, boolean>} subscriptionsInitialized - Key value pair of initialized subscription states. */
     observersInitialized;
@@ -26,8 +42,8 @@ class ObserverTool {
     /**
      * Subscribes to a signal.
      * @param {string} signalName
-     * @param {never} callback
-     * @returns {Function}
+     * @param {() => void} callback
+     * @returns {() => void}
      */
     static listen(signalName, callback) {
         if (!Array.isArray(this[`${signalName}_observers`])) {
@@ -39,9 +55,9 @@ class ObserverTool {
 
     /**
      * Unsubscribes from a signal.
-     * @param {Function[]} observers
-     * @param {Function} callback
-     * @returns {Function}
+     * @param {() => void[]} observers
+     * @param {() => void} callback
+     * @returns {() => void}
      */
     static unsubscribe(observers, callback) {
         return () => {
@@ -68,7 +84,7 @@ class ObserverTool {
     /**
      * Initializes subscriptions for a property, used as a means to prevent accidental duplication of subscriptions.
      * @param {string} id
-     * @param {Function} callback
+     * @param {() => void} callback
      * @returns {this}
      */
     initializeObservers(id, callback) {

@@ -17,6 +17,7 @@ export * from './stringTool.js';
 export * from './urlTool.js';
 export * from './validationTool.js';
 export * from './uiTool.js';
+export * from './placeTool.js';
 export { default as ObserverTool } from './observerTool.js';
 export { default as Regex } from './regexTool.js';
 export { default as ComponentTool } from './componentTool.js';

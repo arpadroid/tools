@@ -53,7 +53,8 @@ export function validateColor(value) {
     const node = getColorNode();
     node.style.backgroundColor = value;
     const color = window.getComputedStyle(node).backgroundColor;
-    if (color === 'transparent') {
+    const blackColors = ['black', 'rgb(0, 0, 0)', '#000000'];
+    if (color === 'transparent' || (blackColors.includes(color) && !blackColors.includes(value))) {
         return false;
     }
     try {

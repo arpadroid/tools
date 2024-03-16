@@ -9,6 +9,7 @@
     "scripts": {
         "prepublish": "npm run build",
         "build": "rollup -c",
+        "build:watch": "rollup -c -w",
         "test": "jest",
         "test:coverage": "jest --coverage",
         "generate-docs": "jsdoc2md src/*.js > README.md"

@@ -175,13 +175,13 @@ export function formatDate(_date, format = 'DD-MM-YYYY HH:mm:ss', addOffset = fa
     return format
         .replace('YYYY', year)
         .replace('YY', year.toString().substr(-2))
+        .replace('MMMM', date.toLocaleString(locale, { month: 'long' }))
+        .replace('MMM', date.toLocaleString(locale, { month: 'short' }))
         .replace('MM', month)
-        .replace('[D]', parseFloat(day).toString())
         .replace('DD', day)
+        .replace('D', parseFloat(day).toString())
         .replace('HH', hours)
         .replace('mm', minutes)
-        .replace('[MON]', date.toLocaleString(locale, { month: 'short' }))
-        .replace('[MONTH]', date.toLocaleString(locale, { month: 'long' }))
         .replace('ss', seconds);
 }
 
