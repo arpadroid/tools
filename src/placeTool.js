@@ -14,12 +14,10 @@ import { mergeObjects } from './objectTool';
  * @ignore
  */
 const defaultOptions = {
-    align: 'left',
     position: 'bottom-right',
+    offset: 4,
     verticalOffset: 4,
     horizontalOffset: 4,
-    changeWidth: false,
-    adjustWidthToParent: false,
     container: document.body
 };
 
@@ -46,8 +44,8 @@ export function resetNodePlacement(node) {
         height: '',
         width: '',
         maxHeight: '',
-        position: '',
-        visibility: 'hidden'
+        position: 'fixed',
+        visibility: 'visible'
     });
 }
 
@@ -57,8 +55,7 @@ export function resetNodePlacement(node) {
  * @returns {number} - The available space above the node.
  */
 export function getAvailableTop(node) {
-    const rect = node.getBoundingClientRect();
-    return rect.top;
+    return node?.getBoundingClientRect()?.top;
 }
 
 /**
@@ -78,13 +75,12 @@ export function getAvailableBottom(node) {
  * @param {PlaceToolOptionsInterface} opt - The options for placing the node.
  */
 export function placeBottom(node, refNode, opt) {
+    const { offset, verticalOffset, horizontalOffset } = opt;
     const refRect = refNode.getBoundingClientRect();
     style(node, {
-        top: `${refRect.bottom + opt.verticalOffset}px`,
-        left: `${refRect.left + opt.horizontalOffset}px`,
-        right: 'auto',
-        position: 'fixed',
-        visibility: 'visible'
+        top: `${refRect.bottom + verticalOffset ?? offset}px`,
+        left: `${refRect.left + horizontalOffset ?? offset}px`,
+        right: 'auto'
     });
 }
 
@@ -96,12 +92,11 @@ export function placeBottom(node, refNode, opt) {
  */
 export function placeTop(node, refNode, opt) {
     const refRect = refNode.getBoundingClientRect();
+    const { offset, verticalOffset, horizontalOffset } = opt;
     style(node, {
-        top: `${refRect.top - node.offsetHeight - opt.verticalOffset}px`,
-        left: `${refRect.left + opt.horizontalOffset}px`,
-        right: 'auto',
-        position: 'fixed',
-        visibility: 'visible'
+        top: `${refRect.top - node.offsetHeight - (verticalOffset ?? offset)}px`,
+        left: `${refRect.left + (horizontalOffset ?? offset)}px`,
+        right: 'auto'
     });
 }
 
@@ -115,9 +110,7 @@ export function placeCenterHorizontal(node, refNode) {
     const left = refRect.left + refNode.offsetWidth / 2 - node.offsetWidth / 2;
     style(node, {
         left: `${left}px`,
-        right: 'auto',
-        position: 'fixed',
-        visibility: 'visible'
+        right: 'auto'
     });
 }
 
@@ -130,10 +123,8 @@ export function placeCenterHorizontal(node, refNode) {
 export function placeRight(node, refNode, opt) {
     const refRect = refNode.getBoundingClientRect();
     style(node, {
-        left: `${refRect.right + opt.horizontalOffset - node.offsetWidth}px`,
-        right: 'auto',
-        position: 'fixed',
-        visibility: 'visible'
+        left: `${refRect.right + (opt.horizontalOffset ?? opt.offset) - node.offsetWidth}px`,
+        right: 'auto'
     });
 }
 
