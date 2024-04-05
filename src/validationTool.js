@@ -9,9 +9,9 @@ import RegexTool from './regexTool.js';
 export function validateRequired(value) {
     return Boolean(
         (typeof value === 'string' && value.length) ||
-        (Array.isArray(value) && value.length) ||
-        (typeof value === 'object' && value !== null && Object.keys(value).length) ||
-        (typeof value === 'number' && !isNaN(value))
+            (Array.isArray(value) && value.length) ||
+            (typeof value === 'object' && value !== null && Object.keys(value).length) ||
+            (typeof value === 'number' && !isNaN(value))
     );
 }
 
@@ -81,15 +81,12 @@ export function validateSize(value, size) {
  */
 export function validateRegex(value, _regex) {
     let regex = _regex;
-    if (typeof regex === 'string') {
-        if (RegexTool[regex]) {
-            regex = RegexTool[regex];
-        } else {
-            // eslint-disable-next-line security/detect-non-literal-regexp
-            regex = new RegExp(regex);
-        }
+    if (typeof regex === 'string' && RegexTool[regex]) {
+        regex = RegexTool[regex];
     }
-    return regex instanceof RegExp && regex.test(value);
+    // eslint-disable-next-line security/detect-non-literal-regexp
+    regex = new RegExp(regex);
+    return regex && regex.test(value?.toString());
 }
 
 /**

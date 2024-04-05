@@ -46,7 +46,7 @@ export function addSearchMatchMarkers(
     className = 'searchMatch'
 ) {
     const nodes = contentSelector
-        ? Array.from(container?.querySelectorAll(contentSelector) ?? [])
+        ? Array.from((container instanceof HTMLElement && container?.querySelectorAll(contentSelector)) ?? [])
         : [container];
     nodes.forEach(node => {
         node.originalContent = node.originalContent ?? node.innerHTML;
@@ -106,7 +106,7 @@ class SearchTool {
             searchSelector: '',
             callback: null,
             addMarkers: true,
-            hideNonMatches: true,
+            hideNonMatches: true
         };
     }
 
@@ -143,7 +143,6 @@ class SearchTool {
         this.matches = matches;
         this.nonMatches = nonMatches;
         this.signal('onSearch', { query, event, nodes, matches, nonMatches });
-        
     }
 
     _onSearchInput(event) {

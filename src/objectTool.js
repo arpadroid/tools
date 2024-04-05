@@ -30,6 +30,25 @@ export function mergeObjects(obj = {}, obj2 = {}, strict = false) {
 }
 
 /**
+ * Copies an object and its properties.
+ * @param {Record<string, unknown>} object
+ * @returns {Record<string, unknown>}
+ */
+export function copyObjectProps(object) {
+    const props = {};
+    for (const [key, value] of Object.entries(object)) {
+        if (Array.isArray(value)) {
+            props[key] = [...value];
+        } else if (isObject(value)) {
+            props[key] = { ...value };
+        } else {
+            props[key] = value;
+        }
+    }
+    return props;
+}
+
+/**
  * Return the value of a nested object property.
  * @param {string} path
  * @param {Record<string, unknown>} object

@@ -8,6 +8,15 @@ export function dashedToCamel(str) {
 }
 
 /**
+ * Converts a camel case string to dashed.
+ * @param {string} str - The camel case string.
+ * @returns {string} The dashed string.
+ */
+export function camelToDashed(str) {
+    return str.replace(/([A-Z])/g, group => '-' + group.toLowerCase());
+}
+
+/**
  * Converts the first character of a string to uppercase.
  * @param {string} str - The input string.
  * @returns {string} The string with the first character in uppercase.

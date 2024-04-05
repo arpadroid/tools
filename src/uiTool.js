@@ -9,3 +9,22 @@ export function processTemplate(template, props = {}) {
         return props[p1] || '';
     });
 }
+
+/**
+ * Renders an HTML string with the provided variables.
+ * @param {boolean | Function} condition - The condition to render the HTML.
+ * @param {string} html - The HTML string to render.
+ * @param {Record<string, string>} vars - The variables to replace the placeholders with.
+ * @returns {string} The rendered HTML string.
+ */
+export function render(condition, html = '', vars = {}) {
+    let canRender = condition;
+    if (typeof condition === 'function') {
+        canRender = condition();
+    }
+    if (canRender) {
+        processTemplate(html, vars);
+        return html;
+    }
+    return '';
+}

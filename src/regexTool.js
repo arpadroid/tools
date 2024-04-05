@@ -16,7 +16,8 @@ const RegexTool = {
     telephoneEnforce: /([^+0-9]+)/g,
     password: /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/,
     time: /^[0-9]{1,2}$|^[0-9]{1,2}(:[0-5][0-9]){1,2}$/,
-    timeEnforce: /[^0-9:]$/
+    timeEnforce: /[^0-9:]$/,
+    url: /^(ht|f)tp(s?)\:\/\/[0-9a-zA-Z]([-.\w]*[0-9a-zA-Z])*(:(0-9)*)*(\/?)([a-zA-Z0-9\-\.\?\,\'\/\\\+&amp;%\$#_]*)?$/i
 };
 
 export default RegexTool;
