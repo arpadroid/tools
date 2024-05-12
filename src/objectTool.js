@@ -74,11 +74,20 @@ export function getPropertyValue(path, object, defaultValue) {
 
 /**
  * Counts the number of properties in an object.
- * @param {{}} obj
+ * @param {Record<string, unknown>} obj
  * @returns {number}
  */
 export function countProps(obj) {
     return Object.keys(obj).length;
+}
+
+/**
+ * Checks if an object is empty.
+ * @param {Record<string, unknown>} obj
+ * @returns {boolean}
+ */
+export function isEmptyObject(obj) {
+    return isObject(obj) && countProps(obj) === 0;
 }
 
 /**

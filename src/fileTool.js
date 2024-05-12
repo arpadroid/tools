@@ -82,15 +82,16 @@ export function formatBytes(bytes, precision = 1) {
         return '0 bytes';
     }
     if (isNaN(parseFloat(bytes)) || !isFinite(bytes)) {
-        return '-';
+        return '';
     }
     const units = ['bytes', 'KB', 'MB', 'GB', 'TB', 'PB'];
     const $number = Math.floor(Math.log(bytes) / Math.log(1024));
-    if (['KB', 'bytes'].includes(units[$number])) {
+    const unit = units[$number] ?? 'bytes';
+    if (['KB', 'bytes'].includes(unit)) {
         precision = 0;
     }
     const value = (bytes / Math.pow(1024, Math.floor($number))).toFixed(precision);
-    return (value.match(/\.0*$/) ? value.substr(0, value.indexOf('.')) : value) + ' ' + units[$number];
+    return (value.match(/\.0*$/) ? value.substr(0, value.indexOf('.')) : value) + ' ' + unit;
 }
 
 /**
@@ -120,6 +121,6 @@ export function processFile(file) {
         title: getFileName(file),
         size: formatBytes(file.size),
         name: file.name,
-        file
+        file: file instanceof File ? file : null
     };
 }

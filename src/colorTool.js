@@ -20,12 +20,13 @@ function getColorNode() {
  * @returns {string} - The hexadecimal color value.
  */
 export function rgbToHex(rgb) {
-    return `#${rgb
+    const hex = rgb
         .replace(/\s/g, '')
         .match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/)
         ?.slice(1)
         .map(part => parseInt(part, 10).toString(16).padStart(2, '0'))
-        .join('')}`;
+        .join('');
+    return hex ? `#${hex}` : '';
 }
 
 /**
@@ -37,8 +38,7 @@ export function stringToHex(color) {
     const node = getColorNode();
     node.style.backgroundColor = color;
     try {
-        const _color = window.getComputedStyle(node).backgroundColor;
-        return rgbToHex(_color);
+        return rgbToHex(window.getComputedStyle(node).backgroundColor);
     } catch (err) {
         return color;
     }

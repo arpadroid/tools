@@ -185,7 +185,6 @@ describe('DateTimeTool', () => {
         test('should return a formatted date string', () => {
             const date = new Date();
             const formattedDate = formatDate(date, 'YYYY-MM-DD', false);
-            console.log('formattedDate', formattedDate);
             const [year, month, day] = formattedDate.split('-');
             expect(Number(year)).toBe(date.getFullYear());
             expect(Number(month)).toBe(date.getMonth() + 1);

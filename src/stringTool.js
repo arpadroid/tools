@@ -78,8 +78,8 @@ export function parseOutlookEmails(str) {
  * @param {string} str - The input string.
  * @returns {string} The URL-friendly string.
  */
-export function mechanize(str) {
-    const rv = str.toString().replace(/\s{1,}/g, '-');
+export function mechanize(str = '') {
+    const rv = str?.toString().replace(/\s{1,}/g, '-');
     return rv.replace(/([^a-zA-Z0-9\_\-])/g, '').toLowerCase();
 }
 
@@ -107,6 +107,15 @@ export function getSafeHtmlId(_id) {
  */
 export function removeWhiteSpace(str) {
     return str.replace(/\s/g, '');
+}
+
+/**
+ * Removes slashes from the beginning and end of a string.
+ * @param {string} str - The input string.
+ * @returns {string} The string without slashes.
+ */
+export function removeSlashes(str) {
+    return str?.replace(/^\/+|\/+$/g, '');
 }
 
 /**

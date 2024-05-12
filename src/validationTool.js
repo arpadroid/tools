@@ -1,5 +1,6 @@
 import { validateColor } from './colorTool.js';
 import RegexTool from './regexTool.js';
+import { removeSlashes } from './stringTool.js';
 
 /**
  * Checks if a value is required.
@@ -85,8 +86,8 @@ export function validateRegex(value, _regex) {
         regex = RegexTool[regex];
     }
     // eslint-disable-next-line security/detect-non-literal-regexp
-    regex = new RegExp(regex);
-    return regex && regex.test(value?.toString());
+    regex = new RegExp(removeSlashes(regex.toString()));
+    return regex?.test(value?.toString());
 }
 
 /**

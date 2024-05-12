@@ -5,4 +5,4 @@ export type ListenerInterface = (
     callback: (value: unknown, event: unknown) => void
 ) => void;
 
-export type InitializeObserversInterface = (signalName, callback) => void;
+export type initializeListenerInterface = (signalName, callback) => void;

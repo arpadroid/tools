@@ -1,6 +1,6 @@
-import { processTemplate } from './uiTool.js';
+import { processTemplate } from './htmlTool.js';
 
-describe('UITool', () => {
+describe('HtmlTool', () => {
     test('processTemplate', () => {
         const html = String.raw;
         const template = html`

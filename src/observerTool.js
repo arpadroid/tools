@@ -32,7 +32,7 @@ class ObserverTool {
     static mixin(instance) {
         instance.listen = ObserverTool.listen.bind(instance);
         instance.signal = ObserverTool.signal.bind(instance);
-        instance.initializeObservers = ObserverTool.prototype.initializeObservers.bind(instance);
+        instance.initializeListener = ObserverTool.prototype.initializeListener.bind(instance);
         instance.unsubscribe = ObserverTool.unsubscribe.bind(instance);
         if (!instance.observersInitialized) {
             instance.observersInitialized = {};
@@ -50,18 +50,19 @@ class ObserverTool {
             this[`${signalName}_observers`] = [];
         }
         this[`${signalName}_observers`].push(callback);
-        return ObserverTool.unsubscribe(this[`${signalName}_observers`], callback);
+        return this.unsubscribe(signalName, callback);
     }
 
     /**
      * Unsubscribes from a signal.
-     * @param {() => void[]} observers
+     * @param {string} signalName
      * @param {() => void} callback
      * @returns {() => void}
      */
-    static unsubscribe(observers, callback) {
+    static unsubscribe(signalName, callback) {
         return () => {
-            const index = observers.indexOf(callback);
+            const observers = this[`${signalName}_observers`];
+            const index = observers?.indexOf(callback);
             if (index !== -1) {
                 observers.splice(index, 1);
             }
@@ -87,7 +88,7 @@ class ObserverTool {
      * @param {() => void} callback
      * @returns {this}
      */
-    initializeObservers(id, callback) {
+    initializeListener(id, callback) {
         if (!this.observersInitialized[id]) {
             this.observersInitialized[id] = true;
             callback();

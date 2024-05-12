@@ -98,8 +98,8 @@ export function prepend(node, child) {
  */
 export function renderNode(html = '') {
     const template = document.createElement('template');
-    template.innerHTML = html;
-    return template.content.firstChild;
+    template.innerHTML = html?.trim() ?? '';
+    return template.innerHTML ? template.content.firstChild : null;
 }
 
 /**

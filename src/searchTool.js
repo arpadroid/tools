@@ -145,15 +145,20 @@ class SearchTool {
         this.signal('onSearch', { query, event, nodes, matches, nonMatches });
     }
 
+    onSearchEvent = undefined;
     _onSearchInput(event) {
+        if (event) {
+            this.onSearchEvent = event;
+        }
         const { debounceDelay } = this.config;
         clearTimeout(this._searchTimeout);
         this._searchTimeout = setTimeout(() => {
             if (this.input.value !== this._prevValue) {
-                this._doSearch(event);
+                this._doSearch(this.onSearchEvent);
             }
             this._prevValue = this.input.value;
-        }, debounceDelay);
+            this.onSearchEvent = undefined;
+        }, Number(debounceDelay));
     }
 
     _onSearchNode(node, isMatch, event) {
