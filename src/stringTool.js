@@ -150,3 +150,16 @@ export function getInitials(str) {
         .join('')
         .toUpperCase();
 }
+
+/**
+ * Converts a string to seconds.
+ * @param {string} str - The input string.
+ * @returns {number} - Seconds.
+ */
+export function timeStringToSeconds(str) {
+    const parts = str.split(':');
+    const multipliers = [3600, 60, 1];
+    let seconds = 0;
+    parts.forEach((part, index) => (seconds += parseFloat(part) * multipliers[index]));
+    return seconds;
+}
