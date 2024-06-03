@@ -24,6 +24,17 @@ export function render(condition, html = '') {
 }
 
 /**
+ * Renders an HTML node from a string.
+ * @param {string} html
+ * @returns {HTMLElement}
+ */
+export function renderNode(html = '') {
+    const template = document.createElement('template');
+    template.innerHTML = html?.trim() ?? '';
+    return template.innerHTML ? template.content.firstChild : null;
+}
+
+/**
  * Removes HTML tags from a string.
  * @param {string} str - The input string.
  * @returns {string} The string without HTML tags.

@@ -92,17 +92,6 @@ export function prepend(node, child) {
 }
 
 /**
- * Renders an HTML node from a string.
- * @param {string} html
- * @returns {HTMLElement}
- */
-export function renderNode(html = '') {
-    const template = document.createElement('template');
-    template.innerHTML = html?.trim() ?? '';
-    return template.innerHTML ? template.content.firstChild : null;
-}
-
-/**
  * Resolves a node.
  * @param {HTMLElement|string} node
  * @returns {HTMLElement|null}

@@ -20,6 +20,7 @@ export * from './placeTool.js';
 export * from './searchTool.js';
 export * from './storybookTool.js';
 export * from './htmlTool.js';
+export * as CustomElementTool from './customElementTool.js';
 export { default as ObserverTool } from './observerTool.js';
 export { default as Regex } from './regexTool.js';
 export { default as ComponentTool } from './componentTool.js';
