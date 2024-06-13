@@ -102,7 +102,7 @@ export function sanitizePath(path) {
  * @param {string} url - A URL string.
  * @returns {string | undefined} - The URL without the origin.
  */
-export function removeURLOrigin(url) {
+export function removeURLOrigin(url = window?.location?.href) {
     try {
         const _url = new URL(url);
         return url.replace(_url.origin, '');
