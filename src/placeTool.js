@@ -78,8 +78,8 @@ export function placeBottom(node, refNode, opt) {
     const { offset, verticalOffset, horizontalOffset } = opt;
     const refRect = refNode.getBoundingClientRect();
     style(node, {
-        top: `${refRect.bottom + verticalOffset ?? offset}px`,
-        left: `${refRect.left + horizontalOffset ?? offset}px`,
+        top: `${refRect.bottom + (verticalOffset ?? offset)}px`,
+        left: `${refRect.left + (horizontalOffset ?? offset)}px`,
         right: 'auto'
     });
 }
