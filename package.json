@@ -9,10 +9,6 @@
     "sideEffects": false,
     "scripts": {
         "build": "node ./node_modules/@arpadroid/arpadroid/scripts/build-project.mjs --project=tools --minify",
-        "build:prod": "npm run build -- --mode=production",
-        "build:watch": "npm run build -- --watch",
-        "build:watch:slim": "npm run build -- --watch --slim",
-        "build:slim": "npm run build -- --slim",
         "prepublish": "npm run build",
         "test": "jest",
         "test:coverage": "jest --coverage",
@@ -47,7 +43,6 @@
         "jest-environment-jsdom": "^29.7.0",
         "jest-junit": "^16.0.0",
         "jsdoc-to-markdown": "^8.0.1",
-        "jsdom": "^24.0.0",
-        "rollup": "^4.12.0"
+        "jsdom": "^24.0.0"
     }
 }
