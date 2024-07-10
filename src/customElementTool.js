@@ -31,3 +31,46 @@ export function getProperty(element, name, config = element._config ?? {}) {
     const configName = dashedToCamel(name);
     return element.getAttribute(name) ?? config[configName];
 }
+
+/**
+ * Observes the content of a node and calls a callback when its loaded.
+ * @param {Node} targetNode - The node to observe.
+ * @param {Function} callback - The callback to call when the content is loaded.
+ * @returns {Promise<boolean>} A promise that resolves when the content is loaded.
+ */
+export function onContentLoaded(targetNode, callback) {
+    return new Promise(resolve => {
+        if (!targetNode) {
+            return resolve(true);
+        }
+        const config = { childList: true, subtree: true };
+        const observer = new MutationObserver((mutationsList, observer) => {
+            for (const mutation of mutationsList) {
+                if (mutation.type === 'childList') {
+                    typeof callback === 'function' && callback();
+                    resolve(true);
+                    observer.disconnect();
+                }
+            }
+        });
+        observer.observe(targetNode, config);
+    });
+}
+
+/**
+ * Removes a node if it is empty.
+ * @param {Node} node - The node to remove if empty.
+ */
+export function removeIfEmpty(node) {
+    const originalContent = node?._childNodes;
+    if (node?.textContent?.trim() === '' || originalContent?.length === 0) {
+        node.remove();
+    }
+}
+
+export default {
+    hasProperty,
+    getProperty,
+    onContentLoaded,
+    removeIfEmpty
+};

@@ -1,3 +1,6 @@
+import { CustomElementTool } from './index.js';
+const LOST_SLOTS = {};
+
 /**
  * Selects all slots from a node.
  * @param {HTMLElement} node - The node to search.
@@ -43,23 +46,28 @@ export function assignSlotToComponent(component, slot) {
             if (slotContainer) {
                 parent.addContentToSlot(component, slot, '', slotContainer);
                 return;
-            } else {
-                console.warn('Slot container not found', slotName, parent);
             }
         }
         parent = parent.parentElement;
     }
+    LOST_SLOTS[slotName] = slot;
 }
 
 /**
  * Handles slots for a node.
  * @param {HTMLElement} node - The node to search.
- * @param {HTMLElement[]} slots - The list of slots.
  * @param {Record<string, unknown>} [config] - The configuration object.
  */
-export function handleSlots(node, slots = Object.values(node?.slotsByName ?? {}), config = {}) {
-    const { removeEmpty = true } = config;
-    slots.forEach(slot => assignSlotToComponent(node, slot));
+export async function handleSlots(node, config = {}) {
+    const {
+        removeEmpty = true,
+        slots = Object.values(node?.slotsByName ?? {}),
+        waitForContentLoaded = false
+    } = config;
+    if (waitForContentLoaded) {
+        await CustomElementTool.onContentLoaded(node);
+    }
+    [...slots, ...Object.values(LOST_SLOTS)].forEach(slot => assignSlotToComponent(node, slot));
     removeEmpty && removeEmptySlotNodes(node);
 }
 
@@ -89,6 +97,9 @@ export function addContentToSlot(node, content, slotName, _slotContainer) {
         const slotNode = content;
         slotName = slotNode.getAttribute('name');
         slotContainer.append(...slotNode.childNodes);
+        if (LOST_SLOTS[slotName]) {
+            delete LOST_SLOTS[slotName];
+        }
     }
 }
 
