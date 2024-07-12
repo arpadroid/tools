@@ -63,7 +63,10 @@ export function onContentLoaded(targetNode, callback) {
  */
 export function removeIfEmpty(node) {
     const originalContent = node?._childNodes;
-    if (node?.textContent?.trim() === '' || originalContent?.length === 0) {
+    if (originalContent?.length) {
+        return;
+    }
+    if (node?.textContent?.trim() === '') {
         node.remove();
     }
 }

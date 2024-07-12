@@ -1,6 +1,7 @@
-import { CustomElementTool } from './index.js';
-const LOST_SLOTS = {};
-
+const SLOTS_BY_NAME = {};
+let SLOTS = [];
+let TIMEOUT = null;
+const CALLBACKS = [];
 /**
  * Selects all slots from a node.
  * @param {HTMLElement} node - The node to search.
@@ -11,6 +12,21 @@ export function selectSlots(node) {
 }
 
 /**
+ * Finds the component that owns a slot.
+ * @param {HTMLElement} slot - The slot to search.
+ * @returns {HTMLElement | undefined} The component that owns the slot.
+ */
+export function findSlotComponent(slot) {
+    let node = slot.parentNode;
+    while (node) {
+        if (typeof node.placeSlot === 'function') {
+            return node;
+        }
+        node = node.parentElement;
+    }
+}
+
+/**
  * Extracts the slots from a node and stores them in an reference object.
  * @param {HTMLElement} node - The node to search.
  * @param {Record<string, HTMLElement>} [store] - The key/value store object to add the slots to.
@@ -18,8 +34,12 @@ export function selectSlots(node) {
 export function extractSlots(node, store = {}) {
     const slots = selectSlots(node);
     slots.forEach(slot => {
-        store[slot.getAttribute('name')] = slot;
+        const name = slot.getAttribute('name');
+        store[name] = slot;
         slot._parentNode = slot.parentNode;
+        slot.arpaElement = findSlotComponent(slot);
+        SLOTS.push(slot);
+        SLOTS_BY_NAME[name] = slot;
         slot.remove();
     });
 }
@@ -33,42 +53,73 @@ export function removeEmptySlotNodes(container) {
 }
 
 /**
- * Assigns a slot to a component.
- * @param {HTMLElement} component - The component to assign the slot to.
- * @param {HTMLElement} slot - The slot to assign.
+ * Reconciles a lost slot that was not found during first run.
+ * @param {HTMLElement} slot
  */
-export function assignSlotToComponent(component, slot) {
-    let parent = slot._parentNode;
+export function placeLostSlot(slot) {
     const slotName = slot.getAttribute('name');
-    while (parent) {
-        if (typeof parent.addContentToSlot === 'function') {
-            const slotContainer = parent.querySelector(`[slot="${slotName}"]`);
-            if (slotContainer) {
-                parent.addContentToSlot(component, slot, '', slotContainer);
-                return;
-            }
-        }
-        parent = parent.parentElement;
+    const component = findSlotComponent(slot._parentNode);
+    const slotContainer = component?.querySelector(`[slot="${slotName}"]`);
+    if (slotContainer) {
+        slotContainer.append(...slot.childNodes);
+    } else {
+        console.warn('LOST SLOT', slot);
     }
-    LOST_SLOTS[slotName] = slot;
+}
+
+/**
+ * Places a slot in its corresponding container.
+ * @param {HTMLElement} slot
+ */
+function _placeSlot(slot) {
+    const slotName = slot.getAttribute('name');
+    const component = slot?.arpaElement;
+    const slotContainer = component.querySelector(`[slot="${slotName}"]`);
+    if (!slotContainer) {
+        placeLostSlot(slot);
+        return;
+    }
+    slotContainer.append(...slot.childNodes);
+    if (SLOTS_BY_NAME[slotName]) {
+        delete SLOTS_BY_NAME[slotName];
+        SLOTS = Object.values(SLOTS_BY_NAME);
+    }
+}
+
+/**
+ * Adds content to a slot.
+ * @param {HTMLElement} slot
+ */
+export async function placeSlot(slot) {
+    const component = slot?.arpaElement;
+    if (typeof component.onRendered === 'function') {
+        component.onRendered(() => _placeSlot(slot));
+        return;
+    }
+    _placeSlot(slot);
+}
+
+/**
+ * Places the slots contents in their corresponding containers.
+ * @param {Record<string, unknown>[]} slots
+ */
+export async function placeSlots(slots = SLOTS ?? []) {
+    // const slots = [..._slots];
+    // slots.reverse();
+    slots.forEach(slot => placeSlot(slot));
+    while (CALLBACKS.length) {
+        CALLBACKS.pop()();
+    }
 }
 
 /**
  * Handles slots for a node.
- * @param {HTMLElement} node - The node to search.
- * @param {Record<string, unknown>} [config] - The configuration object.
+ * @param {() => void} onSlotsHandled - The callback to call when the slots are handled.
  */
-export async function handleSlots(node, config = {}) {
-    const {
-        removeEmpty = true,
-        slots = Object.values(node?.slotsByName ?? {}),
-        waitForContentLoaded = false
-    } = config;
-    if (waitForContentLoaded) {
-        await CustomElementTool.onContentLoaded(node);
-    }
-    [...slots, ...Object.values(LOST_SLOTS)].forEach(slot => assignSlotToComponent(node, slot));
-    removeEmpty && removeEmptySlotNodes(node);
+export function handleSlots(onSlotsHandled) {
+    clearTimeout(TIMEOUT);
+    TIMEOUT = setTimeout(() => placeSlots(), 80);
+    typeof onSlotsHandled === 'function' && CALLBACKS.push(onSlotsHandled);
 }
 
 /**
@@ -82,33 +133,11 @@ export function hasSlot(node, name) {
 }
 
 /**
- * Adds content to a slot.
- * @param {HTMLElement} node - The node to search.
- * @param {HTMLElement} content - The content to add.
- * @param {string} slotName
- * @param {HTMLElement} [_slotContainer] - The slot container.
- */
-export function addContentToSlot(node, content, slotName, _slotContainer) {
-    const slotContainer = _slotContainer ?? node.querySelector(`[slot="${slotName}"]`);
-    if (!slotContainer) {
-        return;
-    }
-    if (content?.tagName?.toLowerCase() === 'slot') {
-        const slotNode = content;
-        slotName = slotNode.getAttribute('name');
-        slotContainer.append(...slotNode.childNodes);
-        if (LOST_SLOTS[slotName]) {
-            delete LOST_SLOTS[slotName];
-        }
-    }
-}
-
-/**
  * Mixin for slot functionality.
- * @param {HTMLElement} node - The node to search.
+ * @param {HTMLElement} component
  */
-export function slotMixin(node) {
-    node.addContentToSlot = addContentToSlot;
-    node.slotsByName = {};
-    extractSlots(node, node.slotsByName);
+export function slotMixin(component) {
+    component.placeSlot = placeSlot;
+    component.slotsByName = {};
+    extractSlots(component, component.slotsByName);
 }

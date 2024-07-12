@@ -75,3 +75,27 @@ export function attrString(attributes = {}) {
     }
     return attr.trim();
 }
+
+/**
+ * Renders a class attribute.
+ * @param {string | Record<string, boolean | string[]>} classes
+ * @returns {string}
+ */
+export function classNames(...classes) {
+    return classes
+        .map(_class => {
+            if (typeof _class === 'string') {
+                return _class;
+            }
+            if (typeof _class === 'object') {
+                return Object.entries(_class)
+                    .map(([key, value]) => value && key)
+                    .join(' ');
+            }
+            if (Array.isArray(_class)) {
+                return classNames(..._class);
+            }
+        })
+        .filter(Boolean)
+        .join(' ');
+}
