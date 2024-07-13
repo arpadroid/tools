@@ -1,7 +1,10 @@
+const VERBOSE = true;
 const SLOTS_BY_NAME = {};
+const LOST_SLOTS = {};
+const CALLBACKS = [];
 let SLOTS = [];
 let TIMEOUT = null;
-const CALLBACKS = [];
+
 /**
  * Selects all slots from a node.
  * @param {HTMLElement} node - The node to search.
@@ -16,8 +19,8 @@ export function selectSlots(node) {
  * @param {HTMLElement} slot - The slot to search.
  * @returns {HTMLElement | undefined} The component that owns the slot.
  */
-export function findSlotComponent(slot) {
-    let node = slot.parentNode;
+export function findNodeComponent(slot) {
+    let node = slot;
     while (node) {
         if (typeof node.placeSlot === 'function') {
             return node;
@@ -33,15 +36,16 @@ export function findSlotComponent(slot) {
  */
 export function extractSlots(node, store = {}) {
     const slots = selectSlots(node);
-    slots.forEach(slot => {
-        const name = slot.getAttribute('name');
-        store[name] = slot;
-        slot._parentNode = slot.parentNode;
-        slot.arpaElement = findSlotComponent(slot);
-        SLOTS.push(slot);
-        SLOTS_BY_NAME[name] = slot;
-        slot.remove();
-    });
+    slots
+        .filter(slot => slot.childNodes.length)
+        .forEach(slot => {
+            const name = slot.getAttribute('name');
+            store[name] = slot;
+            slot._parentNode = slot.parentNode;
+            SLOTS.push(slot);
+            SLOTS_BY_NAME[name] = slot;
+            slot.remove();
+        });
 }
 
 /**
@@ -53,50 +57,23 @@ export function removeEmptySlotNodes(container) {
 }
 
 /**
- * Reconciles a lost slot that was not found during first run.
- * @param {HTMLElement} slot
- */
-export function placeLostSlot(slot) {
-    const slotName = slot.getAttribute('name');
-    const component = findSlotComponent(slot._parentNode);
-    const slotContainer = component?.querySelector(`[slot="${slotName}"]`);
-    if (slotContainer) {
-        slotContainer.append(...slot.childNodes);
-    } else {
-        console.warn('LOST SLOT', slot);
-    }
-}
-
-/**
- * Places a slot in its corresponding container.
- * @param {HTMLElement} slot
- */
-function _placeSlot(slot) {
-    const slotName = slot.getAttribute('name');
-    const component = slot?.arpaElement;
-    const slotContainer = component.querySelector(`[slot="${slotName}"]`);
-    if (!slotContainer) {
-        placeLostSlot(slot);
-        return;
-    }
-    slotContainer.append(...slot.childNodes);
-    if (SLOTS_BY_NAME[slotName]) {
-        delete SLOTS_BY_NAME[slotName];
-        SLOTS = Object.values(SLOTS_BY_NAME);
-    }
-}
-
-/**
- * Adds content to a slot.
+ * Places the slotted content into its corresponding container.
  * @param {HTMLElement} slot
  */
 export async function placeSlot(slot) {
-    const component = slot?.arpaElement;
-    if (typeof component.onRendered === 'function') {
-        component.onRendered(() => _placeSlot(slot));
+    const slotName = slot.getAttribute('name');
+    const component = findNodeComponent(slot?._parentNode);
+    component?.promise && (await component.promise);
+    const slotContainer = component?.querySelector(`[slot="${slotName}"]`);
+    const slotComponent = findNodeComponent(slotContainer);
+    if (!slotContainer || !slotComponent) {
+        LOST_SLOTS[slotName] = slot;
         return;
     }
-    _placeSlot(slot);
+    slotContainer.append(...slot.childNodes);
+    SLOTS_BY_NAME[slotName] && delete SLOTS_BY_NAME[slotName];
+    SLOTS = Object.values(SLOTS_BY_NAME);
+    LOST_SLOTS[slotName] && delete LOST_SLOTS[slotName];
 }
 
 /**
@@ -104,11 +81,13 @@ export async function placeSlot(slot) {
  * @param {Record<string, unknown>[]} slots
  */
 export async function placeSlots(slots = SLOTS ?? []) {
-    // const slots = [..._slots];
-    // slots.reverse();
     slots.forEach(slot => placeSlot(slot));
     while (CALLBACKS.length) {
         CALLBACKS.pop()();
+    }
+    const lostSlots = Object.keys(LOST_SLOTS);
+    if (VERBOSE && lostSlots.length) {
+        console.warn('The following slots could not be placed.', lostSlots);
     }
 }
 
