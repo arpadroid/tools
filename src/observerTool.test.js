@@ -26,10 +26,10 @@ describe('Observer tool', () => {
         const unsubscribe = instance.listen('TEST_PROPERTY', callback);
 
         instance.changeTestProperty(true);
-        expect(callback).toHaveBeenCalledWith(true, undefined);
+        expect(callback).toHaveBeenCalledWith(true, undefined, undefined);
 
         instance.changeTestProperty(false);
-        expect(callback).toHaveBeenCalledWith(false, undefined);
+        expect(callback).toHaveBeenCalledWith(false, undefined, undefined);
 
         unsubscribe();
         expect(callback).toHaveBeenCalledTimes(2);
