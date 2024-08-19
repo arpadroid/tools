@@ -70,7 +70,16 @@ export async function placeSlot(slot) {
         LOST_SLOTS[slotName] = slot;
         return;
     }
+    
     slotContainer.append(...slot.childNodes);
+    if (typeof slotComponent._onSlotPlaced === 'function') {
+        slotComponent._onSlotPlaced({
+            nodes: slotContainer.childNodes,
+            slotName,
+            slotComponent,
+            slotContainer
+        });
+    }
     SLOTS_BY_NAME[slotName] && delete SLOTS_BY_NAME[slotName];
     SLOTS = Object.values(SLOTS_BY_NAME);
     LOST_SLOTS[slotName] && delete LOST_SLOTS[slotName];

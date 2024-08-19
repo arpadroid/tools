@@ -23,6 +23,23 @@ export function attr(node, attributes = {}) {
 }
 
 /**
+ * Returns the attributes of a node.
+ * @param {HTMLElement} node
+ * @returns {Record<string, string | boolean>}
+ */
+export function getAttributes(node) {
+    return Array.from(node.attributes).reduce((acc, { name, value }) => {
+        if (value === '') {
+            value = true;
+        } else if (value === 'false') {
+            value = false;
+        }
+        acc[name] = value;
+        return acc;
+    }, {});
+}
+
+/**
  * Checks if a node is in the viewport.
  * @param {HTMLElement} node
  * @returns {boolean}

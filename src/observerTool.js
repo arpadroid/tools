@@ -7,7 +7,7 @@
  * @typedef {Function} ObserverTool_SignalType - Interface for observer signal method.
  * @property {string} signalName - The name of the signal being emitted.
  * @property {unknown} value - The value to signal.
- * @property {unknown} event - The event to signal.
+ * @property {unknown} param1 - The event to signal.
  */
 
 /**
@@ -73,12 +73,13 @@ class ObserverTool {
      * Calls all subscribers of a signal.
      * @param {string} signalName
      * @param {unknown} value
-     * @param {unknown} event
+     * @param {unknown} param1
+     * @param {unknown} param2
      */
-    static signal(signalName, value, event) {
+    static signal(signalName, value, param1, param2) {
         const observers = this[`${signalName}_observers`];
         if (Array.isArray(observers)) {
-            observers.forEach(observer => observer(value, event));
+            observers.forEach(observer => observer(value, param1, param2));
         }
     }
 
