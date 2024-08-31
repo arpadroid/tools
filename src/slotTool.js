@@ -1,9 +1,9 @@
 const VERBOSE = true;
-const SLOTS_BY_NAME = {};
-const LOST_SLOTS = {};
+const LOST_SLOTS = [];
 const CALLBACKS = [];
-let SLOTS = [];
+const SLOTS = [];
 let TIMEOUT = null;
+let REPORT_TIMEOUT = null;
 
 /**
  * Selects all slots from a node.
@@ -30,20 +30,65 @@ export function findNodeComponent(slot) {
 }
 
 /**
+ * Gets the parent element of a slot.
+ * @param {HTMLSlotElement} slot - The slot to search.
+ * @returns {HTMLElement | undefined} The parent of the slot.
+ */
+export function getSlotParent(slot) {
+    let parent = slot?.parentNode;
+    while (parent && !(parent instanceof HTMLElement)) {
+        parent = parent?.parentNode;
+    }
+    if (!(parent instanceof HTMLElement)) {
+        console.warn('Slot has no parent:', slot);
+        return;
+    }
+    return parent;
+}
+
+/**
+ * Adds a slot.
+ * @param {HTMLSlotElement} slot - The slot to add.
+ * @param {HTMLSlotElement[]} [slots] - The list of slots to add to.
+ * @param {HTMLSlotElement[]} [store] - An optional store array.
+ * @param {HTMLElement} [parentNode] - The container of the slot.
+ */
+export function addSlot(slot, slots = SLOTS, store = [], parentNode = slot.parentNode) {
+    if (slot?.tagName !== 'SLOT') {
+        console.error('Invalid slot:', slot);
+        return;
+    }
+    if (slots.indexOf(slot) > -1) {
+        return;
+    }
+    store.push(slot);
+    slots.push(slot);
+    slot._parentNode = parentNode;
+}
+
+/**
+ * Removes a slot.
+ * @param {HTMLSlotElement} slot - The slot to remove.
+ * @param {HTMLSlotElement[]} [slots] - The list of slots to remove from.
+ * @returns {void}
+ */
+export function removeSlot(slot, slots = SLOTS) {
+    const index = slots.indexOf(slot);
+    index > -1 && slots.splice(index, 1);
+}
+
+/**
  * Extracts the slots from a node and stores them in an reference object.
  * @param {HTMLElement} node - The node to search.
- * @param {Record<string, HTMLElement>} [store] - The key/value store object to add the slots to.
+ * @param {HTMLElement[]} [store] - The key/value store object to add the slots to.
+ * @param {HTMLElement} [parentNode] - The parent node of the slots.
  */
-export function extractSlots(node, store = {}) {
+export function extractSlots(node, store = [], parentNode) {
     const slots = selectSlots(node);
     slots
         .filter(slot => slot.childNodes.length)
         .forEach(slot => {
-            const name = slot.getAttribute('name');
-            store[name] = slot;
-            slot._parentNode = slot.parentNode;
-            SLOTS.push(slot);
-            SLOTS_BY_NAME[name] = slot;
+            addSlot(slot, SLOTS, store, parentNode);
             slot.remove();
         });
 }
@@ -67,22 +112,17 @@ export async function placeSlot(slot) {
     const slotContainer = component?.querySelector(`[slot="${slotName}"]`);
     const slotComponent = findNodeComponent(slotContainer);
     if (!slotContainer || !slotComponent) {
-        LOST_SLOTS[slotName] = slot;
+        LOST_SLOTS.indexOf(slot) === -1 && LOST_SLOTS.push(slot);
         return;
     }
-    
-    slotContainer.append(...slot.childNodes);
+    const nodes = slotContainer.childNodes;
     if (typeof slotComponent._onSlotPlaced === 'function') {
-        slotComponent._onSlotPlaced({
-            nodes: slotContainer.childNodes,
-            slotName,
-            slotComponent,
-            slotContainer
-        });
+        slotComponent._onSlotPlaced({ nodes, slotName, slotComponent, slotContainer });
     }
-    SLOTS_BY_NAME[slotName] && delete SLOTS_BY_NAME[slotName];
-    SLOTS = Object.values(SLOTS_BY_NAME);
-    LOST_SLOTS[slotName] && delete LOST_SLOTS[slotName];
+    removeSlot(slot);
+    removeSlot(slot, LOST_SLOTS);
+    slotComponent?.promise && (await slotComponent.promise);
+    slotContainer.append(...slot.childNodes);
 }
 
 /**
@@ -94,10 +134,14 @@ export async function placeSlots(slots = SLOTS ?? []) {
     while (CALLBACKS.length) {
         CALLBACKS.pop()();
     }
-    const lostSlots = Object.keys(LOST_SLOTS);
-    if (VERBOSE && lostSlots.length) {
-        console.warn('The following slots could not be placed.', lostSlots);
-    }
+    clearTimeout(REPORT_TIMEOUT);
+    REPORT_TIMEOUT = setTimeout(() => {
+        if (VERBOSE && LOST_SLOTS.length) {
+            LOST_SLOTS.forEach(slot => {
+                console.warn('The following slot could not be placed:', slot);
+            });
+        }
+    }, 200);
 }
 
 /**
@@ -126,6 +170,6 @@ export function hasSlot(node, name) {
  */
 export function slotMixin(component) {
     component.placeSlot = placeSlot;
-    component.slotsByName = {};
-    extractSlots(component, component.slotsByName);
+    component._slots = [];
+    extractSlots(component, component._slots);
 }
