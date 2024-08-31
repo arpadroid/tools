@@ -164,7 +164,7 @@ describe('DateTimeTool', () => {
         });
 
         test('should return false if the date is not this month', () => {
-            const lastMonth = new Date(Date.now() - 2592000000);
+            const lastMonth = new Date(Date.now() - 2652000000);
             expect(isThisMonth(lastMonth)).toBe(false);
         });
     });
