@@ -7,7 +7,7 @@
  */
 import { style } from './nodeTool';
 import { mergeObjects } from './objectTool';
-import { onResize } from './pageTool';
+import { onResize, onScrollStart } from './pageTool';
 
 /**
  * The default options for placing a node.
@@ -218,7 +218,9 @@ export function doAbsoluteFix(node, container) {
  * @param {HTMLElement} node - The node to be placed.
  * @param {HTMLElement} container - The container node.
  */
-export function absoluteFix(node, container) {
+export async function absoluteFix(node, container) {
+    node?.promise && (await node.promise);
+    container?.promise && (await container.promise);
     doAbsoluteFix(node, container);
     let timeout;
     const doFix = () => {
@@ -231,7 +233,5 @@ export function absoluteFix(node, container) {
         }
     };
     onResize(() => doFix());
-    window.addEventListener('scroll', () => doFix());
-    // const observer = new MutationObserver(() => doFix());
-    // observer.observe(container, { subtree: true, childList: true, attributes: false });
+    onScrollStart(() => doFix());
 }

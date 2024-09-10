@@ -1,5 +1,6 @@
 const onResizeCallbacks = [];
 const onScrollCallbacks = [];
+const onScrollStartCallbacks = [];
 let initializedResize = false;
 let initializedScroll = false;
 
@@ -30,11 +31,8 @@ export function removeScrollCallback(callback) {
 function _onResize(event) {
     const toBeRemoved = [];
     onResizeCallbacks.forEach(callback => callback(event) === false && toBeRemoved.push(callback));
-    toBeRemoved.forEach(callback =>
-        onResizeCallbacks.splice(onResizeCallbacks.indexOf(callback), 1)
-    );
+    toBeRemoved.forEach(callback => onResizeCallbacks.splice(onResizeCallbacks.indexOf(callback), 1));
 }
-
 
 /**
  * Adds a callback function to the resize event listener.
@@ -55,6 +53,19 @@ export function onResize(callback) {
  */
 function initializeOnScroll(callback) {
     window.addEventListener('scroll', callback);
+    let isScrolling = false;
+    let scrollStartTimeout;
+    const onScrollStart = event => {
+        if (!isScrolling) {
+            onScrollStartCallbacks.forEach(callback => callback(event));
+            isScrolling = true;
+        }
+        clearTimeout(scrollStartTimeout);
+        scrollStartTimeout = setTimeout(function () {
+            isScrolling = false;
+        }, 300);
+    };
+    window.addEventListener('scroll', onScrollStart);
     initializedScroll = true;
 }
 
@@ -82,6 +93,17 @@ export function onScroll(callback) {
 }
 
 /**
+ * onScrollStart
+ * @param {Function} callback - The callback function to be added.
+ */
+export function onScrollStart(callback) {
+    !initializedScroll && initializeOnScroll(_onScroll);
+    if (onScrollStartCallbacks.indexOf(callback) === -1) {
+        onScrollStartCallbacks.push(callback);
+    }
+}
+
+/**
  * Removes the specified callback function from the resize event listener.
  * @param {Function} callback - The callback function to be removed.
  */
@@ -91,4 +113,3 @@ export function removeResizeCallback(callback) {
         onResizeCallbacks.splice(index, 1);
     }
 }
-
