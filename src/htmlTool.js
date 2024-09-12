@@ -13,6 +13,16 @@ export function processTemplate(template, props = {}) {
 }
 
 /**
+ * Maps an array of items to an HTML string.
+ * @param {Array<unknown>} items - The items to map.
+ * @param {Function} callback - The callback function to process the items.
+ * @returns {string} The HTML string.
+ */
+export function mapHTML(items, callback) {
+    return items.map(callback).join('');
+};
+
+/**
  * Renders an HTML string with the provided variables.
  * @param {boolean | Function} condition - The condition to render the HTML.
  * @param {string} html - The HTML string to render.

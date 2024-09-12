@@ -33,6 +33,21 @@ export function getProperty(element, name, config = element._config ?? {}) {
 }
 
 /**
+ * Gets the value of a property from the element's configuration or attributes as an array.
+ * @param {HTMLElement} element - The element to get the property from.
+ * @param {string} name - The property name.
+ * @param {Record<string, unknown>} [config] - The configuration object.
+ * @returns {string[]} The value of the property as an array.
+ */
+export function getArrayProperty(element, name, config = element._config) {
+    const value = getProperty(element, name, config);
+    if (typeof value === 'string') {
+        return value.split(',').map(item => item.trim());
+    }
+    return value;
+}
+
+/**
  * Observes the content of a node and calls a callback when its loaded.
  * @param {Node} targetNode - The node to observe.
  * @param {Function} callback - The callback to call when the content is loaded.
