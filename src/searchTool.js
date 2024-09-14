@@ -62,6 +62,8 @@ export function addSearchMatchMarkers(
 }
 
 class SearchTool {
+    /** @type {Event} */
+    onSearchEvent = undefined;
     /**
      * Creates a new SearchTool instance.
      * @param {HTMLInputElement} input - The input element.
@@ -69,8 +71,8 @@ class SearchTool {
      */
     constructor(input, config = {}) {
         ObserverTool.mixin(this);
-        this._onSearchInput = this._onSearchInput.bind(this);
-        this._onSearchNode = this._onSearchNode.bind(this);
+        this.onSearchInput = this.onSearchInput.bind(this);
+        this.onSearchNode = this.onSearchNode.bind(this);
         this.input = input;
         this.setConfig(config);
         this._initialize();
@@ -78,10 +80,10 @@ class SearchTool {
 
     _initialize() {
         const { debounceDelay } = this.config;
-        this.input.removeEventListener('input', this._onSearchInput);
-        this.input.addEventListener('input', this._onSearchInput);
+        this.input.removeEventListener('input', this.onSearchInput);
+        this.input.addEventListener('input', this.onSearchInput);
         clearTimeout(this.debounceSearchTimeout);
-        this.debounceSearchTimeout = setTimeout(this._onSearchInput, debounceDelay);
+        this.debounceSearchTimeout = setTimeout(this.onSearchInput, debounceDelay);
     }
 
     /**
@@ -110,11 +112,10 @@ class SearchTool {
         };
     }
 
-    setNodes(nodes) {
-        this.nodes = Array.from(nodes);
-        return this;
-    }
-
+    /**
+     * Returns the list of nodes to search through.
+     * @returns {HTMLElement[]}
+     */
     getNodes() {
         const { getNodes, container } = this.config;
         if (typeof getNodes === 'function') {
@@ -132,21 +133,24 @@ class SearchTool {
      * @param {string} [query]
      * @param {HTMLElement[]} [nodes] - The list of nodes to search through.
      */
-    _doSearch(event, query = this.input.value, nodes = this.getNodes()) {
+    doSearch(event, query = this.input.value, nodes = this.getNodes()) {
         const { onSearch } = this.config;
         if (typeof onSearch === 'function' && onSearch({ query, event, nodes }) === false) {
             return;
         }
         const { matches, nonMatches } = searchNodes(query, nodes, (node, isMatch) =>
-            this._onSearchNode(node, isMatch, event)
+            this.onSearchNode(node, isMatch, event)
         );
         this.matches = matches;
         this.nonMatches = nonMatches;
         this.signal('onSearch', { query, event, nodes, matches, nonMatches });
     }
 
-    onSearchEvent = undefined;
-    _onSearchInput(event) {
+    /**
+     * Executes a debounced search on the input element.
+     * @param {Event} event - The event object.
+     */
+    onSearchInput(event) {
         if (event) {
             this.onSearchEvent = event;
         }
@@ -154,14 +158,20 @@ class SearchTool {
         clearTimeout(this._searchTimeout);
         this._searchTimeout = setTimeout(() => {
             if (this.input.value !== this._prevValue) {
-                this._doSearch(this.onSearchEvent);
+                this.doSearch(this.onSearchEvent);
             }
             this._prevValue = this.input.value;
             this.onSearchEvent = undefined;
         }, Number(debounceDelay));
     }
 
-    _onSearchNode(node, isMatch, event) {
+    /**
+     * Adds search match markers to a node.
+     * @param {HTMLElement} node - The node to add search match markers to.
+     * @param {boolean} isMatch - Whether the node is a match.
+     * @param {Event} event - The event object.
+     */
+    onSearchNode(node, isMatch, event) {
         const { onSearchNode, searchSelector, matchClass, addMarkers, hideNonMatches } = this.config;
         if (typeof onSearchNode === 'function' && onSearchNode(node, isMatch) === false) {
             return;
