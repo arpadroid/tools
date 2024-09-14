@@ -7,7 +7,6 @@
  */
 import { style } from './nodeTool';
 import { mergeObjects } from './objectTool';
-import { onResize, onScrollStart } from './pageTool';
 
 /**
  * The default options for placing a node.
@@ -185,53 +184,3 @@ export const placeNode = (node, refNode = node?.parentNode, options) => {
     placeY(node, refNode, opt);
     placeX(node, refNode, opt);
 };
-
-/**
- * Places a node in a fixed position relative to a container.
- * @param {HTMLElement} node - The node to be placed.
- * @param {HTMLElement} container - The container node.
- */
-export function doAbsoluteFix(node, container) {
-    const canDoFix =
-        container?.isConnected && node?.isConnected && node.children?.length > 0 && !node?.forbidAbsoluteFix;
-
-    if (canDoFix && node) {
-        const rect = container.getBoundingClientRect();
-        const top = rect.top + rect.height - node.clientHeight;
-        const hasAbsoluteFix = top + node.clientHeight > window.innerHeight;
-        if (hasAbsoluteFix) {
-            node.classList.add('absoluteFix');
-        } else {
-            node.forbidAbsoluteFix = true;
-            setTimeout(() => (node.forbidAbsoluteFix = false), 100);
-            node.classList.remove('absoluteFix');
-        }
-        style(container, {
-            paddingBottom: hasAbsoluteFix ? node.clientHeight + 'px' : ''
-        });
-        style(node, { width: container.offsetWidth + 'px' });
-    }
-}
-
-/**
- * Places a node in a fixed position relative to a container and recalculates the position on resize and scroll.
- * @param {HTMLElement} node - The node to be placed.
- * @param {HTMLElement} container - The container node.
- */
-export async function absoluteFix(node, container) {
-    node?.promise && (await node.promise);
-    container?.promise && (await container.promise);
-    doAbsoluteFix(node, container);
-    let timeout;
-    const doFix = () => {
-        if (!timeout) {
-            timeout = setTimeout(() => {
-                clearTimeout(timeout);
-                timeout = null;
-                doAbsoluteFix(node, container);
-            }, 50);
-        }
-    };
-    onResize(() => doFix());
-    onScrollStart(() => doFix());
-}

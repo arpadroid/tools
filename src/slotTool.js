@@ -22,7 +22,7 @@ export function selectSlots(node) {
 export function findNodeComponent(slot) {
     let node = slot;
     while (node) {
-        if (typeof node.placeSlot === 'function') {
+        if (Array.isArray(node._slots)) {
             return node;
         }
         node = node.parentElement;
@@ -47,13 +47,26 @@ export function getSlotParent(slot) {
 }
 
 /**
+ * Returns an array where the component slots are stored.
+ * @param {HTMLSlotElement[]} store
+ * @param {HTMLElement} container - The container of the slots.
+ * @returns {HTMLSlotElement[]} The store of slots.
+ */
+export function getStore(store = [], container) {
+    if (container?._slots) {
+        return container._slots;
+    }
+    return store;
+}
+
+/**
  * Adds a slot.
  * @param {HTMLSlotElement} slot - The slot to add.
  * @param {HTMLSlotElement[]} [slots] - The list of slots to add to.
- * @param {HTMLSlotElement[]} [store] - An optional store array.
+ * @param {HTMLSlotElement[]} [$store] - An optional store array.
  * @param {HTMLElement} [parentNode] - The container of the slot.
  */
-export function addSlot(slot, slots = SLOTS, store = [], parentNode = slot.parentNode) {
+export async function addSlot(slot, slots = SLOTS, $store = [], parentNode = slot.parentNode) {
     if (slot?.tagName !== 'SLOT') {
         console.error('Invalid slot:', slot);
         return;
@@ -61,9 +74,15 @@ export function addSlot(slot, slots = SLOTS, store = [], parentNode = slot.paren
     if (slots.indexOf(slot) > -1) {
         return;
     }
+    const store = getStore($store, parentNode);
     store.push(slot);
     slots.push(slot);
     slot._parentNode = parentNode;
+    setTimeout(() => {
+        if (parentNode._slots && !parentNode._slots.includes(slot)) {
+            parentNode._slots.push(slot);
+        }
+    }, 0);
 }
 
 /**
@@ -170,6 +189,6 @@ export function hasSlot(node, name) {
  */
 export function slotMixin(component) {
     component.placeSlot = placeSlot;
-    component._slots = [];
+    component._slots = component._slots ?? [];
     extractSlots(component, component._slots);
 }

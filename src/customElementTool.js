@@ -48,47 +48,17 @@ export function getArrayProperty(element, name, config = element._config) {
 }
 
 /**
- * Observes the content of a node and calls a callback when its loaded.
- * @param {Node} targetNode - The node to observe.
- * @param {Function} callback - The callback to call when the content is loaded.
- * @returns {Promise<boolean>} A promise that resolves when the content is loaded.
+ * Checks if a node has a slot with a specific name.
+ * @param {HTMLElement} node - An HTML node.
+ * @param {string} name - The name of the slot.
+ * @returns {boolean} Whether the node has the slot.
  */
-export function onContentLoaded(targetNode, callback) {
-    return new Promise(resolve => {
-        if (!targetNode) {
-            return resolve(true);
-        }
-        const config = { childList: true, subtree: true };
-        const observer = new MutationObserver((mutationsList, observer) => {
-            for (const mutation of mutationsList) {
-                if (mutation.type === 'childList') {
-                    typeof callback === 'function' && callback();
-                    resolve(true);
-                    observer.disconnect();
-                }
-            }
-        });
-        observer.observe(targetNode, config);
-    });
-}
-
-/**
- * Removes a node if it is empty.
- * @param {Node} node - The node to remove if empty.
- */
-export function removeIfEmpty(node) {
-    const originalContent = node?._childNodes;
-    if (originalContent?.length) {
-        return;
-    }
-    if (node?.textContent?.trim() === '') {
-        node.remove();
-    }
+export function hasSlot(node, name) {
+    return node?._slots.some(slot => slot.getAttribute('name') === name);
 }
 
 export default {
+    hasSlot,
     hasProperty,
-    getProperty,
-    onContentLoaded,
-    removeIfEmpty
+    getProperty
 };
