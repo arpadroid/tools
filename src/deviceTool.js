@@ -86,3 +86,27 @@ export function isSafari() {
 export function isIOsSafari() {
     return isIOSPhone() || isSafari();
 }
+
+/**
+ * Returns the width of the viewport.
+ * @returns {number} The width of the viewport.
+ */
+export function getViewportWidth() {
+    return Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
+}
+
+/**
+ * Returns the height of the viewport.
+ * @returns {number} The height of the viewport.
+ */
+export function getViewportHeight() {
+    return Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
+}
+
+/**
+ * Returns the size of the viewport.
+ * @returns {number[]} The size of the viewport.
+ */
+export function getViewportSize() {
+    return [getViewportWidth(), getViewportHeight()];
+}

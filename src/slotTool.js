@@ -169,7 +169,7 @@ export async function placeSlots(slots = SLOTS ?? []) {
  */
 export function handleSlots(onSlotsHandled) {
     clearTimeout(TIMEOUT);
-    TIMEOUT = setTimeout(() => placeSlots(), 80);
+    TIMEOUT = setTimeout(() => placeSlots(), 70);
     typeof onSlotsHandled === 'function' && CALLBACKS.push(onSlotsHandled);
 }
 

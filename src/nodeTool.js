@@ -1,3 +1,5 @@
+import { mechanize } from './stringTool';
+
 /**
  * Adds attributes to a node.
  * @param {HTMLElement} node
@@ -165,4 +167,22 @@ export function onDoubleClick(node, callback, delay = 500) {
         isRepeat = true;
         setTimeout(() => (isRepeat = false), delay);
     });
+}
+
+/**
+ * Creates a dynamic CSS rule.
+ * @param {string} selector - A css selector.
+ * @param {string} styles
+ */
+export function addCssRule(selector, styles) {
+    const id = mechanize(selector);
+    let style = document.getElementById(id);
+    const content = `${selector} { ${styles} }`;
+    if (!style) {
+        style = document.createElement('style');
+        style.id = id;
+        document.head.appendChild(style);
+        style.type = 'text/css';
+    }
+    style && (style.innerHTML = content);
 }
