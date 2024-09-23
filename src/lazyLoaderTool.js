@@ -1,6 +1,6 @@
 export const lazyQueue = new Set();
 let isLoading = false;
-let batchSize = 8;
+let batchSize = 5;
 
 window.addEventListener('unload', () => {
     alert('jio');
