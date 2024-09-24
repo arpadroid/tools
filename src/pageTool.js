@@ -93,7 +93,7 @@ export function onScroll(callback) {
 }
 
 /**
- * onScrollStart
+ * Calls the scroll start callback functions.
  * @param {Function} callback - The callback function to be added.
  */
 export function onScrollStart(callback) {
