@@ -124,7 +124,10 @@ export function resolveNode(node, container = document) {
         return node.firstElementChild;
     }
     if (typeof node === 'string') {
-        return container?.querySelector(node) || container?.closest(node);
+        return (
+            container?.querySelector(node) ||
+            (typeof container.closest === 'function' && container?.closest(node))
+        );
     }
     return node;
 }

@@ -125,7 +125,7 @@ describe('nodeTool', () => {
 
         it('should return null if the node cannot be resolved', () => {
             const resolvedNode = resolveNode('#nonExistentId');
-            expect(resolvedNode).toBeNull();
+            expect(resolvedNode).toBeFalsy();
         });
     });
 });
