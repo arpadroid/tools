@@ -157,7 +157,11 @@ export async function placeSlots(slots = SLOTS ?? []) {
     REPORT_TIMEOUT = setTimeout(() => {
         if (VERBOSE && LOST_SLOTS.length) {
             LOST_SLOTS.forEach(slot => {
-                console.warn('The following slot could not be placed:', slot);
+                if (slot.innerHTML.trim() === '') {
+                    removeSlot(slot, LOST_SLOTS);
+                } else {
+                    console.warn('The following slot could not be placed:', slot);
+                }
             });
         }
     }, 200);

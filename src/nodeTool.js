@@ -113,9 +113,10 @@ export function prepend(node, child) {
 /**
  * Resolves a node.
  * @param {HTMLElement|string} node
+ * @param {HTMLElement} container
  * @returns {HTMLElement|null}
  */
-export function resolveNode(node) {
+export function resolveNode(node, container = document) {
     if (node instanceof HTMLElement) {
         return node;
     }
@@ -123,7 +124,7 @@ export function resolveNode(node) {
         return node.firstElementChild;
     }
     if (typeof node === 'string') {
-        return document.querySelector(node);
+        return container?.querySelector(node) || container?.closest(node);
     }
     return node;
 }

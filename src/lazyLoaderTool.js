@@ -2,11 +2,8 @@ export const lazyQueue = new Set();
 let isLoading = false;
 let batchSize = 5;
 
-window.addEventListener('unload', () => {
-    alert('jio');
-});
-
 const controller = new AbortController();
+window.addEventListener('unload', () => controller.abort());
 
 /**
  * Clear the lazy queue.
