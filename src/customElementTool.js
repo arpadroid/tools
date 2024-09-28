@@ -48,17 +48,17 @@ export function getArrayProperty(element, name, config = element._config) {
 }
 
 /**
- * Checks if a node has a slot with a specific name.
+ * Checks if a node has a zone with a specific name.
  * @param {HTMLElement} node - An HTML node.
- * @param {string} name - The name of the slot.
- * @returns {boolean} Whether the node has the slot.
+ * @param {string} name - The name of the zone.
+ * @returns {boolean} Whether the node has the zone.
  */
-export function hasSlot(node, name) {
-    return node?._slots.some(slot => slot.getAttribute('name') === name);
+export function hasZone(node, name) {
+    return node?._zones.some(zone => zone.getAttribute('name') === name);
 }
 
 export default {
-    hasSlot,
+    hasZone,
     hasProperty,
     getProperty
 };
