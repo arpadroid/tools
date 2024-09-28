@@ -143,7 +143,7 @@ class SearchTool {
         );
         this.matches = matches;
         this.nonMatches = nonMatches;
-        this.signal('onSearch', { query, event, nodes, matches, nonMatches });
+        this.signal('search', { query, event, nodes, matches, nonMatches });
     }
 
     /**

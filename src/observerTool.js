@@ -30,7 +30,7 @@ class ObserverTool {
      * @param {unknown} instance
      */
     static mixin(instance) {
-        instance.listen = ObserverTool.listen.bind(instance);
+        instance.on = ObserverTool.on.bind(instance);
         instance.signal = ObserverTool.signal.bind(instance);
         instance.initializeListener = ObserverTool.prototype.initializeListener.bind(instance);
         instance.unsubscribe = ObserverTool.unsubscribe.bind(instance);
@@ -43,14 +43,17 @@ class ObserverTool {
      * Subscribes to a signal.
      * @param {string} signalName
      * @param {() => void} callback
+     * @param {[]<() => void> | undefined} unsubscribes
      * @returns {() => void}
      */
-    static listen(signalName, callback) {
+    static on(signalName, callback, unsubscribes = this._unsubscribes) {
         if (!Array.isArray(this[`${signalName}_observers`])) {
             this[`${signalName}_observers`] = [];
         }
         this[`${signalName}_observers`].push(callback);
-        return this.unsubscribe(signalName, callback);
+        const unsubscribe = this.unsubscribe(signalName, callback);
+        Array.isArray(unsubscribes) && unsubscribes.push(unsubscribe);
+        return unsubscribe;
     }
 
     /**

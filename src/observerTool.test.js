@@ -5,7 +5,7 @@ class TestClass {
     /** @type {Function} */
     signal;
     /** @type {Function} */
-    listen;
+    on;
     /** @type {Function} */
     initializeListener;
 
@@ -23,7 +23,7 @@ describe('Observer tool', () => {
     it('Subscribes to a property, receives callbacks and unsubscribes', () => {
         const callback = jest.fn();
         const instance = new TestClass();
-        const unsubscribe = instance.listen('TEST_PROPERTY', callback);
+        const unsubscribe = instance.on('TEST_PROPERTY', callback);
 
         instance.changeTestProperty(true);
         expect(callback).toHaveBeenCalledWith(true, undefined, undefined);
@@ -41,8 +41,8 @@ describe('Observer tool', () => {
     it('Prevents running duplicate subscriptions with initializeListener', () => {
         const callback = jest.fn();
         const instance = new TestClass();
-        const unsubscribe = instance.listen('TEST_PROPERTY', callback);
-        const unsubscribe2 = instance.listen('TEST_PROPERTY', callback);
+        const unsubscribe = instance.on('TEST_PROPERTY', callback);
+        const unsubscribe2 = instance.on('TEST_PROPERTY', callback);
         instance.changeTestProperty(true);
         expect(callback).toHaveBeenCalledTimes(2);
         unsubscribe();
@@ -57,7 +57,7 @@ describe('Observer tool', () => {
         const callback2 = jest.fn();
         const doSubscribe = () => {
             instance.initializeListener('test_subscriptions', () => {
-                instance.listen('TEST_PROPERTY', callback2);
+                instance.on('TEST_PROPERTY', callback2);
             });
         };
         doSubscribe();

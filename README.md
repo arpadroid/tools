@@ -390,7 +390,7 @@ It acts as a mixin, and should be used as such via the mixin method.
         * [.initializeObservers(id, callback)](#ObserverTool+initializeObservers) ⇒ <code>this</code>
     * _static_
         * [.mixin(instance)](#ObserverTool.mixin)
-        * [.listen(property, callback)](#ObserverTool.listen) ⇒ <code>function</code>
+        * [.on(property, callback)](#ObserverTool.listen) ⇒ <code>function</code>
         * [.unsubscribe(observers, callback)](#ObserverTool.unsubscribe) ⇒ <code>function</code>
         * [.signal(property, value, event)](#ObserverTool.signal)
 
@@ -429,7 +429,7 @@ Binds the subscribe, callSubscribers, initializeSubscriptions and unsubscribePro
 
 <a name="ObserverTool.listen"></a>
 
-### ObserverTool.listen(property, callback) ⇒ <code>function</code>
+### ObserverTool.on(property, callback) ⇒ <code>function</code>
 Subscribes to a property.
 
 **Kind**: static method of [<code>ObserverTool</code>](#ObserverTool)  
