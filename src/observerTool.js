@@ -46,7 +46,7 @@ class ObserverTool {
      * @param {[]<() => void> | undefined} unsubscribes
      * @returns {() => void}
      */
-    static on(signalName, callback, unsubscribes = this._unsubscribes) {
+    static on(signalName, callback, unsubscribes) {
         if (!Array.isArray(this[`${signalName}_observers`])) {
             this[`${signalName}_observers`] = [];
         }

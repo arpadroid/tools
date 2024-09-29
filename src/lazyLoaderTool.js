@@ -6,12 +6,12 @@ const controller = new AbortController();
 window.addEventListener('unload', () => controller.abort());
 
 /**
- * Clear the lazy queue.
+ * Clear a lazy image.
+ * @param {HTMLImageElement} image - The image to clear.
  */
-export function clearLazyQueue() {
-    lazyQueue.clear();
-    isLoading = false;
-    controller.abort();
+export function clearLazyImage(image) {
+    lazyQueue.delete(image);
+    lazyQueue.size === 0 && (isLoading = false);
 }
 
 /**
@@ -46,6 +46,15 @@ export function loadNext() {
         image.addEventListener('error', _loadNext);
         image.src = src;
     });
+}
+
+/**
+ * Clear the lazy queue.
+ */
+export function clearLazyQueue() {
+    lazyQueue.clear();
+    isLoading = false;
+    controller.abort();
 }
 
 /**

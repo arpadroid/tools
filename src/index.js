@@ -24,4 +24,4 @@ export * as CustomElementTool from './customElementTool.js';
 export { default as ObserverTool } from './observerTool.js';
 export { default as Regex } from './regexTool.js';
 export { default as SearchTool } from './searchTool.js';
-export { lazyLoad, clearLazyQueue } from './lazyLoaderTool.js';
+export { lazyLoad, clearLazyQueue, clearLazyImage } from './lazyLoaderTool.js';
