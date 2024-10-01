@@ -1,9 +1,31 @@
 export const lazyQueue = new Set();
+export const loadedSources = new Set();
 let isLoading = false;
 let batchSize = 5;
 
 const controller = new AbortController();
-window.addEventListener('unload', () => controller.abort());
+window.addEventListener('beforeunload', () => controller.abort());
+
+/**
+ * Get the source of an image.
+ * @param {HTMLImageElement | string} image - The image to get the source of.
+ * @returns {string}
+ */
+export function getSource(image) {
+    if (typeof image === 'string') {
+        return image;
+    }
+    return image?.dataset?.src || image?.src;
+}
+
+/**
+ * Check if a source has been loaded.
+ * @param {string} src - The source to check.
+ * @returns {boolean}
+ */
+export function hasLoadedSource(src) {
+    return loadedSources.has(src);
+}
 
 /**
  * Clear a lazy image.
@@ -11,7 +33,9 @@ window.addEventListener('unload', () => controller.abort());
  */
 export function clearLazyImage(image) {
     lazyQueue.delete(image);
-    lazyQueue.size === 0 && (isLoading = false);
+    if (lazyQueue.size === 0) {
+        isLoading = false;
+    }
 }
 
 /**
@@ -34,6 +58,7 @@ export function loadNext() {
         }
         const _loadNext = () => {
             resolve(image);
+            loadedSources.add(src);
             image.removeEventListener('load', _loadNext);
             image.removeEventListener('error', _loadNext);
         };

@@ -47,18 +47,7 @@ export function getArrayProperty(element, name, config = element._config) {
     return value;
 }
 
-/**
- * Checks if a node has a zone with a specific name.
- * @param {HTMLElement} node - An HTML node.
- * @param {string} name - The name of the zone.
- * @returns {boolean} Whether the node has the zone.
- */
-export function hasZone(node, name) {
-    return node?._zones.some(zone => zone.getAttribute('name') === name);
-}
-
 export default {
-    hasZone,
     hasProperty,
     getProperty
 };

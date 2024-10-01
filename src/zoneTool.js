@@ -1,9 +1,7 @@
 const VERBOSE = true;
-const LOST_ZONES = [];
-const CALLBACKS = [];
-const ZONES = [];
+const LOST_ZONES = new Set();
+const ZONES = new Set();
 let TIMEOUT = null;
-let REPORT_TIMEOUT = null;
 
 /**
  * Selects all zones from a node.
@@ -22,7 +20,7 @@ export function selectZones(node) {
 export function findNodeComponent(zone) {
     let node = zone;
     while (node) {
-        if (Array.isArray(node._zones)) {
+        if (node._zones instanceof Set) {
             return node;
         }
         node = node.parentElement;
@@ -50,9 +48,9 @@ export function getZoneParent(zone) {
  * Returns an array where the component zones are stored.
  * @param {HTMLElement[]} store
  * @param {HTMLElement} container - The container of the zones.
- * @returns {HTMLElement[]} The store of zones.
+ * @returns {Set[]} The store of zones.
  */
-export function getStore(store = [], container) {
+export function getStore(store = new Set(), container) {
     if (container?._zones) {
         return container._zones;
     }
@@ -66,21 +64,21 @@ export function getStore(store = [], container) {
  * @param {HTMLElement[]} [$store] - An optional store array.
  * @param {HTMLElement} [parentNode] - The container of the zone.
  */
-export async function addZone(zone, zones = ZONES, $store = [], parentNode = zone.parentNode) {
+export async function addZone(zone, parentNode = zone.parentNode, zones = ZONES, $store = []) {
     if (zone?.tagName?.toLocaleLowerCase() !== 'arpa-zone') {
         console.error('Invalid zone:', zone);
         return;
     }
-    if (zones.indexOf(zone) > -1) {
+    if (zones.has(zone)) {
         return;
     }
     const store = getStore($store, parentNode);
-    store.push(zone);
-    zones.push(zone);
+    store.add(zone);
+    zones.add(zone);
     zone._parentNode = parentNode;
     setTimeout(() => {
-        if (parentNode._zones && !parentNode._zones.includes(zone)) {
-            parentNode._zones.push(zone);
+        if (parentNode._zones && !parentNode._zones.has(zone)) {
+            parentNode._zones.add(zone);
         }
     }, 0);
 }
@@ -92,8 +90,7 @@ export async function addZone(zone, zones = ZONES, $store = [], parentNode = zon
  * @returns {void}
  */
 export function removeZone(zone, zones = ZONES) {
-    const index = zones.indexOf(zone);
-    index > -1 && zones.splice(index, 1);
+    zones.delete(zone);
 }
 
 /**
@@ -102,12 +99,12 @@ export function removeZone(zone, zones = ZONES) {
  * @param {HTMLElement[]} [store] - The key/value store object to add the zones to.
  * @param {HTMLElement} [parentNode] - The parent node of the zones.
  */
-export function extractZones(node, store = [], parentNode) {
+export function extractZones(node, store = [], parentNode = node) {
     const zones = selectZones(node);
     zones
         .filter(zone => zone.childNodes.length)
         .forEach(zone => {
-            addZone(zone, ZONES, store, parentNode);
+            addZone(zone, parentNode, ZONES, store);
             zone.remove();
         });
 }
@@ -125,23 +122,39 @@ export function removeEmptyZoneNodes(container) {
  * @param {HTMLElement} zone
  */
 export async function placeZone(zone) {
+    const parent = zone?._parentNode;
     const zoneName = zone.getAttribute('name');
-    const component = findNodeComponent(zone?._parentNode);
-    component?.promise && (await component.promise);
+    const component = findNodeComponent(parent);
     const zoneContainer = component?.querySelector(`[zone="${zoneName}"]`);
     const zoneComponent = findNodeComponent(zoneContainer);
     if (!zoneContainer || !zoneComponent) {
-        LOST_ZONES.indexOf(zone) === -1 && LOST_ZONES.push(zone);
+        LOST_ZONES.add(zone);
         return;
     }
     const nodes = zoneContainer.childNodes;
     if (typeof zoneComponent._onZonePlaced === 'function') {
         zoneComponent._onZonePlaced({ nodes, zoneName, zoneComponent, zoneContainer });
     }
-    removeZone(zone);
-    removeZone(zone, LOST_ZONES);
-    zoneComponent?.promise && (await zoneComponent.promise);
-    zoneContainer.append(...zone.childNodes);
+    ZONES.delete(zone);
+    LOST_ZONES.delete(zone);
+    const fragment = document.createDocumentFragment();
+    fragment.append(...zone.childNodes);
+    zoneContainer.appendChild(fragment);
+}
+
+/**
+ * Checks if a node has a zone with a specific name.
+ * @param {HTMLElement} component - An HTML node.
+ * @param {string} name - The name of the zone.
+ * @returns {boolean} Whether the node has the zone.
+ */
+export function hasZone(component, name) {
+    for (const zone of component._zones) {
+        if (zone.getAttribute('name') === name) {
+            return zone;
+        }
+    }
+    return false;
 }
 
 /**
@@ -149,50 +162,52 @@ export async function placeZone(zone) {
  * @param {Record<string, unknown>[]} zones
  */
 export async function placeZones(zones = ZONES ?? []) {
+    // zones.size && console.log('PLACING ZONES');
     zones.forEach(zone => placeZone(zone));
-    while (CALLBACKS.length) {
-        CALLBACKS.pop()();
-    }
-    clearTimeout(REPORT_TIMEOUT);
-    REPORT_TIMEOUT = setTimeout(() => {
-        if (VERBOSE && LOST_ZONES.length) {
-            LOST_ZONES.forEach(zone => {
-                if (zone.innerHTML.trim() === '') {
-                    removeZone(zone, LOST_ZONES);
-                } else {
-                    console.warn('The following zone could not be placed:', zone);
-                }
-            });
-        }
-    }, 200);
 }
 
 /**
  * Handles zones for a node.
- * @param {() => void} onZonesHandled - The callback to call when the zones are handled.
+ * @param {HTMLElement[]} _zones - The node to search.
  */
-export function handleZones(onZonesHandled) {
+export function handleZones(_zones) {
+    requestAnimationFrame(() => placeZones(_zones));
     clearTimeout(TIMEOUT);
-    TIMEOUT = setTimeout(() => placeZones(), 70);
-    typeof onZonesHandled === 'function' && CALLBACKS.push(onZonesHandled);
+    TIMEOUT = setTimeout(() => {
+        if (LOST_ZONES.size) {
+            // console.log('placing lost zones:', LOST_ZONES);
+            placeZones(LOST_ZONES);
+        }
+        if (VERBOSE && LOST_ZONES.size) {
+            LOST_ZONES.forEach(zone => {
+                const html = zone.innerHTML.trim();
+                console.warn('The following zone could not be placed:', zone, html);
+            });
+        }
+    }, 10);
 }
 
 /**
- * Checks if a node has a zone.
- * @param {HTMLElement} node - The node to search.
- * @param {string} name - The zone name.
- * @returns {boolean} The result.
+ * Destroys the zones of a component.
+ * @param {HTMLElement} component - The component to destroy.
  */
-export function hasZone(node, name) {
-    return Boolean(node.querySelector(`[zone="${name}"]`));
+export function onDestroy(component) {
+    component?._zones?.forEach(zone => removeZone(zone));
+    component._zones = new Set();
 }
 
 /**
  * Mixin for zone functionality.
  * @param {HTMLElement} component
+ * @param {Set[]} [store]
  */
-export function zoneMixin(component) {
-    component.placeZone = placeZone;
+export function zoneMixin(component, store = component._zones) {
+    component._zones = new Set();
+    const originalCallback = component._onDestroy || (() => {});
+    component._onDestroy = function () {
+        onDestroy(component);
+        originalCallback.call(component);
+    }.bind(component);
     component._zones = component._zones ?? [];
-    extractZones(component, component._zones);
+    extractZones(component, store);
 }
