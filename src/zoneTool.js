@@ -1,7 +1,9 @@
+import { debounce } from './functionTool.js';
+import { appendNodes } from './nodeTool.js';
+
 const VERBOSE = true;
 const LOST_ZONES = new Set();
 const ZONES = new Set();
-let TIMEOUT = null;
 let START_TIME = 0;
 let END_TIME = 0;
 let DURATION = 0;
@@ -12,7 +14,7 @@ let DURATION = 0;
  * @returns {HTMLElement[]} The list of zones.
  */
 export function selectZones(node) {
-    return Array.from(node.querySelectorAll('arpa-zone') ?? []);
+    return Array.from(node.querySelectorAll('arpa-zone'));
 }
 
 /**
@@ -33,29 +35,19 @@ export function findNodeComponent(zone) {
 /**
  * Adds a zone.
  * @param {HTMLElement} zone - The zone to add.
- * @param {HTMLElement} [parentNode] - The container of the zone.
  * @param {HTMLElement[]} [zones] - The list of zones to add to.
  * @param {HTMLElement[]} [$store] - An optional store array.
+ * @param {HTMLElement} [parentNode] - The container of the zone.
  */
 export async function addZone(zone, zones = ZONES, $store = new Set(), parentNode) {
-    if (zone?.tagName?.toLowerCase() !== 'arpa-zone') {
-        console.error('Invalid zone:', zone);
-        return;
-    }
-    if (zones.has(zone)) {
+    if (zone?.tagName?.toLowerCase() !== 'arpa-zone' || zones.has(zone)) {
+        console.error('Invalid or existing zone:', zone);
         return;
     }
     zone._parentNode = parentNode || zone.parentNode;
-    const parentComponent = findNodeComponent(zone);
-    const store = parentComponent?._zones || $store;
-    // setTimeout(() => {
-    //     if (parentNode._zones && !parentNode._zones.has(zone)) {
-    //         parentNode._zones.add(zone);
-    //     }
-    // }, 0);
-
-    store.add(zone);
-    zones.add(zone);
+    const store = findNodeComponent(zone)?._zones || $store;
+    store?.add(zone);
+    zones?.add(zone);
 }
 
 /**
@@ -76,10 +68,10 @@ export function removeZone(zone, zones = ZONES) {
  */
 export function extractZones(node, store = new Set(), parentNode) {
     const zones = selectZones(node);
-    zones.forEach(zone => {
+    for (const zone of zones) {
         addZone(zone, ZONES, store, parentNode);
         zone.remove();
-    });
+    }
 }
 
 /**
@@ -89,6 +81,9 @@ export function extractZones(node, store = new Set(), parentNode) {
 export async function placeZone(zone) {
     !START_TIME && (START_TIME = performance.now());
     const parent = zone?._parentNode;
+    if (!parent) {
+        return;
+    }
     const zoneName = zone.getAttribute('name');
     const component = findNodeComponent(parent);
     const zoneContainer = component?.querySelector(`[zone="${zoneName}"]`);
@@ -97,15 +92,15 @@ export async function placeZone(zone) {
         LOST_ZONES.add(zone);
         return;
     }
-    const nodes = zoneContainer.childNodes;
+
     if (typeof zoneComponent._onZonePlaced === 'function') {
+        const nodes = zoneContainer.childNodes;
         zoneComponent._onZonePlaced({ nodes, zoneName, zoneComponent, zoneContainer });
     }
+
     ZONES.delete(zone);
     LOST_ZONES.delete(zone);
-    const fragment = document.createDocumentFragment();
-    fragment.append(...zone.childNodes);
-    zoneContainer.appendChild(fragment);
+    appendNodes(zoneContainer, zone.childNodes);
 }
 
 /**
@@ -128,8 +123,32 @@ export function hasZone(component, name) {
  * @param {Record<string, unknown>[]} zones
  */
 export async function placeZones(zones = ZONES) {
-    zones.forEach(zone => placeZone(zone));
+    for (const zone of zones) {
+        placeZone(zone);
+    }
 }
+
+const benchmark = debounce(() => {
+    if (VERBOSE && !LOST_ZONES.size && !ZONES.size) {
+        END_TIME = performance.now();
+        DURATION = END_TIME - START_TIME - 400;
+        START_TIME = 0;
+        console.info('All zones placed in', DURATION, 'ms');
+    }
+}, 400);
+
+const reportLostZones = debounce(() => {
+    if (VERBOSE && LOST_ZONES.size) {
+        console.warn(`${LOST_ZONES.size} zones could not be placed:`, {
+            LOST_ZONES,
+            contents: Array.from(LOST_ZONES).map(zone => zone.innerHTML.trim())
+        });
+    }
+}, 1000);
+
+const placeLostZones = debounce(() => {
+    LOST_ZONES.size && placeZones(LOST_ZONES);
+}, 10);
 
 /**
  * Handles zones for a node.
@@ -137,22 +156,9 @@ export async function placeZones(zones = ZONES) {
  */
 export function handleZones(_zones) {
     requestAnimationFrame(() => placeZones(_zones));
-    clearTimeout(TIMEOUT);
-    TIMEOUT = setTimeout(() => {
-        if (VERBOSE && !LOST_ZONES.size && !ZONES.size) {
-            END_TIME = performance.now();
-            DURATION = END_TIME - START_TIME;
-            START_TIME = 0;
-            console.info('All zones placed in', DURATION, 'ms');
-        }
-        LOST_ZONES.size && placeZones(LOST_ZONES);
-        if (VERBOSE && LOST_ZONES.size) {
-            LOST_ZONES.forEach(zone => {
-                const html = zone.innerHTML.trim();
-                console.warn('The following zone could not be placed:', zone, html);
-            });
-        }
-    }, 30);
+    placeLostZones();
+    benchmark();
+    reportLostZones();
 }
 
 /**
@@ -160,14 +166,16 @@ export function handleZones(_zones) {
  * @param {HTMLElement} component - The component to destroy.
  */
 export function onDestroy(component) {
-    component?._zones?.forEach(zone => removeZone(zone));
+    for (const zone of component?._zones || []) {
+        removeZone(zone);
+        removeZone(zone, LOST_ZONES);
+    }
     component._zones = new Set();
 }
 
 /**
  * Mixin for zone functionality.
  * @param {HTMLElement} component
- * @param {Set[]} [store]
  */
 export function zoneMixin(component) {
     if (!(component?._zones instanceof Set)) {

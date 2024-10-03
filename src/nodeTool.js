@@ -95,6 +95,30 @@ export function style(node, css = {}) {
 }
 
 /**
+ * Append nodes to a container with a document fragment for performance.
+ * @param {HTMLElement} container
+ * @param {HTMLElement[]} nodes
+ */
+export function appendNodes(container, nodes = []) {
+    if (!container || !nodes?.length) {
+        return;
+    }
+    const fragment = document.createDocumentFragment();
+    fragment.append(...nodes);
+    container.appendChild(fragment);
+}
+
+/**
+ * Sets nodes to a container.
+ * @param {HTMLElement} container
+ * @param {HTMLElement[]} nodes
+ */
+export function setNodes(container, nodes = []) {
+    container.innerHTML = '';
+    appendNodes(container, nodes);
+}
+
+/**
  * Prepends a child node to a parent node.
  * @param {HTMLElement} node
  * @param {HTMLElement} child

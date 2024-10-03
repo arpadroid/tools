@@ -21,7 +21,6 @@
  * @property {string} signalName - The name of the signal to listen to.
  * @property {(value: unknown, event: unknown) => void} callback - The callback to call when the signal is emitted.
  */
-
 class ObserverTool {
     /** @property {Record<string, boolean>} subscriptionsInitialized - Key value pair of initialized subscription states. */
     observersInitialized;
