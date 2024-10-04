@@ -79,7 +79,6 @@ export function extractZones(node, store = new Set(), parentNode) {
  * @param {HTMLElement} zone
  */
 export async function placeZone(zone) {
-    !START_TIME && (START_TIME = performance.now());
     const parent = zone?._parentNode;
     if (!parent) {
         return;
@@ -123,17 +122,19 @@ export function hasZone(component, name) {
  * @param {Record<string, unknown>[]} zones
  */
 export async function placeZones(zones = ZONES) {
+    !START_TIME && (START_TIME = performance.now());
     for (const zone of zones) {
         placeZone(zone);
     }
 }
 
-const benchmark = debounce(() => {
+const benchmark = debounce((time) => {
     if (VERBOSE && !LOST_ZONES.size && !ZONES.size) {
+        const diff = performance.now() - time;
         END_TIME = performance.now();
-        DURATION = END_TIME - START_TIME - 400;
+        DURATION = END_TIME - START_TIME - diff;
         START_TIME = 0;
-        console.info('All zones placed in', DURATION, 'ms');
+        console.info('All zones placed in', Math.round(DURATION), 'ms');
     }
 }, 400);
 
@@ -157,7 +158,7 @@ const placeLostZones = debounce(() => {
 export function handleZones(_zones) {
     requestAnimationFrame(() => placeZones(_zones));
     placeLostZones();
-    benchmark();
+    benchmark(performance.now());
     reportLostZones();
 }
 
