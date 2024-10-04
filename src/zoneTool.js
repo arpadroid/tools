@@ -14,7 +14,7 @@ let DURATION = 0;
  * @returns {HTMLElement[]} The list of zones.
  */
 export function selectZones(node) {
-    return Array.from(node.querySelectorAll('arpa-zone'));
+    return Array.from(node.querySelectorAll('zone'));
 }
 
 /**
@@ -40,7 +40,7 @@ export function findNodeComponent(zone) {
  * @param {HTMLElement} [parentNode] - The container of the zone.
  */
 export async function addZone(zone, zones = ZONES, $store = new Set(), parentNode) {
-    if (zone?.tagName?.toLowerCase() !== 'arpa-zone' || zones.has(zone)) {
+    if (zone?.tagName?.toLowerCase() !== 'zone' || zones.has(zone)) {
         console.error('Invalid or existing zone:', zone);
         return;
     }
