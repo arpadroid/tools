@@ -13,7 +13,8 @@ import { sanitizeSearchInput } from './stringTool.js';
  * @param {(node: HTMLElement, isMatch: boolean) => void} callback - The callback function to execute on search.
  * @returns {{matches: HTMLElement[], nonMatches: HTMLElement[], query: string}}
  */
-export function searchNodes(searchValue, nodes, callback) {
+export async function searchNodes(searchValue, nodes, callback) {
+    nodes = await Promise.resolve(nodes);
     const query = searchValue.toString().toLowerCase();
     const matches = [];
     const nonMatches = [];
@@ -133,12 +134,12 @@ class SearchTool {
      * @param {string} [query]
      * @param {HTMLElement[]} [nodes] - The list of nodes to search through.
      */
-    doSearch(event, query = this.input.value, nodes = this.getNodes()) {
+    async doSearch(event, query = this.input.value, nodes = this.getNodes()) {
         const { onSearch } = this.config;
         if (typeof onSearch === 'function' && onSearch({ query, event, nodes }) === false) {
             return;
         }
-        const { matches, nonMatches } = searchNodes(query, nodes, (node, isMatch) =>
+        const { matches, nonMatches } = await searchNodes(query, nodes, (node, isMatch) =>
             this.onSearchNode(node, isMatch, event)
         );
         this.matches = matches;

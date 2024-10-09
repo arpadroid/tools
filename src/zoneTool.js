@@ -1,3 +1,7 @@
+/**
+ * @typedef {import('./zoneTool.type.d.ts').ZoneToolPlaceZoneType} ZoneToolPlaceZoneType
+ */
+
 import { debounce } from './functionTool.js';
 import { appendNodes } from './nodeTool.js';
 
@@ -69,7 +73,7 @@ export function removeZone(zone, zones = ZONES) {
 export function extractZones(node, store = new Set(), parentNode) {
     const zones = selectZones(node);
     for (const zone of zones) {
-        addZone(zone, ZONES, store, parentNode);
+        zone.innerHTML.trim() && addZone(zone, ZONES, store, parentNode);
         zone.remove();
     }
 }
@@ -91,12 +95,12 @@ export async function placeZone(zone) {
         LOST_ZONES.add(zone);
         return;
     }
-
-    if (typeof zoneComponent._onZonePlaced === 'function') {
+    if (typeof zoneComponent._onPlaceZone === 'function') {
         const nodes = zoneContainer.childNodes;
-        zoneComponent._onZonePlaced({ nodes, zoneName, zoneComponent, zoneContainer });
+        /** @type {ZoneToolPlaceZoneType} */
+        const payload = { nodes, zoneName, zoneComponent, zoneContainer, zone };
+        zoneComponent._onPlaceZone(payload);
     }
-
     ZONES.delete(zone);
     LOST_ZONES.delete(zone);
     appendNodes(zoneContainer, zone.childNodes);
@@ -128,7 +132,7 @@ export async function placeZones(zones = ZONES) {
     }
 }
 
-const benchmark = debounce((time) => {
+const benchmark = debounce(time => {
     if (VERBOSE && !LOST_ZONES.size && !ZONES.size) {
         const diff = performance.now() - time;
         END_TIME = performance.now();
@@ -148,6 +152,7 @@ const reportLostZones = debounce(() => {
 }, 1000);
 
 const placeLostZones = debounce(() => {
+    VERBOSE && console.log('LOST_ZONES', [...LOST_ZONES]);
     LOST_ZONES.size && placeZones(LOST_ZONES);
 }, 10);
 
