@@ -2,6 +2,11 @@
  * A class that provides a means to subscribe to properties of an instance via observer pattern.
  * It acts as a mixin, and should be used as such via the mixin method.
  */
+import { debounce } from './functionTool';
+
+////////////////////////
+// #region TYPES
+////////////////////////
 
 /**
  * @typedef {Function} ObserverTool_SignalType - Interface for observer signal method.
@@ -11,19 +16,51 @@
  */
 
 /**
- * @typedef {Function} ObserverTool_ListenType
+ * @typedef {Function} ObserverTool_OnType - Interface for observer on method.
  * @property {string} signalName - The name of the signal to listen to.
  * @property {(value: unknown, event: unknown) => void} callback - The callback to call when the signal is emitted.
  */
 
-/**
- * @typedef {Function} ObserverTool_InitializeObserversType
- * @property {string} signalName - The name of the signal to listen to.
- * @property {(value: unknown, event: unknown) => void} callback - The callback to call when the signal is emitted.
- */
+////////////////////////
+// #endregion
+////////////////////////
+
+//////////////////////////
+// #region LOGGING
+//////////////////////////
+const VERBOSE = false;
+const SIGNAL_REGISTRY = {};
+let SIGNAL_REGISTRY_BATCH = {};
+let SIGNAL_COUNT = 0;
+let SIGNAL_BATCH_COUNT = 0;
+
+const logSignals = debounce(instance => {
+    console.log('ObserverTool.on', {
+        SIGNAL_COUNT,
+        SIGNAL_BATCH_COUNT,
+        SIGNAL_REGISTRY,
+        SIGNAL_REGISTRY_BATCH: { ...SIGNAL_REGISTRY_BATCH },
+        CALLBACKS: instance._observerTool.callbacks
+    });
+    SIGNAL_REGISTRY_BATCH = {};
+    SIGNAL_BATCH_COUNT = 0;
+}, 1000);
+
+const reportSignals = (signalName, instance) => {
+    SIGNAL_COUNT++;
+    SIGNAL_BATCH_COUNT++;
+    SIGNAL_REGISTRY[signalName] = SIGNAL_REGISTRY[signalName] || 0;
+    SIGNAL_REGISTRY[signalName]++;
+    SIGNAL_REGISTRY_BATCH[signalName] = SIGNAL_REGISTRY_BATCH[signalName] || 0;
+    SIGNAL_REGISTRY_BATCH[signalName]++;
+    logSignals(instance);
+};
+
+//////////////////////////
+// #endregion
+//////////////////////////
+
 class ObserverTool {
-    /** @property {Record<string, boolean>} subscriptionsInitialized - Key value pair of initialized subscription states. */
-    observersInitialized;
     /**
      * Binds the subscribe, callSubscribers, initializeSubscriptions and unsubscribeProperty methods to the instance.
      * @param {unknown} instance
@@ -31,11 +68,8 @@ class ObserverTool {
     static mixin(instance) {
         instance.on = ObserverTool.on.bind(instance);
         instance.signal = ObserverTool.signal.bind(instance);
-        instance.initializeListener = ObserverTool.prototype.initializeListener.bind(instance);
         instance.unsubscribe = ObserverTool.unsubscribe.bind(instance);
-        if (!instance.observersInitialized) {
-            instance.observersInitialized = {};
-        }
+        instance._observerTool = { callbacks: {}, unsubscribes: {}, listeners: {} };
     }
 
     /**
@@ -46,12 +80,14 @@ class ObserverTool {
      * @returns {() => void}
      */
     static on(signalName, callback, unsubscribes) {
-        if (!Array.isArray(this[`${signalName}_observers`])) {
-            this[`${signalName}_observers`] = [];
+        const { callbacks } = this._observerTool;
+        if (!callbacks[signalName]) {
+            callbacks[signalName] = new Set();
         }
-        this[`${signalName}_observers`].push(callback);
+        callbacks[signalName].add(callback);
         const unsubscribe = this.unsubscribe(signalName, callback);
         Array.isArray(unsubscribes) && unsubscribes.push(unsubscribe);
+        VERBOSE && reportSignals(signalName, this);
         return unsubscribe;
     }
 
@@ -63,11 +99,8 @@ class ObserverTool {
      */
     static unsubscribe(signalName, callback) {
         return () => {
-            const observers = this[`${signalName}_observers`];
-            const index = observers?.indexOf(callback);
-            if (index !== -1) {
-                observers.splice(index, 1);
-            }
+            const { callbacks } = this._observerTool;
+            callbacks[signalName]?.delete(callback);
         };
     }
 
@@ -79,24 +112,12 @@ class ObserverTool {
      * @param {unknown} param2
      */
     static signal(signalName, value, param1, param2) {
-        const observers = this[`${signalName}_observers`];
-        if (Array.isArray(observers)) {
-            observers.forEach(observer => observer(value, param1, param2));
+        const { callbacks } = this._observerTool;
+        if (callbacks[signalName]?.size) {
+            for (const observer of callbacks[signalName]) {
+                observer(value, param1, param2);
+            }
         }
-    }
-
-    /**
-     * Initializes subscriptions for a property, used as a means to prevent accidental duplication of subscriptions.
-     * @param {string} id
-     * @param {() => void} callback
-     * @returns {this}
-     */
-    initializeListener(id, callback) {
-        if (!this.observersInitialized[id]) {
-            this.observersInitialized[id] = true;
-            callback();
-        }
-        return this;
     }
 }
 

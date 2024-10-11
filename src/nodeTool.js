@@ -6,24 +6,17 @@ import { mechanize } from './stringTool';
  * @param {Record<string,string>} attributes
  */
 export function attr(node, attributes = {}) {
-    if (typeof node.setAttribute !== 'function') {
+    if (!node || typeof node.setAttribute !== 'function') {
         return;
     }
     for (const [key, value] of Object.entries(attributes)) {
-        let val = value;
-        if ([false, undefined, null, 'undefined'].includes(value)) {
+        if (value === false || value == null) {
             node.removeAttribute(key);
-            continue;
-        }
-        if (typeof value === 'number' || value === true || Array.isArray(value)) {
-            val = value.toString();
-        }
-        if (typeof val === 'string') {
-            node.setAttribute(key, val);
+        } else {
+            node.setAttribute(key, String(value));
         }
     }
 }
-
 /**
  * Returns the attributes of a node.
  * @param {HTMLElement} node
@@ -205,12 +198,12 @@ export function onDoubleClick(node, callback, delay = 500) {
 export function addCssRule(selector, styles) {
     const id = mechanize(selector);
     let style = document.getElementById(id);
-    const content = `${selector} { ${styles} }`;
     if (!style) {
+        const content = `${selector} { ${styles} }`;
         style = document.createElement('style');
         style.id = id;
-        document.head.appendChild(style);
         style.type = 'text/css';
+        style.innerHTML = content;
+        document.head.appendChild(style);
     }
-    style && (style.innerHTML = content);
 }

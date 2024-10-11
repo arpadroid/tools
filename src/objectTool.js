@@ -15,9 +15,13 @@ export function isObject(obj) {
  * @returns {Record<string, unknown>}
  */
 export function mergeObjects(obj = {}, obj2 = {}, strict = false) {
+    if (Object.keys(obj2).length === 0) {
+        return obj;
+    }
     const rv = { ...obj };
     for (const [key, value] of Object.entries(obj2)) {
-        if (strict && !rv.hasOwnProperty(key)) {
+        const hasKeyInRv = key in rv;
+        if (strict && !hasKeyInRv) {
             continue;
         }
         if (isObject(value) && isObject(rv[key])) {

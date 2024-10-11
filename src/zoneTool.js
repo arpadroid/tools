@@ -2,7 +2,7 @@
  * @typedef {import('./zoneTool.type.d.ts').ZoneToolPlaceZoneType} ZoneToolPlaceZoneType
  */
 
-import { debounce } from './functionTool.js';
+import { debounce, throttle } from './functionTool.js';
 import { appendNodes } from './nodeTool.js';
 
 const VERBOSE = true;
@@ -133,28 +133,25 @@ export async function placeZones(zones = ZONES) {
 }
 
 const benchmark = debounce(time => {
-    if (VERBOSE && !LOST_ZONES.size && !ZONES.size) {
-        const diff = performance.now() - time;
-        END_TIME = performance.now();
-        DURATION = END_TIME - START_TIME - diff;
-        START_TIME = 0;
-        console.info('All zones placed in', Math.round(DURATION), 'ms');
-    }
-}, 400);
-
-const reportLostZones = debounce(() => {
     if (VERBOSE && LOST_ZONES.size) {
         console.warn(`${LOST_ZONES.size} zones could not be placed:`, {
             LOST_ZONES,
             contents: Array.from(LOST_ZONES).map(zone => zone.innerHTML.trim())
         });
     }
-}, 1000);
+    if (VERBOSE) {
+        const diff = performance.now() - time;
+        END_TIME = performance.now();
+        DURATION = END_TIME - START_TIME - diff;
+        START_TIME = 0;
+        console.info('All zones placed in', Math.round(DURATION), 'ms', { ZONES, LOST_ZONES });
+    }
+}, 400);
 
-const placeLostZones = debounce(() => {
+const placeLostZones = throttle(() => {
     VERBOSE && console.log('LOST_ZONES', [...LOST_ZONES]);
     LOST_ZONES.size && placeZones(LOST_ZONES);
-}, 10);
+}, 30);
 
 /**
  * Handles zones for a node.
@@ -164,7 +161,6 @@ export function handleZones(_zones) {
     requestAnimationFrame(() => placeZones(_zones));
     placeLostZones();
     benchmark(performance.now());
-    reportLostZones();
 }
 
 /**
@@ -184,9 +180,7 @@ export function onDestroy(component) {
  * @param {HTMLElement} component
  */
 export function zoneMixin(component) {
-    if (!(component?._zones instanceof Set)) {
-        component._zones = new Set();
-    }
+    !(component?._zones instanceof Set) && (component._zones = new Set());
     const originalCallback = component._onDestroy || (() => {});
     component._onDestroy = function () {
         onDestroy(component);

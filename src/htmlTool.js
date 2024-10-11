@@ -7,6 +7,35 @@ import { camelToDashed } from './stringTool.js';
  * @returns {string} The processed template.
  */
 export function processTemplate(template, props = {}) {
+    if (!template) {
+        return '';
+    }
+    const result = [];
+    let startIndex = 0;
+    let matchIndex = 0;
+    while ((matchIndex = template.indexOf('{', startIndex)) !== -1) {
+        result.push(template.slice(startIndex, matchIndex));
+        const endIndex = template.indexOf('}', matchIndex);
+        if (endIndex === -1) {
+            break;
+        }
+        const placeholder = template.slice(matchIndex + 1, endIndex);
+        result.push(props[placeholder] || '');
+        startIndex = endIndex + 1;
+    }
+    result.push(template.slice(startIndex));
+    return result.join('');
+}
+
+/**
+ * Processes a template string using a regular expression and replaces the placeholders with the provided props.
+ * It should be less efficient than the processTemplate function.
+ * @param {string} template - The template string.
+ * @param {Record<string, string>} props - The props to replace the placeholders with.
+ * @returns {string} The processed template.
+ * @todo Measure the performance difference between this function and processTemplate.
+ */
+export function processTemplateRegex(template, props = {}) {
     return template?.replace(/{([^}]+)}/g, (match, p1) => {
         return props[p1] || '';
     });
@@ -20,7 +49,7 @@ export function processTemplate(template, props = {}) {
  */
 export function mapHTML(items, callback) {
     return items.map(callback).join('');
-};
+}
 
 /**
  * Renders an HTML string with the provided variables.
@@ -71,19 +100,21 @@ export function renderAttr(attr, value) {
  * @returns {string}
  */
 export function attrString(attributes = {}) {
-    let attr = ' ';
+    const attrArray = [];
+
     for (const [key, value] of Object.entries(attributes)) {
         const attrName = camelToDashed(key);
-        if (value === true || value === false) {
-            attr += value ? `${attrName} ` : '';
-        } else if (
-            (value?.length && typeof value === 'string') ||
-            (typeof value === 'number' && value !== 0)
-        ) {
-            attr += `${attrName}="${value}" `;
+
+        if (value === true) {
+            attrArray.push(attrName);
+        } else if (typeof value === 'string' && value.length > 0) {
+            attrArray.push(`${attrName}="${value}"`);
+        } else if (typeof value === 'number' && value !== 0) {
+            attrArray.push(`${attrName}="${value}"`);
         }
     }
-    return attr.trim();
+
+    return attrArray.join(' ');
 }
 
 /**

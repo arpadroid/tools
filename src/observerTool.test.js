@@ -6,8 +6,6 @@ class TestClass {
     signal;
     /** @type {Function} */
     on;
-    /** @type {Function} */
-    initializeListener;
 
     constructor() {
         ObserverTool.mixin(this);
@@ -38,32 +36,18 @@ describe('Observer tool', () => {
         expect(callback).toHaveBeenCalledTimes(2);
     });
 
-    it('Prevents running duplicate subscriptions with initializeListener', () => {
+    it('Checks that no duplicate subscribes are made for the same signal and callback for the instance', () => {
         const callback = jest.fn();
         const instance = new TestClass();
         const unsubscribe = instance.on('TEST_PROPERTY', callback);
-        const unsubscribe2 = instance.on('TEST_PROPERTY', callback);
+        instance.on('TEST_PROPERTY', callback);
         instance.changeTestProperty(true);
-        expect(callback).toHaveBeenCalledTimes(2);
+        expect(callback).toHaveBeenCalledTimes(1);
+
         unsubscribe();
         instance.changeTestProperty(true);
-        expect(callback).toHaveBeenCalledTimes(3);
-        unsubscribe2();
         instance.changeTestProperty(true);
-        expect(callback).toHaveBeenCalledTimes(3);
-        /**
-         * We subscribe to the property thrice with initializeListener, but the callback should only be called once.
-         */
-        const callback2 = jest.fn();
-        const doSubscribe = () => {
-            instance.initializeListener('test_subscriptions', () => {
-                instance.on('TEST_PROPERTY', callback2);
-            });
-        };
-        doSubscribe();
-        doSubscribe();
-        doSubscribe();
         instance.changeTestProperty(true);
-        expect(callback2).toHaveBeenCalledTimes(1);
+        expect(callback).toHaveBeenCalledTimes(1);
     });
 });

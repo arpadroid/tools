@@ -4,7 +4,11 @@
  * @returns {string} The camel case string.
  */
 export function dashedToCamel(str) {
-    return str.replace(/-([a-z])/g, group => group[1].toUpperCase());
+    const parts = str.split('-');
+    for (let i = 1; i < parts.length; i++) {
+        parts[i] = parts[i].charAt(0).toUpperCase() + parts[i].slice(1);
+    }
+    return parts.join('');
 }
 
 /**
@@ -73,29 +77,44 @@ export function parseOutlookEmails(str) {
     return rv.filter(email => email.includes('@'));
 }
 
+const memoizedMechanize = {};
 /**
- * Converts a string to a URL-friendly format.
+ * Converts a string to a URL-friendly format, with memoization for faster lookup.
  * @param {string} str - The input string.
  * @returns {string} The URL-friendly string.
  */
 export function mechanize(str = '') {
-    const rv = str?.toString().replace(/\s{1,}/g, '-');
-    return rv.replace(/([^a-zA-Z0-9\_\-])/g, '').toLowerCase();
+    if (memoizedMechanize[str]) {
+        return memoizedMechanize[str];
+    }
+
+    const result = str
+        .toString()
+        .trim()
+        .replace(/\s+/g, '-') // Replace spaces with hyphens
+        .replace(/[^\w\-]/g, '') // Remove non-alphanumeric characters except hyphens/underscores
+        .toLowerCase();
+
+    memoizedMechanize[str] = result;
+    return result;
 }
 
 window.arpaSafeIDs = {};
 /**
- * Generates a safe HTML ID.
+ * Generates a safe HTML ID with minimal re-computation.
  * @param {string} _id - The input string.
  * @returns {string} The safe HTML ID.
  */
 export function getSafeHtmlId(_id) {
     let id = mechanize(_id);
+    const originalId = id;
     let index = 1;
+
+    // Check for duplicates and append a number if necessary
     while (window.arpaSafeIDs[id]) {
-        index++;
-        id = mechanize(_id) + '-' + index;
+        id = `${originalId}-${index++}`;
     }
+
     window.arpaSafeIDs[id] = true;
     return id;
 }
