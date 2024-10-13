@@ -68,9 +68,11 @@ export function render(condition, html = '') {
  * @returns {HTMLElement}
  */
 export function renderNode(html = '') {
-    const template = document.createElement('template');
-    template.innerHTML = html?.trim() ?? '';
-    return template.innerHTML ? template.content.firstChild : null;
+    const trimmedHtml = html?.trim() ?? '';
+    if (!trimmedHtml) return null;
+    const div = document.createElement('div');
+    div.innerHTML = trimmedHtml;
+    return div.firstChild;
 }
 
 /**

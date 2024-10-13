@@ -81,6 +81,7 @@ export function extractZones(node, store = new Set(), parentNode) {
 /**
  * Places the zone content into its corresponding container.
  * @param {HTMLElement} zone
+ * @returns {boolean} Whether the zone was placed.
  */
 export async function placeZone(zone) {
     const parent = zone?._parentNode;
@@ -104,6 +105,7 @@ export async function placeZone(zone) {
     ZONES.delete(zone);
     LOST_ZONES.delete(zone);
     appendNodes(zoneContainer, zone.childNodes);
+    return true;
 }
 
 /**
@@ -121,46 +123,58 @@ export function hasZone(component, name) {
     return false;
 }
 
+const benchmark = debounce(() => {
+    LOST_ZONES.size &&
+        console.warn(
+            `${LOST_ZONES.size} zones could not be placed:`,
+            Array.from(LOST_ZONES).map(zone => ({
+                name: zone.getAttribute('name'),
+                zoneHTML: zone.outerHTML
+            }))
+        );
+    DURATION = Math.round(END_TIME - START_TIME);
+    START_TIME = 0;
+    console.info('\x1b[94m%s\x1b[0m', 'All zones placed in', Math.round(DURATION), 'ms', {
+        ZONES,
+        LOST_ZONES
+    });
+}, 500);
+
 /**
- * Places the zones contents in their corresponding containers.
- * @param {Record<string, unknown>[]} zones
+ * Inserts zones into the DOM.
+ * @param {Set<HTMLElement>} [zones] - The zones to insert.
+ * @param {number} [maxBatchSize] - The maximum batch size.
  */
-export async function placeZones(zones = ZONES) {
-    !START_TIME && (START_TIME = performance.now());
-    for (const zone of zones) {
-        placeZone(zone);
+export function insertZones(zones = ZONES, maxBatchSize = 46) {
+    if (zones.size) {
+        let batch = 0;
+        for (const zone of zones) {
+            placeZone(zone);
+            batch++;
+            if (batch >= maxBatchSize) break;
+        }
     }
+    setTimeout(() => {
+        if (ZONES.size) {
+            insertZones(zones, maxBatchSize);
+        } else {
+            for (const zone of LOST_ZONES) placeZone(zone);
+            if (VERBOSE) {
+                END_TIME = performance.now();
+                benchmark();
+            }
+        }
+    });
 }
 
-const benchmark = debounce(time => {
-    if (VERBOSE && LOST_ZONES.size) {
-        console.warn(`${LOST_ZONES.size} zones could not be placed:`, {
-            LOST_ZONES,
-            contents: Array.from(LOST_ZONES).map(zone => zone.innerHTML.trim())
-        });
-    }
-    if (VERBOSE) {
-        const diff = performance.now() - time;
-        END_TIME = performance.now();
-        DURATION = END_TIME - START_TIME - diff;
-        START_TIME = 0;
-        console.info('All zones placed in', Math.round(DURATION), 'ms', { ZONES, LOST_ZONES });
-    }
-}, 400);
-
-const placeLostZones = throttle(() => {
-    VERBOSE && console.log('LOST_ZONES', [...LOST_ZONES]);
-    LOST_ZONES.size && placeZones(LOST_ZONES);
-}, 30);
+export const insertZonesThrottled = throttle(insertZones, 10);
 
 /**
  * Handles zones for a node.
- * @param {HTMLElement[]} _zones - The node to search.
  */
-export function handleZones(_zones) {
-    requestAnimationFrame(() => placeZones(_zones));
-    placeLostZones();
-    benchmark(performance.now());
+export function handleZones() {
+    !START_TIME && (START_TIME = performance.now());
+    insertZonesThrottled();
 }
 
 /**

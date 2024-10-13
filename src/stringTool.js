@@ -17,7 +17,17 @@ export function dashedToCamel(str) {
  * @returns {string} The dashed string.
  */
 export function camelToDashed(str) {
-    return str.replace(/([A-Z])/g, group => '-' + group.toLowerCase());
+    let result = '';
+    for (let i = 0; i < str.length; i++) {
+        const char = str[i];
+        const lowerChar = char.toLowerCase();
+        if (char !== lowerChar) {
+            result += '-' + lowerChar;
+        } else {
+            result += char;
+        }
+    }
+    return result;
 }
 
 /**

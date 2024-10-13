@@ -39,12 +39,8 @@ function _onResize(event) {
  * @param {Function} callback - The callback function to be added.
  */
 export function onResize(callback) {
-    if (!initializedResize) {
-        initializeResize(_onResize);
-    }
-    if (onResizeCallbacks.indexOf(callback) === -1) {
-        onResizeCallbacks.push(callback);
-    }
+    !initializedResize && initializeResize(_onResize);
+    onResizeCallbacks.indexOf(callback) === -1 && onResizeCallbacks.push(callback);
 }
 
 /**
@@ -61,9 +57,7 @@ function initializeOnScroll(callback) {
             isScrolling = true;
         }
         clearTimeout(scrollStartTimeout);
-        scrollStartTimeout = setTimeout(function () {
-            isScrolling = false;
-        }, 300);
+        scrollStartTimeout = setTimeout(() => (isScrolling = false), 300);
     };
     window.addEventListener('scroll', onScrollStart);
     initializedScroll = true;
