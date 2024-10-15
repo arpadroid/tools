@@ -1,16 +1,14 @@
 /**
  * @typedef {import('./zoneTool.type.d.ts').ZoneToolPlaceZoneType} ZoneToolPlaceZoneType
+ * @typedef {import('@arpadroid/arpadroid/node_modules/@arpadroid/ui/dist/arpadroid-ui.js').ArpaElement} ArpaElement
  */
 
 import { debounce, throttle } from './functionTool.js';
 import { appendNodes } from './nodeTool.js';
 
-const VERBOSE = true;
+const VERBOSE = false;
 const LOST_ZONES = new Set();
 const ZONES = new Set();
-let START_TIME = 0;
-let END_TIME = 0;
-let DURATION = 0;
 
 /**
  * Selects all zones from a node.
@@ -85,17 +83,20 @@ export function extractZones(node, store = new Set(), parentNode) {
  */
 export async function placeZone(zone) {
     const parent = zone?._parentNode;
-    if (!parent) {
-        return;
-    }
+    if (!parent) return;
     const zoneName = zone.getAttribute('name');
+    /** @type {ArpaElement | HTMLElement} */
     const component = findNodeComponent(parent);
+    /** @type {HTMLElement} */
     const zoneContainer = component?.querySelector(`[zone="${zoneName}"]`);
+    /** @type {ArpaElement | HTMLElement} */
     const zoneComponent = findNodeComponent(zoneContainer);
+
     if (!zoneContainer || !zoneComponent) {
         LOST_ZONES.add(zone);
         return;
     }
+
     if (typeof zoneComponent._onPlaceZone === 'function') {
         const nodes = zoneContainer.childNodes;
         /** @type {ZoneToolPlaceZoneType} */
@@ -104,8 +105,13 @@ export async function placeZone(zone) {
     }
     ZONES.delete(zone);
     LOST_ZONES.delete(zone);
-    appendNodes(zoneContainer, zone.childNodes);
-    return true;
+
+    const append = () => appendNodes(zoneContainer, zone.childNodes);
+    if (typeof zoneComponent.onRenderReady === 'function') {
+        zoneComponent.onRenderReady(append);
+    } else {
+        append();
+    }
 }
 
 /**
@@ -123,45 +129,48 @@ export function hasZone(component, name) {
     return false;
 }
 
-const benchmark = debounce(() => {
-    LOST_ZONES.size &&
-        console.warn(
-            `${LOST_ZONES.size} zones could not be placed:`,
-            Array.from(LOST_ZONES).map(zone => ({
-                name: zone.getAttribute('name'),
-                zoneHTML: zone.outerHTML
-            }))
-        );
-    DURATION = Math.round(END_TIME - START_TIME);
-    START_TIME = 0;
-    console.info('\x1b[94m%s\x1b[0m', 'All zones placed in', Math.round(DURATION), 'ms', {
+const benchmark = debounce((start, end) => {
+    if (LOST_ZONES.size) {
+        const zoneMap = Array.from(LOST_ZONES).map(zone => ({
+            name: zone.getAttribute('name'),
+            zoneHTML: zone.outerHTML
+        }));
+        console.warn(`${LOST_ZONES.size} zones could not be placed:`, zoneMap);
+    }
+
+    console.info('\x1b[94m%s\x1b[0m', 'All zones placed in', Math.round(end - start), 'ms', {
         ZONES,
         LOST_ZONES
     });
+
+    for (const zone of LOST_ZONES) ZONES.delete(zone);
+    LOST_ZONES.clear();
 }, 500);
 
 /**
  * Inserts zones into the DOM.
  * @param {Set<HTMLElement>} [zones] - The zones to insert.
  * @param {number} [maxBatchSize] - The maximum batch size.
+ * @param {boolean} [isRetry] - Whether it is a retry.
+ * @param {number} [start] - The start time.
  */
-export function insertZones(zones = ZONES, maxBatchSize = 46) {
-    if (zones.size) {
-        let batch = 0;
-        for (const zone of zones) {
-            placeZone(zone);
-            batch++;
-            if (batch >= maxBatchSize) break;
-        }
+export function insertZones(zones = ZONES, maxBatchSize = 46, isRetry = false, start = performance.now()) {
+    const originalSize = zones.size;
+    let batch = 0;
+    for (const zone of zones) {
+        placeZone(zone);
+        batch++;
+        if (batch >= maxBatchSize) break;
     }
+
+    const doRetry = !isRetry || ZONES.size < originalSize;
     setTimeout(() => {
-        if (ZONES.size) {
-            insertZones(zones, maxBatchSize);
+        if (ZONES.size && doRetry) {
+            insertZones(zones, maxBatchSize, true, start);
         } else {
             for (const zone of LOST_ZONES) placeZone(zone);
             if (VERBOSE) {
-                END_TIME = performance.now();
-                benchmark();
+                benchmark(start, performance.now());
             }
         }
     });
@@ -173,7 +182,6 @@ export const insertZonesThrottled = throttle(insertZones, 10);
  * Handles zones for a node.
  */
 export function handleZones() {
-    !START_TIME && (START_TIME = performance.now());
     insertZonesThrottled();
 }
 
