@@ -1,34 +1,26 @@
 /**
- * Extracts query string parameters from a string representing a URL and returns them in an object.
- * @param {string} url - A URL string.
+ * Extracts query string parameters from a string and returns them in an object.
+ * @param {string} url - A URL string or a query string.
  * @returns {object} - An object representing the query string parameters.
  */
 export function getURLParams(url) {
-    if (typeof url !== 'string') {
-        url = window.location.href;
-    }
-    const link = document.createElement('a');
-    link.href = url;
-    if (!link.search) {
-        return {};
-    }
-    const query = link.search.substr(1);
+    const queryString = url.includes('?') ? url.split('?')[1].split('#')[0] : url;
+    if (!queryString) return {};
     const params = {};
-    const queryParts = query.split('&') || [];
-    for (const queryPart of queryParts) {
-        const keyValue = queryPart.split('=');
-        let key = keyValue[0];
-        const value = keyValue[1];
-        if (key.indexOf('[') !== -1 && key.indexOf(']') !== -1) {
-            key = key.replace(/\[[0-9]?\]/, '');
-            if (typeof params[key] === 'undefined') {
-                params[key] = [];
+    const queryParts = queryString.split('&');
+    for (const part of queryParts) {
+        const [key, value = ''] = part.split('=');
+        const decodedKey = decodeURIComponent(key);
+        const decodedValue = decodeURIComponent(value);
+        const arrayMatch = decodedKey.match(/^(.+)\[\d*\]$/);
+        if (arrayMatch) {
+            const arrayKey = arrayMatch[1];
+            if (!params[arrayKey]) {
+                params[arrayKey] = [];
             }
-            if (params[key].indexOf(value) === -1) {
-                params[key].push(value);
-            }
+            params[arrayKey].push(decodedValue);
         } else {
-            params[key] = value;
+            params[decodedKey] = decodedValue;
         }
     }
     return params;

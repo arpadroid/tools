@@ -1,10 +1,28 @@
 /**
+ * Counts the number of properties in an object.
+ * @param {Record<string, unknown>} obj
+ * @returns {number}
+ */
+export function countProps(obj) {
+    return Object.keys(obj).length;
+}
+
+/**
  * Checks if an object is an object and not an array or HTMLElement.
  * @param {unknown} obj
  * @returns {boolean}
  */
 export function isObject(obj) {
     return obj?.constructor?.name === 'Object';
+}
+
+/**
+ * Checks if an object is empty.
+ * @param {Record<string, unknown>} obj
+ * @returns {boolean}
+ */
+export function isEmptyObject(obj) {
+    return isObject(obj) && countProps(obj) === 0;
 }
 
 /**
@@ -77,24 +95,6 @@ export function getPropertyValue(path, object, defaultValue) {
 }
 
 /**
- * Counts the number of properties in an object.
- * @param {Record<string, unknown>} obj
- * @returns {number}
- */
-export function countProps(obj) {
-    return Object.keys(obj).length;
-}
-
-/**
- * Checks if an object is empty.
- * @param {Record<string, unknown>} obj
- * @returns {boolean}
- */
-export function isEmptyObject(obj) {
-    return isObject(obj) && countProps(obj) === 0;
-}
-
-/**
  * Creates a FormData object from an object.
  * @param {{}} obj
  * @returns {FormData}
@@ -105,4 +105,15 @@ export function createFormData(obj = {}) {
         formData.append(key, value);
     }
     return formData;
+}
+
+/**
+ * Binds methods to an object.
+ * @param {{}} obj
+ * @param {...string} methods
+ */
+export function bind(obj, ...methods) {
+    for (const method of methods) {
+        obj[method] = obj[method].bind(obj);
+    }
 }
