@@ -154,7 +154,7 @@ const benchmark = debounce((start, end) => {
  * @param {boolean} [isRetry] - Whether it is a retry.
  * @param {number} [start] - The start time.
  */
-export function insertZones(zones = ZONES, maxBatchSize = 46, isRetry = false, start = performance.now()) {
+export function insertZones(zones = ZONES, maxBatchSize = 25, isRetry = false, start = performance.now()) {
     const originalSize = zones.size;
     let batch = 0;
     for (const zone of zones) {
