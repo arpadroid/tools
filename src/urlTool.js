@@ -6,8 +6,11 @@
 export function getURLParams(url) {
     const queryString = url.includes('?') ? url.split('?')[1].split('#')[0] : url;
     if (!queryString) return {};
+
     const params = {};
     const queryParts = queryString.split('&');
+    queryParts[0].startsWith('http') && queryParts.shift();
+
     for (const part of queryParts) {
         const [key, value = ''] = part.split('=');
         const decodedKey = decodeURIComponent(key);
