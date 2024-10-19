@@ -47,6 +47,22 @@ export function getArrayProperty(element, name, config = element._config) {
     return value;
 }
 
+/**
+ * Checks if an element has content.
+ * @param {HTMLElement} element
+ * @param {string} property
+ * @returns {boolean}
+ */
+export function hasContent(element, property) {
+    if (typeof element?.getProperty === 'function') {
+        const rv = element.getProperty(property);
+        if (typeof rv === 'string' && rv.length) {
+            return true;
+        }
+    }
+    return typeof element?.hasZone === 'function' && element.hasZone(property);
+}
+
 export default {
     hasProperty,
     getProperty

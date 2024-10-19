@@ -1,12 +1,13 @@
 import { mechanize } from './stringTool';
+import { isObject } from './objectTool';
 
 /**
  * Adds attributes to a node.
  * @param {HTMLElement} node
  * @param {Record<string,string>} attributes
  */
-export function attr(node, attributes = {}) {
-    if (!node || typeof node.setAttribute !== 'function') {
+export function attr(node, attributes) {
+    if (!node || typeof node.setAttribute !== 'function' || !isObject(attributes)) {
         return;
     }
     for (const [key, value] of Object.entries(attributes)) {

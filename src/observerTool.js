@@ -69,6 +69,7 @@ class ObserverTool {
         instance.on = ObserverTool.on.bind(instance);
         instance.signal = ObserverTool.signal.bind(instance);
         instance.unsubscribe = ObserverTool.unsubscribe.bind(instance);
+        instance.off = ObserverTool.off.bind(instance);
         instance._observerTool = { callbacks: {}, unsubscribes: {}, listeners: {} };
     }
 
@@ -89,6 +90,11 @@ class ObserverTool {
         Array.isArray(unsubscribes) && unsubscribes.push(unsubscribe);
         VERBOSE && reportSignals(signalName, this);
         return unsubscribe;
+    }
+
+    static off(signalName, callback) {
+        const { callbacks } = this._observerTool;
+        callbacks[signalName]?.delete(callback);
     }
 
     /**
