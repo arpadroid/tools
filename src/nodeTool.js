@@ -92,14 +92,15 @@ export function style(node, css = {}) {
  * Append nodes to a container with a document fragment for performance.
  * @param {HTMLElement} container
  * @param {HTMLElement[]} nodes
+ * @param {boolean} prepend - Whether to prepend the nodes.
  */
-export function appendNodes(container, nodes = []) {
+export function appendNodes(container, nodes = [], prepend = false) {
     if (!container || !nodes?.length) {
         return;
     }
     const fragment = document.createDocumentFragment();
     fragment.append(...nodes);
-    container.appendChild(fragment);
+    prepend ? container.prepend(fragment) : container.appendChild(fragment);
 }
 
 /**

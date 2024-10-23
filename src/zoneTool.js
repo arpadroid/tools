@@ -6,9 +6,10 @@
 import { debounce, throttle } from './functionTool.js';
 import { appendNodes } from './nodeTool.js';
 
-const VERBOSE = false;
+const VERBOSE = true;
 const LOST_ZONES = new Set();
 const ZONES = new Set();
+const ZONE_SELECTOR = 'zone';
 
 /**
  * Selects all zones from a node.
@@ -16,7 +17,10 @@ const ZONES = new Set();
  * @returns {HTMLElement[]} The list of zones.
  */
 export function selectZones(node) {
-    return Array.from(node.querySelectorAll('zone'));
+    const zoneSelector =
+        (typeof node?.getProperty === 'function' && node?.getProperty('zone-selector')) || ZONE_SELECTOR;
+
+    return Array.from(node.querySelectorAll(zoneSelector));
 }
 
 /**
@@ -47,7 +51,9 @@ export async function addZone(zone, zones = ZONES, $store = new Set(), parentNod
         return;
     }
     zone._parentNode = parentNode || zone.parentNode;
-    const store = findNodeComponent(zone)?._zones || $store;
+    const nodeComponent = findNodeComponent(zone);
+    const store = nodeComponent?._zones || $store;
+    nodeComponent?.zonesByName?.add(zone.getAttribute('name'));
     store?.add(zone);
     zones?.add(zone);
 }
@@ -91,8 +97,8 @@ export async function placeZone(zone) {
     const zoneContainer = component?.querySelector(`[zone="${zoneName}"]`);
     /** @type {ArpaElement | HTMLElement} */
     const zoneComponent = findNodeComponent(zoneContainer);
-
     if (!zoneContainer || !zoneComponent) {
+        component?.zonesByName?.add(zoneName);
         LOST_ZONES.add(zone);
         return;
     }
@@ -105,7 +111,6 @@ export async function placeZone(zone) {
     }
     ZONES.delete(zone);
     LOST_ZONES.delete(zone);
-
     const append = () => appendNodes(zoneContainer, zone.childNodes);
     if (typeof zoneComponent.onRenderReady === 'function') {
         zoneComponent.onRenderReady(append);
@@ -121,6 +126,16 @@ export async function placeZone(zone) {
  * @returns {boolean} Whether the node has the zone.
  */
 export function hasZone(component, name) {
+    return component.zonesByName.has(name) || component?.parentNode?.zonesByName?.has(name);
+}
+
+/**
+ * Gets a zone from a component.
+ * @param {HTMLElement} component - The component to search.
+ * @param {string} name - The name of the zone.
+ * @returns {HTMLElement | boolean} The zone or false if not found.
+ */
+export function getZone(component, name) {
     for (const zone of component._zones) {
         if (zone.getAttribute('name') === name) {
             return zone;
@@ -133,7 +148,8 @@ const benchmark = debounce((start, end) => {
     if (LOST_ZONES.size) {
         const zoneMap = Array.from(LOST_ZONES).map(zone => ({
             name: zone.getAttribute('name'),
-            zoneHTML: zone.outerHTML
+            zoneHTML: zone.outerHTML,
+            parentHTML: zone._parentNode
         }));
         console.warn(`${LOST_ZONES.size} zones could not be placed:`, zoneMap);
     }
@@ -143,8 +159,8 @@ const benchmark = debounce((start, end) => {
         LOST_ZONES
     });
 
-    for (const zone of LOST_ZONES) ZONES.delete(zone);
-    LOST_ZONES.clear();
+    // for (const zone of LOST_ZONES) ZONES.delete(zone);
+    // LOST_ZONES.clear();
 }, 500);
 
 /**
@@ -200,13 +216,17 @@ export function onDestroy(component) {
 /**
  * Mixin for zone functionality.
  * @param {HTMLElement} component
+ * @param {HTMLElement} parent
  */
-export function zoneMixin(component) {
+export function zoneMixin(component, parent) {
     !(component?._zones instanceof Set) && (component._zones = new Set());
+    if (!component.zonesByName) {
+        component.zonesByName = new Set();
+    }
     const originalCallback = component._onDestroy || (() => {});
     component._onDestroy = function () {
         onDestroy(component);
         originalCallback.call(component);
     }.bind(component);
-    extractZones(component, component._zones);
+    extractZones(component, component._zones, parent);
 }
