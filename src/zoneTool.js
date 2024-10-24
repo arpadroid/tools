@@ -7,9 +7,9 @@ import { debounce, throttle } from './functionTool.js';
 import { appendNodes } from './nodeTool.js';
 
 const VERBOSE = true;
-const LOST_ZONES = new Set();
-const ZONES = new Set();
-const ZONE_SELECTOR = 'zone';
+export const LOST_ZONES = new Set();
+export const ZONES = new Set();
+export const ZONE_SELECTOR = 'zone';
 
 /**
  * Selects all zones from a node.
@@ -137,9 +137,7 @@ export function hasZone(component, name) {
  */
 export function getZone(component, name) {
     for (const zone of component._zones) {
-        if (zone.getAttribute('name') === name) {
-            return zone;
-        }
+        if (zone.getAttribute('name') === name) return zone;
     }
     return false;
 }
@@ -158,7 +156,6 @@ const benchmark = debounce((start, end) => {
         ZONES,
         LOST_ZONES
     });
-
     // for (const zone of LOST_ZONES) ZONES.delete(zone);
     // LOST_ZONES.clear();
 }, 500);
@@ -202,18 +199,6 @@ export function handleZones() {
 }
 
 /**
- * Destroys the zones of a component.
- * @param {HTMLElement} component - The component to destroy.
- */
-export function onDestroy(component) {
-    for (const zone of component?._zones || []) {
-        removeZone(zone);
-        removeZone(zone, LOST_ZONES);
-    }
-    component._zones = new Set();
-}
-
-/**
  * Mixin for zone functionality.
  * @param {HTMLElement} component
  * @param {HTMLElement} parent
@@ -223,10 +208,22 @@ export function zoneMixin(component, parent) {
     if (!component.zonesByName) {
         component.zonesByName = new Set();
     }
-    const originalCallback = component._onDestroy || (() => {});
-    component._onDestroy = function () {
-        onDestroy(component);
-        originalCallback.call(component);
-    }.bind(component);
     extractZones(component, component._zones, parent);
+}
+
+/**
+ * Destroys the zones of a component.
+ * @param {HTMLElement} component
+ */
+export function destroyComponentZones(component) {
+    if (!component?._zones?.size) return;
+    setTimeout(() => {
+        if (!component.isConnected) {
+            for (const zone of component?._zones) {
+                removeZone(zone);
+                removeZone(zone, LOST_ZONES);
+            }
+            component._zones = new Set();
+        }
+    }, 5);
 }

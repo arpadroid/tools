@@ -1,4 +1,5 @@
 import { dashedToCamel } from './stringTool.js';
+import { destroyComponentZones } from './zoneTool.js';
 
 /**
  * Checks if an element has a property as an attribute or defined in the configuration.
@@ -61,6 +62,14 @@ export function hasContent(element, property) {
         }
     }
     return typeof element?.hasZone === 'function' && element.hasZone(property);
+}
+
+/**
+ * Destroys the zones of a component.
+ * @param {HTMLElement} component - The component to destroy.
+ */
+export function onDestroy(component) {
+    destroyComponentZones(component);
 }
 
 export default {
