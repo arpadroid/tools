@@ -117,3 +117,16 @@ export function bind(obj, ...methods) {
         obj[method] = obj[method].bind(obj);
     }
 }
+
+/**
+ * Sorts an object by its keys.
+ * @param {Record<string, unknown>} obj
+ * @returns {Record<string, unknown>}
+ */
+export function sortKeys(obj) {
+    const ordered = {};
+    Object.keys(obj)
+        .sort()
+        .forEach(key => (ordered[key] = obj[key]));
+    return ordered;
+}

@@ -109,7 +109,7 @@ export function mechanize(str = '') {
     return result;
 }
 
-window.arpaSafeIDs = {};
+typeof window !== 'undefined' && (window.arpaSafeIDs = {});
 /**
  * Generates a safe HTML ID with minimal re-computation.
  * @param {string} _id - The input string.
@@ -191,4 +191,15 @@ export function timeStringToSeconds(str) {
     let seconds = 0;
     parts.forEach((part, index) => (seconds += parseFloat(part) * multipliers[index]));
     return seconds;
+}
+
+export function getStringBetween(str, start, end) {
+    const startIndex = str.indexOf(start);
+    const endIndex = str.indexOf(end, startIndex + start.length);
+
+    if (startIndex === -1 || endIndex === -1) {
+        return null; // Return null if the start or end string isn't found
+    }
+
+    return str.substring(startIndex + start.length, endIndex);
 }
