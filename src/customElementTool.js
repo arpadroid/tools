@@ -30,7 +30,12 @@ export function hasProperty(element, name, config = element._config) {
  */
 export function getProperty(element, name, config = element._config ?? {}) {
     const configName = dashedToCamel(name);
-    return element.getAttribute(name) ?? config[configName];
+    /** @todo Try to remove the try / catch. */
+    try {
+        return element.getAttribute(name) ?? config[configName];
+    } catch (error) {
+        return config[configName];
+    }
 }
 
 /**
