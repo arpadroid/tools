@@ -1,12 +1,5 @@
-import {
-    attr,
-    setContent,
-    isInView,
-    addContent,
-    style,
-    prepend,
-    resolveNode
-} from './nodeTool';
+import { attr, setContent, isInView, addContent, style, prepend, resolveNode } from './nodeTool';
+import { jest } from '@jest/globals';
 
 describe('nodeTool', () => {
     let node;
@@ -48,7 +41,6 @@ describe('nodeTool', () => {
             setContent(node, content);
             expect(node.firstChild).toBe(content);
         });
-
     });
 
     describe('isInView', () => {

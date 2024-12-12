@@ -1,4 +1,4 @@
-const { rgbToHex, validateColor } = require('./colorTool');
+import { rgbToHex, validateColor } from './colorTool';
 
 describe('ColorTool', () => {
     describe('rgbToHex', () => {
