@@ -110,3 +110,34 @@ export function getViewportHeight() {
 export function getViewportSize() {
     return [getViewportWidth(), getViewportHeight()];
 }
+
+/**
+ * Goes full screen.
+ * @param {HTMLElement} node - The node to go full screen.
+ */
+export function goFullScreen(node) {
+    if (node.requestFullscreen) {
+        node.requestFullscreen();
+    } else if (node.webkitRequestFullscreen) {
+        /* Safari */
+        node.webkitRequestFullscreen();
+    } else if (node.msRequestFullscreen) {
+        /* IE11 */
+        node.msRequestFullscreen();
+    }
+}
+
+/**
+ * Exits full screen.
+ */
+export function exitFullScreen() {
+    if (document.exitFullscreen) {
+        document.exitFullscreen();
+    } else if (document.webkitExitFullscreen) {
+        /* Safari */
+        document.webkitExitFullscreen();
+    } else if (document.msExitFullscreen) {
+        /* IE11 */
+        document.msExitFullscreen();
+    }
+}

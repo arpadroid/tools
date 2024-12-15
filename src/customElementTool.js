@@ -1,5 +1,5 @@
 import { dashedToCamel } from './stringTool.js';
-import { destroyComponentZones } from './zoneTool.js';
+import { destroyComponentZones, hasZone } from './zoneTool.js';
 
 /**
  * Checks if an element has a property as an attribute or defined in the configuration.
@@ -66,7 +66,7 @@ export function hasContent(element, property) {
             return true;
         }
     }
-    return typeof element?.hasZone === 'function' && element.hasZone(property);
+    return hasZone(element, property);
 }
 
 /**
