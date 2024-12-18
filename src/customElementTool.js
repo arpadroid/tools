@@ -81,3 +81,16 @@ export default {
     hasProperty,
     getProperty
 };
+
+/**
+ * Checks if a component can render.
+ * @param {HTMLElement} component - The component to check.
+ * @returns {boolean} Whether the component can render.
+ */
+export function canRender(component) {
+    if (component._hasRendered && component?._lastRendered && component._lastRendered - Date.now() < 200) {
+        return false;
+    }
+    component._lastRendered = Date.now();
+    return true;
+}

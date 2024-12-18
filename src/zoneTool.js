@@ -6,7 +6,7 @@
 import { debounce, throttle } from './functionTool.js';
 import { appendNodes } from './nodeTool.js';
 
-const VERBOSE = true;
+const VERBOSE = false;
 export const LOST_ZONES = new Set();
 export const ZONES = new Set();
 export const ZONE_SELECTOR = 'zone';
