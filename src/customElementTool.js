@@ -85,10 +85,12 @@ export default {
 /**
  * Checks if a component can render.
  * @param {HTMLElement} component - The component to check.
+ * @param {number} [timeout=200] - The timeout in milliseconds.
  * @returns {boolean} Whether the component can render.
  */
-export function canRender(component) {
-    if (component._hasRendered && component?._lastRendered && component._lastRendered - Date.now() < 200) {
+export function canRender(component, timeout = 200) {
+    if (component._hasRendered && component?._lastRendered && component._lastRendered - Date.now() < timeout) {
+        console.warn('Stopped component from rerendering too fast', component);
         return false;
     }
     component._lastRendered = Date.now();
