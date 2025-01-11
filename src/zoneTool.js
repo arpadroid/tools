@@ -112,8 +112,8 @@ export async function placeZone(zone) {
     ZONES.delete(zone);
     LOST_ZONES.delete(zone);
     const append = () => appendNodes(zoneContainer, zone.childNodes);
-    if (typeof zoneComponent.onRenderReady === 'function') {
-        zoneComponent.onRenderReady(append);
+    if (typeof zoneComponent.onRendered === 'function') {
+        zoneComponent.onRendered(append);
     } else {
         append();
     }
