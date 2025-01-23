@@ -1,14 +1,5 @@
 /**
- * @interface CropInterface
- * @type {CropInterface}
- * @property {number} x - The x-coordinate of the crop.
- * @property {number} y - The y-coordinate of the crop.
- * @property {number} width - The width of the crop.
- * @property {number} height - The height of the crop.
- * @property {number} [ratio] - The aspect ratio of the crop.
- * @property {string} [type] - The type of the crop.
- * @property {string} [url] - The URL of the crop.
- * @property {HTMLCanvasElement} [canvas] - The canvas element of the crop.
+ * @typedef {import('./imageTool.types').CropInterface} CropInterface
  */
 
 /**
@@ -27,15 +18,17 @@ export function getDisplaySize(img) {
     return [Math.round(width), Math.round(height)];
 }
 
+const DEFAULT_CROP = { x: 0, y: 0, width: 0, height: 0, ratio: 1 };
+
 /**
  * Up-scales an image to the available space in the image HTML container while maintaining the aspect ratio.
  * @param {HTMLImageElement} image - The image element.
  * @param {CropInterface} opt - The crop options.
  */
-export function upscale(image, opt = {}) {
+export function upscale(image, opt = { ...DEFAULT_CROP }) {
     let { width = 0, height = 0 } = opt;
-    const availableWidth = image.parentNode.clientWidth;
-    const availableHeight = image.parentNode.clientHeight;
+    const availableWidth = image?.parentElement?.clientWidth || window.innerWidth;
+    const availableHeight = image?.parentElement?.clientHeight || window.innerHeight;
     const ratio = opt.width / opt.height;
     width = availableWidth;
     height = width / ratio;
@@ -57,7 +50,7 @@ export function upscale(image, opt = {}) {
  * @param {CropInterface} opt - The crop options.
  * @returns {CropInterface} - The cropped image data.
  */
-export function crop(image, opt = {}) {
+export function crop(image, opt = { ...DEFAULT_CROP }) {
     upscale(image, opt);
     const { x = 0, y = 0, width = 0, height = 0, ratio = 1 } = opt;
     const canvas = document.createElement('canvas');
@@ -65,11 +58,11 @@ export function crop(image, opt = {}) {
     const [imageWidth, imageHeight] = getDisplaySize(image);
     canvas.width = imageWidth * ratio;
     canvas.height = imageHeight * ratio;
-    ctx.drawImage(image, 0, 0, imageWidth * ratio, imageHeight * ratio);
-    const imageData = ctx.getImageData(x, y, width * ratio, height * ratio);
+    ctx?.drawImage(image, 0, 0, imageWidth * ratio, imageHeight * ratio);
+    const imageData = ctx?.getImageData(x, y, width * ratio, height * ratio);
     canvas.width = width;
     canvas.height = height;
-    ctx.putImageData(imageData, 0, 0);
+    imageData && ctx?.putImageData(imageData, 0, 0);
     return {
         url: canvas.toDataURL(),
         canvas,

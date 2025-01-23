@@ -4,7 +4,7 @@ import { isObject } from './objectTool';
 /**
  * Adds attributes to a node.
  * @param {HTMLElement} node
- * @param {Record<string,string>} attributes
+ * @param {Record<string, string | boolean>} attributes
  */
 export function attr(node, attributes) {
     if (!node || typeof node.setAttribute !== 'function' || !isObject(attributes)) {
@@ -24,7 +24,15 @@ export function attr(node, attributes) {
  * @returns {Record<string, string | boolean>}
  */
 export function getAttributes(node) {
-    return Array.from(node.attributes).reduce((acc, { name, value }) => {
+    /**
+     * Reduces the attributes of a node to an object.
+     * @param {Record<string, string | boolean>} acc
+     * @param {{ value: string | boolean, name: string}} attr
+     * @returns {Record<string, string | boolean>}
+     */
+    const reduce = (acc, attr) => {
+        let { value } = attr;
+        const { name } = attr;
         if (value === '') {
             value = true;
         } else if (value === 'false') {
@@ -32,7 +40,8 @@ export function getAttributes(node) {
         }
         acc[name] = value;
         return acc;
-    }, {});
+    };
+    return Array.from(node.attributes).reduce(reduce, {});
 }
 
 /**
@@ -80,18 +89,18 @@ export function setContent(node, content) {
 /**
  * Styles a node.
  * @param {HTMLElement} node
- * @param {Record<string, string>} css
+ * @param {Partial<CSSStyleDeclaration>} css
  */
 export function style(node, css = {}) {
     for (const [key, value] of Object.entries(css)) {
+        // @ts-ignore
         node.style[key] = value;
     }
 }
-
 /**
  * Append nodes to a container with a document fragment for performance.
- * @param {HTMLElement} container
- * @param {HTMLElement[]} nodes
+ * @param {HTMLElement | Element} container
+ * @param {HTMLElement[] | NodeList} nodes
  * @param {boolean} prepend - Whether to prepend the nodes.
  */
 export function appendNodes(container, nodes = [], prepend = false) {
@@ -131,21 +140,20 @@ export function prepend(node, child) {
 
 /**
  * Resolves a node.
- * @param {HTMLElement|string} node
- * @param {HTMLElement} container
- * @returns {HTMLElement|null}
+ * @param {HTMLElement | DocumentFragment | string} node
+ * @param {HTMLElement | Document} container
+ * @returns {HTMLElement | DocumentFragment | null | Element}
  */
 export function resolveNode(node, container = document) {
-    if (node instanceof HTMLElement) {
-        return node;
-    }
-    if (node?.childNodes?.length === 1 && node?.firstElementChild) {
-        return node.firstElementChild;
+    if (node instanceof HTMLElement) return node;
+    if (node instanceof DocumentFragment) {
+        return (node?.childNodes?.length === 1 && node?.firstElementChild) || null;
     }
     if (typeof node === 'string') {
         return (
             container?.querySelector(node) ||
-            (typeof container.closest === 'function' && container?.closest(node))
+            (container instanceof HTMLElement && container.closest(node)) ||
+            null
         );
     }
     return node;
@@ -154,7 +162,7 @@ export function resolveNode(node, container = document) {
 /**
  * Returns the scrollable parent of a node.
  * @param {HTMLElement} node
- * @returns {HTMLElement|null}
+ * @returns {HTMLElement | null}
  */
 export function getScrollableParent(node) {
     if (!node) {
@@ -163,7 +171,7 @@ export function getScrollableParent(node) {
     if (node?.scrollTop > 0) {
         return node;
     }
-    return getScrollableParent(node.parentNode);
+    return node.parentNode instanceof HTMLElement ? getScrollableParent(node.parentNode) : null;
 }
 
 /**
@@ -182,11 +190,10 @@ export function getOffset(node) {
  * @param {number} delay
  */
 export function onDoubleClick(node, callback, delay = 500) {
+    /** @type {boolean} */
     let isRepeat;
     node.addEventListener('click', () => {
-        if (isRepeat) {
-            callback();
-        }
+        isRepeat && callback();
         isRepeat = true;
         setTimeout(() => (isRepeat = false), delay);
     });
@@ -204,7 +211,7 @@ export function addCssRule(selector, styles) {
         const content = `${selector} { ${styles} }`;
         style = document.createElement('style');
         style.id = id;
-        style.type = 'text/css';
+        style.setAttribute('type', 'text/css');
         style.innerHTML = content;
         document.head.appendChild(style);
     }

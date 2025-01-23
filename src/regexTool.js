@@ -1,3 +1,8 @@
+/**
+ * A set of regex patterns for common input validation.
+ * @module RegexTool
+ * @type {Record<string, RegExp>}
+ */
 const RegexTool = {
     alphaLower: /^([a-z0-9]+)$/,
     alphaLowerEnforce: /[^a-z0-9]/,

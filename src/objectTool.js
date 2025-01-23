@@ -27,10 +27,10 @@ export function isEmptyObject(obj) {
 
 /**
  * Merges two objects recursively.
- * @param {Record<string, unknown>} obj
- * @param {Record<string, unknown>} obj2
+ * @param {Record<string, any>} obj
+ * @param {Record<string, any>} obj2
  * @param {boolean} strict - Strict mode will filter out properties that are not in the original object.
- * @returns {Record<string, unknown>}
+ * @returns {Record<string, any>}
  */
 export function mergeObjects(obj = {}, obj2 = {}, strict = false) {
     if (Object.keys(obj2).length === 0) {
@@ -57,11 +57,15 @@ export function mergeObjects(obj = {}, obj2 = {}, strict = false) {
  * @returns {Record<string, unknown>}
  */
 export function copyObjectProps(object) {
+    /**
+     * @type {Record<string, unknown>}
+     */
     const props = {};
     for (const [key, value] of Object.entries(object)) {
         if (Array.isArray(value)) {
             props[key] = [...value];
         } else if (isObject(value)) {
+            // @ts-ignore
             props[key] = { ...value };
         } else {
             props[key] = value;
@@ -78,12 +82,14 @@ export function copyObjectProps(object) {
  * @returns {unknown}
  */
 export function getPropertyValue(path, object, defaultValue) {
+    /** @type {string[]} */
     let frags = [];
     if (typeof path === 'string') {
         frags = path.split('.');
-    } else if (typeof path.length !== 'undefined') {
+    } else if (Array.isArray(path)) {
         frags = path;
     }
+    /** @type {Record<string, any>} */
     let obj = object || window;
     for (let index = 0; index < frags.length; index++) {
         if (typeof obj[frags[index]] == 'undefined') {
@@ -96,7 +102,7 @@ export function getPropertyValue(path, object, defaultValue) {
 
 /**
  * Creates a FormData object from an object.
- * @param {{}} obj
+ * @param {Record<string, Blob>} obj
  * @returns {FormData}
  */
 export function createFormData(obj = {}) {
@@ -109,7 +115,7 @@ export function createFormData(obj = {}) {
 
 /**
  * Binds methods to an object.
- * @param {{}} obj
+ * @param {Record<string, () => void>} obj
  * @param {...string} methods
  */
 export function bind(obj, ...methods) {
@@ -124,6 +130,7 @@ export function bind(obj, ...methods) {
  * @returns {Record<string, unknown>}
  */
 export function sortKeys(obj) {
+    /** @type {Record<string, unknown>} */
     const ordered = {};
     Object.keys(obj)
         .sort()

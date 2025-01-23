@@ -1,10 +1,14 @@
 /**
+ * @typedef {import("./nodeTool.types").NodeType} NodeType
+ * @typedef {import("./nodeTool.types").DocumentType} DocumentType
+ */
+/**
  * Checks if the user agent is Opera Mini.
  * @returns {boolean} True if the user agent is Opera Mini, false otherwise.
  */
 export function isOperaPhone() {
     const userAgent = navigator.userAgent.toLowerCase();
-    return userAgent.match(/Opera Mini/i);
+    return Boolean(userAgent.match(/Opera Mini/i));
 }
 
 /**
@@ -13,7 +17,7 @@ export function isOperaPhone() {
  */
 export function isIE11() {
     const userAgent = navigator.userAgent.toLowerCase();
-    return userAgent.match(/trident\/7\./);
+    return Boolean(userAgent.match(/trident\/7\./));
 }
 
 /**
@@ -22,7 +26,7 @@ export function isIE11() {
  */
 export function isIE() {
     const userAgent = navigator.userAgent.toLowerCase();
-    return userAgent.match(/msie/) || isIE11();
+    return Boolean(userAgent.match(/msie/) || isIE11());
 }
 
 /**
@@ -49,7 +53,7 @@ export function isFirefox() {
  */
 export function isIOSPhone() {
     const userAgent = navigator.userAgent.toLowerCase();
-    return userAgent.match(/iPhone|iPad|iPod/i);
+    return Boolean(userAgent.match(/iPhone|iPad|iPod/i));
 }
 
 /**
@@ -58,7 +62,7 @@ export function isIOSPhone() {
  */
 export function isWebkit() {
     const userAgent = navigator.userAgent.toLowerCase();
-    return userAgent.match(/webkit/i);
+    return Boolean(userAgent.match(/webkit/i));
 }
 
 /**
@@ -113,7 +117,7 @@ export function getViewportSize() {
 
 /**
  * Goes full screen.
- * @param {HTMLElement} node - The node to go full screen.
+ * @param {NodeType} node - The node to go full screen.
  */
 export function goFullScreen(node) {
     if (node.requestFullscreen) {
@@ -129,15 +133,16 @@ export function goFullScreen(node) {
 
 /**
  * Exits full screen.
+ * @param {DocumentType} [doc] - The document to exit full screen.
  */
-export function exitFullScreen() {
-    if (document.exitFullscreen) {
-        document.exitFullscreen();
-    } else if (document.webkitExitFullscreen) {
+export function exitFullScreen(doc = /** @type {DocumentType} */ (document)) {
+    if (doc.exitFullscreen) {
+        doc.exitFullscreen();
+    } else if (doc.webkitExitFullscreen) {
         /* Safari */
-        document.webkitExitFullscreen();
-    } else if (document.msExitFullscreen) {
+        doc.webkitExitFullscreen();
+    } else if (doc.msExitFullscreen) {
         /* IE11 */
-        document.msExitFullscreen();
+        doc.msExitFullscreen();
     }
 }

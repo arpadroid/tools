@@ -22,13 +22,14 @@ export function decodeValueCommas(text) {
  * Converts a CSV string to JSON object array.
  * @param {string} csv - The CSV string to convert.
  * @param {Record<string, unknown>} map - An optional mapping object to rename the keys in the resulting JSON objects.
- * @returns {Array} - The JSON object array.
+ * @returns {unknown[]} - The JSON object array.
  */
 export function csvToJson(csv, map = {}) {
     const lines = csv.split('\n');
     const result = [];
     const headers = lines[0].split(',');
     for (let index = 1; index < lines.length; index++) {
+        /** @type {Record<string, unknown>} */
         const obj = {};
 
         lines[index] = encodeValueCommas(lines[index]);
@@ -40,7 +41,7 @@ export function csvToJson(csv, map = {}) {
             }
             let key = headers[index2];
             const mapKey = map[headers[index2]];
-            if (mapKey) {
+            if (typeof mapKey === 'string') {
                 key = mapKey;
             }
             obj[key] = value;

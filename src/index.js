@@ -1,7 +1,3 @@
-/**
- * All utils are [arrayTool.js, colorTool.js, csvTool.js, dateTimeTool.js, deviceTool.js, fileTool.js, imageTool.js, nodeTool.js, objectTool.js, observerTool.js, pageTool.js, regexTool.js, stringTool.js, urlTool.js, validationTool.js].
- */
-
 export * from './arrayTool.js';
 export * from './colorTool.js';
 export * from './csvTool.js';
@@ -19,6 +15,7 @@ export * from './validationTool.js';
 export * from './placeTool.js';
 export * from './searchTool.js';
 export * from './htmlTool.js';
+// @ts-ignore
 export * from './zoneTool.js';
 export * from './functionTool.js';
 export * as CustomElementTool from './customElementTool.js';

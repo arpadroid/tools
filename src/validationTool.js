@@ -19,7 +19,7 @@ export function validateRequired(value) {
 
 /**
  * Checks if a value has a maximum length.
- * @param {unknown} value - The value to be checked.
+ * @param {string | number} value - The value to be checked.
  * @param {number} maxLength - The maximum length allowed.
  * @returns {boolean | undefined} - True if the value has a maximum length, false otherwise.
  */
@@ -34,7 +34,7 @@ export function validateMaxLength(value, maxLength) {
 
 /**
  * Checks if a value has a minimum length.
- * @param {unknown} value - The value to be checked.
+ * @param {string | number} value - The value to be checked.
  * @param {number} minLength - The minimum length allowed.
  * @returns {boolean | undefined} - True if the value has a minimum length, false otherwise.
  */
@@ -49,7 +49,7 @@ export function validateMinLength(value, minLength) {
 
 /**
  * Checks if a value has a specific length.
- * @param {unknown} value - The value to be checked.
+ * @param {string | []} value - The value to be checked.
  * @param {number} length - The specific length to be checked against.
  * @returns {boolean | undefined} - True if the value has the specific length, false otherwise.
  */
@@ -64,7 +64,7 @@ export function validateLength(value, length) {
 
 /**
  * Checks if a value has a size within a range.
- * @param {unknown} value - The value to be checked.
+ * @param {string | number} value - The value to be checked.
  * @param {number[]} size - The range of sizes allowed.
  * @returns {boolean} - True if the value has a size within the range, false otherwise.
  */
@@ -72,7 +72,7 @@ export function validateSize(value, size) {
     if (isNaN(size[0]) || isNaN(size[1]) || !size?.length) {
         return true;
     }
-    return validateMaxLength(value, size[1]) && validateMinLength(value, size[0]);
+    return Boolean(validateMaxLength(value, size[1]) && validateMinLength(value, size[0]));
 }
 
 /**
@@ -83,9 +83,8 @@ export function validateSize(value, size) {
  */
 export function validateRegex(value, _regex) {
     let regex = _regex;
-    if (typeof regex === 'string' && RegexTool[regex]) {
-        regex = RegexTool[regex];
-    }
+    const preset = typeof regex === 'string' ? RegexTool[regex] : undefined;
+    preset && (regex = preset);
     // eslint-disable-next-line security/detect-non-literal-regexp
     regex = new RegExp(removeSlashes(regex.toString()));
     return regex?.test(value?.toString());

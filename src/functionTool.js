@@ -1,10 +1,12 @@
 /**
  * Debounce function.
- * @param {() => void} fn
+ * @template T
+ * @param {(args: T) => void} fn
  * @param {number} delay
- * @returns {() => void}
+ * @returns {(args: T) => void}
  */
 export function debounce(fn, delay) {
+    /** @type {ReturnType<typeof setTimeout>} */
     let timer;
     return (...args) => {
         timer && clearTimeout(timer);
@@ -19,6 +21,7 @@ export function debounce(fn, delay) {
  * @returns {() => void}
  */
 export function throttle(fn, limit) {
+    /** @type {boolean} */
     let inThrottle;
     return (...args) => {
         if (!inThrottle) {
@@ -28,3 +31,4 @@ export function throttle(fn, limit) {
         }
     };
 }
+

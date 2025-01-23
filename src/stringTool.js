@@ -87,6 +87,7 @@ export function parseOutlookEmails(str) {
     return rv.filter(email => email.includes('@'));
 }
 
+/** @type {Record<string, string>} */
 const memoizedMechanize = {};
 /**
  * Converts a string to a URL-friendly format, with memoization for faster lookup.
@@ -109,7 +110,6 @@ export function mechanize(str = '') {
     return result;
 }
 
-typeof window !== 'undefined' && (window.arpaSafeIDs = {});
 /**
  * Generates a safe HTML ID with minimal re-computation.
  * @param {string} _id - The input string.
@@ -119,7 +119,7 @@ export function getSafeHtmlId(_id) {
     let id = mechanize(_id);
     const originalId = id;
     let index = 1;
-
+    typeof window !== 'undefined' && !window.arpaSafeIDs && (window.arpaSafeIDs = {});
     // Check for duplicates and append a number if necessary
     while (window.arpaSafeIDs[id]) {
         id = `${originalId}-${index++}`;
@@ -193,6 +193,13 @@ export function timeStringToSeconds(str) {
     return seconds;
 }
 
+/**
+ * Gets a string between two other strings.
+ * @param {string} str - The input string.
+ * @param {string} start - The start string.
+ * @param {string} end - The end string.
+ * @returns {string|null} - The string between the start and end strings.
+ */
 export function getStringBetween(str, start, end) {
     const startIndex = str.indexOf(start);
     const endIndex = str.indexOf(end, startIndex + start.length);

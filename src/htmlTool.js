@@ -44,7 +44,7 @@ export function processTemplateRegex(template, props = {}) {
 /**
  * Maps an array of items to an HTML string.
  * @param {Array<unknown>} items - The items to map.
- * @param {Function} callback - The callback function to process the items.
+ * @param {() => void} callback - The callback function to process the items.
  * @returns {string} The HTML string.
  */
 export function mapHTML(items, callback) {
@@ -53,7 +53,7 @@ export function mapHTML(items, callback) {
 
 /**
  * Renders an HTML string with the provided variables.
- * @param {boolean | Function} condition - The condition to render the HTML.
+ * @param {boolean | Function | unknown} condition - The condition to render the HTML.
  * @param {string} html - The HTML string to render.
  * @returns {string} The rendered HTML string.
  */
@@ -65,14 +65,14 @@ export function render(condition, html = '') {
 /**
  * Renders an HTML node from a string.
  * @param {string} html
- * @returns {HTMLElement}
+ * @returns {HTMLElement | unknown}
  */
 export function renderNode(html = '') {
     const trimmedHtml = html?.trim() ?? '';
     if (!trimmedHtml) return null;
     const div = document.createElement('div');
     div.innerHTML = trimmedHtml;
-    return div.firstChild;
+    return div?.firstChild;
 }
 
 /**
@@ -121,24 +121,27 @@ export function attrString(attributes = {}) {
 
 /**
  * Renders a class attribute.
- * @param {string | Record<string, boolean | string[]>} classes
+ * @param {...string | Record<string, boolean | string[]>} classes
  * @returns {string}
  */
 export function classNames(...classes) {
-    return classes
-        .map(_class => {
-            if (typeof _class === 'string') {
-                return _class;
-            }
-            if (typeof _class === 'object') {
-                return Object.entries(_class)
-                    .map(([key, value]) => value && key)
-                    .join(' ');
-            }
-            if (Array.isArray(_class)) {
-                return classNames(..._class);
-            }
-        })
-        .filter(Boolean)
-        .join(' ');
+    /**
+     * Maps a class to a string.
+     * @param {string[] | Record<string, unknown> | string | undefined | boolean} _class
+     * @returns {string[] | string | undefined}
+     */
+    const classMap = _class => {
+        if (typeof _class === 'string') {
+            return _class;
+        }
+        if (typeof _class === 'object') {
+            return Object.entries(_class)
+                .map(([key, value]) => value && key)
+                .join(' ');
+        }
+        if (Array.isArray(_class)) {
+            return classNames(..._class);
+        }
+    };
+    return classes.map(classMap).filter(Boolean).join(' ');
 }

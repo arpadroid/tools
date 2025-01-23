@@ -1,12 +1,15 @@
+/**
+ * @typedef {import('./zoneTool.types').ElementType} ElementType
+ */
 import { dashedToCamel } from './stringTool.js';
 import { destroyComponentZones, hasZone } from './zoneTool.js';
 
 /**
  * Checks if an element has a property as an attribute or defined in the configuration.
- * @param {HTMLElement} element - The element to check.
+ * @param {ElementType} element - The element to check.
  * @param {string} name - The property name.
  * @param {Record<string, unknown>} [config] - The configuration object.
- * @returns {boolean | undefined} Whether the element has the property.
+ * @returns {unknown | undefined} Whether the element has the property.
  */
 export function hasProperty(element, name, config = element._config) {
     const attrVal = element.getAttribute(name);
@@ -16,17 +19,17 @@ export function hasProperty(element, name, config = element._config) {
     if (element.hasAttribute(name)) {
         return true;
     }
-    if (typeof config[dashedToCamel(name)] !== 'undefined') {
+    if (config && typeof config[dashedToCamel(name)] !== 'undefined') {
         return config[dashedToCamel(name)];
     }
 }
 
 /**
  * Gets the value of a property from the element's configuration or attributes.
- * @param {HTMLElement} element - The element to get the property from.
+ * @param {ElementType} element - The element to get the property from.
  * @param {string} name - The property name.
  * @param {Record<string, unknown>} [config] - The configuration object.
- * @returns {string} The value of the property.
+ * @returns {string | unknown} The value of the property.
  */
 export function getProperty(element, name, config = element._config ?? {}) {
     const configName = dashedToCamel(name);
@@ -40,10 +43,10 @@ export function getProperty(element, name, config = element._config ?? {}) {
 
 /**
  * Gets the value of a property from the element's configuration or attributes as an array.
- * @param {HTMLElement} element - The element to get the property from.
+ * @param {ElementType} element - The element to get the property from.
  * @param {string} name - The property name.
  * @param {Record<string, unknown>} [config] - The configuration object.
- * @returns {string[]} The value of the property as an array.
+ * @returns {unknown} The value of the property as an array.
  */
 export function getArrayProperty(element, name, config = element._config) {
     const value = getProperty(element, name, config);
@@ -55,7 +58,7 @@ export function getArrayProperty(element, name, config = element._config) {
 
 /**
  * Checks if an element has content.
- * @param {HTMLElement} element
+ * @param {ElementType} element
  * @param {string} property
  * @returns {boolean}
  */
@@ -71,7 +74,7 @@ export function hasContent(element, property) {
 
 /**
  * Destroys the zones of a component.
- * @param {HTMLElement} component - The component to destroy.
+ * @param {ElementType} component - The component to destroy.
  */
 export function onDestroy(component) {
     destroyComponentZones(component);
@@ -84,7 +87,7 @@ export default {
 
 /**
  * Checks if a component can render.
- * @param {HTMLElement} component - The component to check.
+ * @param {ElementType} component - The component to check.
  * @param {number} timeout
  * @returns {boolean} Whether the component can render.
  */

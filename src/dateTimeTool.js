@@ -4,8 +4,9 @@
  * @returns {string} - The normalized time string.
  */
 export function normalizeTimeZeroes(time) {
-    time = parseFloat(time);
-    return time < 10 ? '0' + time : time.toString();
+    const timeStr = time?.toString();
+    time = parseFloat(timeStr);
+    return time < 10 ? '0' + time : timeStr;
 }
 
 /**
@@ -173,7 +174,7 @@ export function formatDate(_date, format = 'DD-MM-YYYY HH:mm:ss', addOffset = fa
     const minutes = normalizeTimeZeroes(date.getMinutes());
     const seconds = normalizeTimeZeroes(date.getSeconds());
     return format
-        .replace('YYYY', year)
+        .replace('YYYY', year.toString())
         .replace('YY', year.toString().substr(-2))
         .replace('MMMM', date.toLocaleString(locale, { month: 'long' }))
         .replace('MMM', date.toLocaleString(locale, { month: 'short' }))
@@ -243,7 +244,7 @@ export function getDaysInMonth(month, year) {
 /**
  * Sets a date to the first day of the week.
  * @param {Date} date - The date object.
- * @returns {number} - The number of days in the month.
+ * @returns {Date} - The number of days in the month.
  */
 export function setDateToMonday(date) {
     const day = date.getDay() || 7;

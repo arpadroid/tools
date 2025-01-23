@@ -3,15 +3,18 @@ import { mergeObjects } from './objectTool.js';
 import ObserverTool from './observerTool.js';
 import { sanitizeSearchInput } from './stringTool.js';
 /**
- * @typedef {import('./searchToolInterface').SearchToolInterface} SearchToolInterface
+ * @typedef {import('./observerTool.types').ObserverType} ObserverType
+ * @typedef {import('./observerTool.types').ListenerType} ListenerType
+ * @typedef {import('./searchTool.types').SearchToolType} SearchToolType
+ * @typedef {import('./zoneTool.types').ElementType} ElementType
  */
 
 /**
  * Searches through an array of nodes and returns a list of matches and non-matches.
  * @param {string} searchValue
- * @param {HTMLElement[]} nodes
- * @param {(node: HTMLElement, isMatch: boolean) => void} callback - The callback function to execute on search.
- * @returns {{matches: HTMLElement[], nonMatches: HTMLElement[], query: string}}
+ * @param {Element[]} nodes
+ * @param {(node: Element, isMatch?: boolean) => void} callback - The callback function to execute on search.
+ * @returns {Promise<{matches: Element[], nonMatches: Element[], query: string}>}
  */
 export async function searchNodes(searchValue, nodes, callback) {
     nodes = await Promise.resolve(nodes);
@@ -19,8 +22,8 @@ export async function searchNodes(searchValue, nodes, callback) {
     const matches = [];
     const nonMatches = [];
     for (const [, node] of Object.entries(nodes)) {
-        const text = node.textContent.toLowerCase();
-        const isMatch = text.includes(query);
+        const text = node?.textContent?.toLowerCase();
+        const isMatch = text?.includes(query);
         if (isMatch) {
             matches.push(node);
         } else {
@@ -35,7 +38,7 @@ export async function searchNodes(searchValue, nodes, callback) {
 
 /**
  * Wraps all occurrences of a search value in a container with a <mark> tag.
- * @param {HTMLElement} container - The container node.
+ * @param {Element} container - The container node.
  * @param {string} searchValue - All value occurrences in the container will be encapsulated in a <mark> tag.
  * @param {string} [contentSelector] - A selector to filter nodes within the container in which search match markers will be added. If not provided, the container itself will be used, however it is recommended to provide a selector to avoid breaking the HTML.
  * @param {string} [className] - The class name to apply to the <mark> tag.
@@ -46,41 +49,56 @@ export function addSearchMatchMarkers(
     contentSelector = '',
     className = 'searchMatch'
 ) {
+    const selected = container.querySelectorAll(contentSelector);
+    /** @type {ElementType[]} */
+    // @ts-ignore
     const nodes = contentSelector
-        ? Array.from((container instanceof HTMLElement && container?.querySelectorAll(contentSelector)) ?? [])
+        ? Array.from(container instanceof HTMLElement ? selected || [] : [])
         : [container];
     nodes.forEach(node => {
         node.originalContent = node.originalContent ?? node.innerHTML;
         let content = node.originalContent;
         const value = sanitizeSearchInput(searchValue);
         if (value.length > 1) {
-            content = node.originalContent.replace(new RegExp(value, 'gi'), match => {
-                return `<mark class="${className}">${match}</mark>`;
-            });
+            /**
+             * Replaces the search value with a <mark> tag.
+             * @param {string} match
+             * @returns {string}
+             */
+            const replaceFn = match => `<mark class="${className}">${match}</mark>`;
+            content = node.originalContent.replace(new RegExp(value, 'gi'), replaceFn);
         }
         node.innerHTML = content;
     });
 }
-
+/**
+ * @class
+ * @mixes {ObserverType}
+ * @implements {ObserverType}
+ */
 class SearchTool {
-    /** @type {Event} */
-    onSearchEvent = undefined;
+    /** @type {string} */
+    _prevValue = '';
+
     /**
      * Creates a new SearchTool instance.
      * @param {HTMLInputElement} input - The input element.
-     * @param {SearchToolInterface} [config] - The configuration options.
+     * @param {SearchToolType} [config] - The configuration options.
      */
     constructor(input, config = {}) {
         ObserverTool.mixin(this);
         this.onSearchInput = this.onSearchInput.bind(this);
         this.onSearchNode = this.onSearchNode.bind(this);
+        /** @type {HTMLInputElement} */
         this.input = input;
         this.setConfig(config);
         this._initialize();
     }
 
+    _observerTool = { callbacks: {} };
+
     _initialize() {
-        const { debounceDelay } = this.config;
+        const { debounceDelay } = this.config || {};
         this.input.removeEventListener('input', this.onSearchInput);
         this.input.addEventListener('input', this.onSearchInput);
         clearTimeout(this.debounceSearchTimeout);
@@ -89,25 +107,24 @@ class SearchTool {
 
     /**
      * Sets the configuration.
-     * @param {SearchToolInterface} config - The configuration options.
+     * @param {SearchToolType} config - The configuration options.
      * @returns {SearchTool}
      */
-    setConfig(config) {
-        /** @type {SearchToolInterface} */
+    setConfig(config = {}) {
+        /** @type {SearchToolType} */
         this.config = mergeObjects(this.getDefaultConfig(), config);
         return this;
     }
 
     /**
      * Returns the default configuration options.
-     * @returns {SearchToolInterface}
+     * @returns {SearchToolType}
      */
     getDefaultConfig() {
         return {
             matchClass: 'searchMatch',
             debounceDelay: 500,
             searchSelector: '',
-            callback: null,
             addMarkers: true,
             hideNonMatches: true
         };
@@ -115,27 +132,40 @@ class SearchTool {
 
     /**
      * Returns the list of nodes to search through.
-     * @returns {HTMLElement[]}
+     * @returns {ElementType[]}
      */
     getNodes() {
-        const { getNodes, container } = this.config;
+        const { getNodes, container } = this.config || {};
         if (typeof getNodes === 'function') {
             return getNodes();
         }
         if (container instanceof HTMLElement) {
-            return Array.from(container.childNodes);
+            // @ts-ignore
+            return Array.from(container?.childNodes || []).filter(node => node instanceof HTMLElement);
         }
-        return this.config.nodes ?? [];
+        return this.config?.nodes ?? [];
+    }
+
+    /**
+     * Sends a signal to the observer.
+     * @param {string} signalName
+     * @param {unknown} payload
+     * @returns {void}
+     */
+    signal(signalName, payload) {
+        const text =
+            'This method should be overridden by the ObserverTool.mixin method, if not, there is a problem.';
+        console.error(text, { signalName, payload });
     }
 
     /**
      * Executes a search on an input element.
-     * @param {Event} event - The event object.
+     * @param {Event | undefined} event - The event object.
      * @param {string} [query]
-     * @param {HTMLElement[]} [nodes] - The list of nodes to search through.
+     * @param {Element[]} [nodes] - The list of nodes to search through.
      */
     async doSearch(event, query = this.input.value, nodes = this.getNodes()) {
-        const { onSearch } = this.config;
+        const { onSearch } = this.config || {};
         if (typeof onSearch === 'function' && onSearch({ query, event, nodes }) === false) {
             return;
         }
@@ -152,10 +182,8 @@ class SearchTool {
      * @param {Event} event - The event object.
      */
     onSearchInput(event) {
-        if (event) {
-            this.onSearchEvent = event;
-        }
-        const { debounceDelay } = this.config;
+        event && (this.onSearchEvent = event);
+        const { debounceDelay } = this.config || {};
         clearTimeout(this._searchTimeout);
         this._searchTimeout = setTimeout(() => {
             if (this.input.value !== this._prevValue) {
@@ -168,12 +196,12 @@ class SearchTool {
 
     /**
      * Adds search match markers to a node.
-     * @param {HTMLElement} node - The node to add search match markers to.
+     * @param {Element} node - The node to add search match markers to.
      * @param {boolean} isMatch - Whether the node is a match.
-     * @param {Event} event - The event object.
+     * @param {Event | undefined} event - The event object.
      */
-    onSearchNode(node, isMatch, event) {
-        const { onSearchNode, searchSelector, matchClass, addMarkers, hideNonMatches } = this.config;
+    onSearchNode(node, isMatch = false, event) {
+        const { onSearchNode, searchSelector, matchClass, addMarkers, hideNonMatches } = this.config || {};
         if (typeof onSearchNode === 'function' && onSearchNode(node, isMatch) === false) {
             return;
         }
@@ -181,7 +209,7 @@ class SearchTool {
         if (addMarkers) {
             addSearchMatchMarkers(node, isMatch ? value : '', searchSelector, matchClass);
         }
-        if (event && hideNonMatches) {
+        if (node instanceof HTMLElement && event && hideNonMatches) {
             node.style.display = isMatch ? '' : 'none';
         }
     }

@@ -1,3 +1,4 @@
+/** @type {HTMLElement} */
 let colorNode;
 
 /**

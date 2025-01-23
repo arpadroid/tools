@@ -1,12 +1,12 @@
 /**
  * Extracts query string parameters from a string and returns them in an object.
  * @param {string} url - A URL string or a query string.
- * @returns {object} - An object representing the query string parameters.
+ * @returns {Record<string, any>} - An object representing the query string parameters.
  */
 export function getURLParams(url) {
     const queryString = url.includes('?') ? url.split('?')[1].split('#')[0] : url;
     if (!queryString) return {};
-
+    /** @type {Record<string, any>} */
     const params = {};
     const queryParts = queryString.split('&');
     queryParts[0].startsWith('http') && queryParts.shift();
@@ -21,7 +21,7 @@ export function getURLParams(url) {
             if (!params[arrayKey]) {
                 params[arrayKey] = [];
             }
-            params[arrayKey].push(decodedValue);
+            Array.isArray(params[arrayKey]) && params[arrayKey].push(decodedValue);
         } else {
             params[decodedKey] = decodedValue;
         }
@@ -112,7 +112,8 @@ export function removeURLOrigin(url = window?.location?.href) {
  * @returns {string} - The sanitized URL.
  */
 export function sanitizeURL(url) {
-    return sanitizePath(removeURLOrigin(url));
+    const urlWithoutOrigin = removeURLOrigin(url) || '';
+    return sanitizePath(urlWithoutOrigin);
 }
 
 /**
@@ -128,13 +129,14 @@ export function getURLPath(url = window.location.href) {
  * Gets a specific query string parameter value from a URL.
  * @param {string} name - The name of the query string parameter.
  * @param {string} url - A URL string.
- * @returns {string} - The value of the query string parameter.
+ * @returns {string | undefined} - The value of the query string parameter.
  */
 export function getURLParam(name, url = window.location.href) {
     let value;
     const params = getURLParams(url);
-    if (params && typeof params[name] !== 'undefined') {
-        value = decodeURIComponentSafe(params[name]);
+    const $name = params[name];
+    if (params && typeof $name !== 'undefined') {
+        value = decodeURIComponentSafe($name);
     }
     return value;
 }
@@ -142,7 +144,7 @@ export function getURLParam(name, url = window.location.href) {
 /**
  * Matches a URL against a route.
  * @param {string} url - Any URL.
- * @param {string[]} route - An array of routes to match against.
+ * @param {string} route - An array of routes to match against.
  * @returns {boolean} - True if there is a match, false otherwise.
  */
 export function matchPath(url, route) {
@@ -189,7 +191,7 @@ export function getPathParts(url = window.location.href) {
 
 /**
  * Transforms an object into a URL query string.
- * @param {object} object - An object with properties to be converted into a query string.
+ * @param {Record<string, unknown>} object - An object with properties to be converted into a query string.
  * @param {boolean} encode - Whether or not to encode the query string values.
  * @returns {string} - A URL query string.
  */
@@ -199,7 +201,7 @@ export function objectToQueryString(object = {}, encode = true) {
         if (!Object.prototype.hasOwnProperty.call(object, prop) || prop === '') {
             continue;
         }
-        const val = object[prop] || '';
+        const val = (object[prop] || '')?.toString() || '';
         if (val.constructor === Array) {
             rv += arrayToQueryString(prop, val, encode);
         } else if (encode) {
@@ -216,13 +218,14 @@ export function objectToQueryString(object = {}, encode = true) {
  * Edits the query in a URL. This function is designed to work with any kind of string, not necessarily a valid URL format that includes a protocol, such as the one required by the native JS URL constructor, which does not handle relative URLs.
  * Unlike URLSearchParams constructor, this function accepts a full URL and will not encode the path.
  * @param {string} url - A URL string.
- * @param {object} params - A set of parameters representing query string values that must be edited in the URL.
+ * @param {Record<string, unknown>} params - A set of parameters representing query string values that must be edited in the URL.
  * @param {boolean} encode - Whether or not to encode the query string values.
  * @returns {string} - A new URL string with query string parameters based on the params object.
  */
 export function editURL(url, params = {}, encode = true) {
     let rv = url;
     const urlParts = url.split('?');
+    /** @type {Record<string, unknown>} */
     const queryObject = getURLParams(url) || {};
     rv = urlParts[0];
     for (const param in params) {
@@ -251,6 +254,7 @@ export function removeURLParam(name, url) {
     }
     const urlParts = url.split('?');
     const rv = urlParts[0];
+    /** @type {Record<string, unknown>} */
     const params = getURLParams(url);
     const newParams = Object.keys(params)
         .filter(key => key !== name)

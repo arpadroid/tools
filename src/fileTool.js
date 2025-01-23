@@ -4,7 +4,7 @@
  * @returns {string}
  */
 export function getExtension(file) {
-    return file.name.split('.').pop().toLowerCase();
+    return file?.name?.split('.')?.pop()?.toLowerCase() || '';
 }
 
 /**
@@ -13,7 +13,7 @@ export function getExtension(file) {
  * @returns {string}
  */
 export function getFileName(file) {
-    return file.name.split('.').shift();
+    return file.name.split('.').shift() || '';
 }
 
 /**
@@ -27,14 +27,14 @@ export function getMimeType(file) {
 
 /**
  * Convert a file to base64 asynchronously.
- * @param {File} file
- * @returns {Promise<string>}
+ * @param {Blob} file
+ * @returns {Promise<string | ArrayBuffer | null>}
  */
 export function getBase64(file) {
     return new Promise(resolve => {
         const reader = new FileReader();
         reader.onload = () => {
-            resolve(reader.result);
+            resolve(reader.result || '');
         };
         reader.readAsDataURL(file);
     });
@@ -42,8 +42,8 @@ export function getBase64(file) {
 
 /**
  * Convert a file to base64 synchronously.
- * @param {File} file
- * @returns {string}
+ * @param {Blob} file
+ * @returns {string | ArrayBuffer | null}
  */
 export function getBase64Sync(file) {
     const reader = new FileReader();
@@ -54,7 +54,7 @@ export function getBase64Sync(file) {
 /**
  * Convert a file from a URL to base64.
  * @param {string} url
- * @returns {Promise<string>}
+ * @returns {Promise<string | ArrayBuffer | null>}
  */
 export function getBase64FromUrl(url) {
     return fetch(url)
@@ -81,7 +81,7 @@ export function formatBytes(bytes, precision = 1) {
     if (bytes === 0) {
         return '0 bytes';
     }
-    if (isNaN(parseFloat(bytes)) || !isFinite(bytes)) {
+    if (isNaN(parseFloat(bytes.toString())) || !isFinite(bytes)) {
         return '';
     }
     const units = ['bytes', 'KB', 'MB', 'GB', 'TB', 'PB'];
@@ -96,7 +96,7 @@ export function formatBytes(bytes, precision = 1) {
 
 /**
  * Check if an event contains files.
- * @param {Event} event
+ * @param {DragEvent} event
  * @returns {boolean}
  */
 export function eventContainsFiles(event) {
@@ -186,7 +186,7 @@ export function getFileType(ext) {
  * Returns the icon for a file based on its extension.
  * @param {string | File} ext - If a string, it should be the extension of the file e.g 'jpg', 'pdf'.
  * If a File object, it will be processed to get the extension.
- * @returns {string}
+ * @returns {string | undefined}
  */
 export function getFileIcon(ext) {
     const fileType = getFileType(ext);
