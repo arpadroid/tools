@@ -7,7 +7,7 @@ import {
     formatBytes,
     eventContainsFiles,
     processFile
-} from './fileTool.js';
+} from './fileTool';
 
 describe('FileTool', () => {
     describe('getExtension', () => {
@@ -56,7 +56,7 @@ describe('FileTool', () => {
         it('should check if an event contains files', () => {
             const eventWithoutFiles = { dataTransfer: { types: [] } };
             const eventWithFiles = { dataTransfer: { types: ['Files'] } };
-            
+
             expect(eventContainsFiles(eventWithoutFiles)).toBe(false);
             expect(eventContainsFiles(eventWithFiles)).toBe(true);
         });
@@ -69,7 +69,6 @@ describe('FileTool', () => {
             expect(processedFile.name).toBe('example.txt');
             expect(processedFile.size).toBe('1 bytes');
             expect(processedFile.extension).toBe('txt');
-            
         });
     });
 });

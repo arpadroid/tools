@@ -1,25 +1,33 @@
-export type SignalType = (value?: unknown, param1?: unknown, param2?: unknown) => void;
+/* eslint-disable @typescript-eslint/no-explicit-any */
+export type SignalType = (
+    signalName?: string,
+    payload?: unknown,
+    payload2?: unknown,
+    payload3?: unknown
+) => void;
+
+export type SignalCallBackType = (payload?: unknown, payload2?: unknown, payload3?: unknown) => void;
 
 export type UnsubscribeType = () => void;
 
 export type ListenerType = (
     signalName: string,
-    callback: SignalType,
+    callback: SignalCallBackType,
     unsubscribes: UnsubscribeType[] | undefined
 ) => UnsubscribeType | undefined;
 
-export type OffType = (signalName: string, callback: SignalType) => void;
+export type OffType = (signalName: string, callback: SignalCallBackType) => void;
 
 export type ObserverType = {
     on?: ListenerType;
     off?: OffType;
-    signal?: (signalName: string, value?: unknown, param1?: unknown, param2?: unknown) => void | undefined;
+    signal?: SignalType | undefined;
     unsubscribe?: (signalName: string, callback: SignalType) => UnsubscribeType;
     _observerTool?: ObserverStoreType;
 };
 
 export type ObserverStoreType = {
-    callbacks?: Record<string, Set<SignalType>>;
+    callbacks?: Record<string, Set<SignalCallBackType>>;
 };
 
 export type ObserverInstanceType<T = any> = T &

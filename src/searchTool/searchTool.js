@@ -1,13 +1,13 @@
 /* eslint-disable security/detect-non-literal-regexp */
-import { mergeObjects } from './objectTool.js';
-import ObserverTool from './observerTool.js';
-import { sanitizeSearchInput } from './stringTool.js';
+import { mergeObjects } from '../objectTool/objectTool.js';
+import { dummySignal, observerMixin } from '../observerTool/observerTool.js';
+import { sanitizeSearchInput } from '../stringTool/stringTool.js';
 /**
- * @typedef {import('./observerTool.types').ObserverType} ObserverType
- * @typedef {import('./observerTool.types').ObserverStoreType} ObserverStoreType
- * @typedef {import('./observerTool.types').ListenerType} ListenerType
+ * @typedef {import('../observerTool/observerTool.types').ObserverType} ObserverType
+ * @typedef {import('../observerTool/observerTool.types').ObserverStoreType} ObserverStoreType
+ * @typedef {import('../observerTool/observerTool.types').ListenerType} ListenerType
  * @typedef {import('./searchTool.types').SearchToolType} SearchToolType
- * @typedef {import('./zoneTool.types').ElementType} ElementType
+ * @typedef {import('../zoneTool/zoneTool.types').ElementType} ElementType
  */
 
 /**
@@ -73,7 +73,7 @@ export function addSearchMatchMarkers(
     });
 }
 
-class SearchTool {
+export class SearchTool {
     /** @type {string} */
     _prevValue = '';
 
@@ -83,7 +83,8 @@ class SearchTool {
      * @param {SearchToolType} [config] - The configuration options.
      */
     constructor(input, config = {}) {
-        ObserverTool.mixin(this);
+        this.signal = dummySignal;
+        observerMixin(this);
         this.onSearchInput = this.onSearchInput.bind(this);
         this.onSearchNode = this.onSearchNode.bind(this);
         /** @type {HTMLInputElement} */
@@ -142,17 +143,6 @@ class SearchTool {
         return this.config?.nodes ?? [];
     }
 
-    /**
-     * Sends a signal to the observer.
-     * @param {string} signalName
-     * @param {unknown} payload
-     * @returns {void}
-     */
-    signal(signalName, payload) {
-        const text =
-            'This method should be overridden by the ObserverTool.mixin method, if not, there is a problem.';
-        console.error(text, { signalName, payload });
-    }
 
     /**
      * Executes a search on an input element.

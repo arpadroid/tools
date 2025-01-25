@@ -3,7 +3,7 @@
  * @module RegexTool
  * @type {Record<string, RegExp>}
  */
-const RegexTool = {
+export const RegexTool = {
     alphaLower: /^([a-z0-9]+)$/,
     alphaLowerEnforce: /[^a-z0-9]/,
     alphaLowerCommas: /^[a-z0-9,]+$/,

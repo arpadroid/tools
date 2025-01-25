@@ -1,9 +1,9 @@
 /**
- * @typedef {import('./zoneTool.types').ElementType} ElementType
- * @typedef {import('./common.types').CallableType} CallableType
+ * @typedef {import('../zoneTool/zoneTool.types').ElementType} ElementType
+ * @typedef {import('../common.types').CallableType} CallableType
  */
-import { dashedToCamel } from './stringTool.js';
-import { destroyComponentZones, hasZone } from './zoneTool.js';
+import { dashedToCamel } from '../stringTool/stringTool.js';
+import { destroyComponentZones, hasZone } from '../zoneTool/zoneTool.js';
 
 /**
  * Checks if an element has a property as an attribute or defined in the configuration.

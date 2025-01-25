@@ -4,6 +4,7 @@ declare global {
         i18nInstance: any;
     }
 }
+
 export type PlaceToolOptionsType = Record<string, unknown> & {
     position?: string;
     container?: HTMLElement;

@@ -1,15 +1,14 @@
 import { jest } from '@jest/globals';
-import ObserverTool from './observerTool';
+import { observerMixin, dummySignal } from './observerTool';
 
 class TestClass {
     testProperty = false;
-    /** @type {Function} */
-    signal;
+    signal = dummySignal;
     /** @type {Function} */
     on;
 
     constructor() {
-        ObserverTool.mixin(this);
+        observerMixin(this);
     }
 
     changeTestProperty(value) {

@@ -1,6 +1,6 @@
 /**
- * @typedef {import("./nodeTool.types").NodeType} NodeType
- * @typedef {import("./nodeTool.types").DocumentType} DocumentType
+ * @typedef {import("../nodeTool/nodeTool.types").NodeType} NodeType
+ * @typedef {import("../nodeTool/nodeTool.types").DocumentType} DocumentType
  */
 /**
  * Checks if the user agent is Opera Mini.

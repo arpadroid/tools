@@ -1,6 +1,6 @@
-import { validateColor } from './colorTool.js';
-import RegexTool from './regexTool.js';
-import { removeSlashes } from './stringTool.js';
+import { validateColor } from '../colorTool/colorTool';
+import RegexTool from '../regexTool/regexTool';
+import { removeSlashes } from '../stringTool/stringTool';
 
 /**
  * Checks if a value is required.

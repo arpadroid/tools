@@ -1,7 +1,7 @@
 /**
- * @typedef {import('./zoneTool.types.js').ElementType} ElementType
+ * @typedef {import('../zoneTool/zoneTool.types.js').ElementType} ElementType
  */
-import { camelToDashed } from './stringTool.js';
+import { camelToDashed } from '../stringTool/stringTool.js';
 
 /**
  * Processes a template string and replaces the placeholders with the provided props.

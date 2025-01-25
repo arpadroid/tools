@@ -1,5 +1,5 @@
-import { mechanize } from './stringTool';
-import { isObject } from './objectTool';
+import { mechanize } from '../stringTool/stringTool';
+import { isObject } from '../objectTool/objectTool';
 
 /**
  * Adds attributes to a node.

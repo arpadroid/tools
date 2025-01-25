@@ -1,5 +1,5 @@
 /**
- * @typedef {import('./zoneTool.types').ElementType} ElementType
+ * @typedef {import('../zoneTool/zoneTool.types').ElementType} ElementType
  */
 /**
  * Counts the number of properties in an object.
@@ -117,7 +117,7 @@ export function createFormData(obj = {}) {
 
 /**
  * Binds methods to an object.
- * @param {import('./common.types').SettableType} obj
+ * @param {import('../common.types').SettableType} obj
  * @param {...string} methods
  */
 export function bind(obj, ...methods) {

@@ -3,10 +3,10 @@
  * @description A set of tools for placing nodes in the document.
  */
 /**
- * @typedef {import("./placeTool.types").PlaceToolOptionsType} PlaceToolOptionsType
+ * @typedef {import("../placeTool/placeTool.types").PlaceToolOptionsType} PlaceToolOptionsType
  */
-import { style } from './nodeTool';
-import { mergeObjects } from './objectTool';
+import { style } from '../nodeTool/nodeTool';
+import { mergeObjects } from '../objectTool/objectTool';
 
 /**
  * The default options for placing a node.

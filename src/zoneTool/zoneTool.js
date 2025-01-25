@@ -1,11 +1,11 @@
 /**
  * @typedef {import('./zoneTool.types').ZoneToolPlaceZoneType} ZoneToolPlaceZoneType
  * @typedef {import('./zoneTool.types').ZoneType} ZoneType
- * @typedef {import('./searchTool.js').ElementType} ElementType
+ * @typedef {import('../searchTool/searchTool.js').ElementType} ElementType
  */
 
-import { debounce, throttle } from './functionTool.js';
-import { appendNodes } from './nodeTool.js';
+import { debounce, throttle } from '../functionTool/functionTool.js';
+import { appendNodes } from '../nodeTool/nodeTool.js';
 
 /** @type {boolean} */
 const VERBOSE = false;
