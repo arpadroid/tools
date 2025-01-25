@@ -4,15 +4,16 @@
     "description": "A Javascript utility library",
     "main": "dist/arpadroid-tools.js",
     "module": "dist/arpadroid-tools.js",
+    "types": "./dist/@types/types.compiled.d.ts",
     "type": "module",
-    "types": "./dist/types.d.ts",
     "sideEffects": false,
     "scripts": {
         "build": "node ./node_modules/@arpadroid/arpadroid/scripts/build-project.mjs --project=tools --minify",
         "prepublish": "npm run build",
         "test": "jest",
         "test:coverage": "jest --coverage",
-        "generate-docs": "jsdoc2md src/*.js > README.md"
+        "generate-docs": "jsdoc2md src/*.js > README.md",
+        "build:types": "tsc --declaration --emitDeclarationOnly --outDir dist"
     },
     "engines": {
         "node": ">=16.0.0"

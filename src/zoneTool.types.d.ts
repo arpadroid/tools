@@ -22,6 +22,7 @@ export type ComponentType = HTMLElement & {
     _hasRendered?: boolean;
     _lastRendered?: number;
     _config?: Record<string, unknown>;
+    [key: string]: any;
 };
 
 export type ElementType = ComponentType & (Element | HTMLElement | ZoneType | ParentNode);

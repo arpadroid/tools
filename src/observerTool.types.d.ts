@@ -15,7 +15,14 @@ export type ObserverType = {
     off?: OffType;
     signal?: (signalName: string, value?: unknown, param1?: unknown, param2?: unknown) => void | undefined;
     unsubscribe?: (signalName: string, callback: SignalType) => UnsubscribeType;
-    _observerTool?: {
-        callbacks?: Record<string, Set<SignalType>>;
-    };
+    _observerTool?: ObserverStoreType;
 };
+
+export type ObserverStoreType = {
+    callbacks?: Record<string, Set<SignalType>>;
+};
+
+export type ObserverInstanceType<T = any> = T &
+    ObserverType & {
+        [key: string]: any;
+    };

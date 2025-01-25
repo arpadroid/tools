@@ -1,7 +1,7 @@
 /**
  * @typedef {import('./zoneTool.types').ZoneToolPlaceZoneType} ZoneToolPlaceZoneType
  * @typedef {import('./zoneTool.types').ZoneType} ZoneType
- * @typedef {import('./zoneTool.types').ElementType} ElementType
+ * @typedef {import('./searchTool.js').ElementType} ElementType
  */
 
 import { debounce, throttle } from './functionTool.js';
@@ -148,7 +148,7 @@ export function hasZone(component, name) {
  * Gets a zone from a component.
  * @param {ElementType} component - The component to search.
  * @param {string} name - The name of the zone.
- * @returns {ZoneType | boolean} The zone or false if not found.
+ * @returns {ZoneType | null} The zone or false if not found.
  */
 export function getZone(component, name) {
     if (component._zones) {
@@ -184,15 +184,22 @@ export const benchmark = (start, end) => {
 
 /**
  * Benchmarks zone placement.
- * @param {number} start - The start time.
- * @param {number} end - The end time.
- * @returns {void}
+ */
+/**
+ * @callback BenchmarkCallback
+ * @param {number} start
+ * @param {number} end
+ */
+
+/**
+ * Benchmarks zone placement. 
+ * @type {BenchmarkCallback} 
  */
 const benchMarkCallback = (start, end) => benchmark(start, end);
 
 /**
  * Debounces the benchmark function.
- * @type {(...args: [number, number]) => void}
+ * @type {BenchmarkCallback}
  */
 // @ts-ignore
 const benchmarkDebounced = debounce(benchMarkCallback, 500);
@@ -237,10 +244,11 @@ export function handleZones() {
 
 /**
  * Mixin for zone functionality.
- * @param {ElementType} component
- * @param {ElementType} parent
+ * @param {ElementType | undefined} component
+ * @param {ElementType | undefined} [parent]
  */
 export function zoneMixin(component, parent) {
+    if (!component) return;
     !(component?._zones instanceof Set) && (component._zones = new Set());
     if (!component.zonesByName) {
         component.zonesByName = new Set();

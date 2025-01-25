@@ -1,3 +1,6 @@
+/**
+ * @typedef {import('./zoneTool.types').ElementType} ElementType
+ */
 export * from './arrayTool.js';
 export * from './colorTool.js';
 export * from './csvTool.js';
@@ -15,7 +18,6 @@ export * from './validationTool.js';
 export * from './placeTool.js';
 export * from './searchTool.js';
 export * from './htmlTool.js';
-// @ts-ignore
 export * from './zoneTool.js';
 export * from './functionTool.js';
 export * as CustomElementTool from './customElementTool.js';

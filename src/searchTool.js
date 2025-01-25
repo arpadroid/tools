@@ -4,6 +4,7 @@ import ObserverTool from './observerTool.js';
 import { sanitizeSearchInput } from './stringTool.js';
 /**
  * @typedef {import('./observerTool.types').ObserverType} ObserverType
+ * @typedef {import('./observerTool.types').ObserverStoreType} ObserverStoreType
  * @typedef {import('./observerTool.types').ListenerType} ListenerType
  * @typedef {import('./searchTool.types').SearchToolType} SearchToolType
  * @typedef {import('./zoneTool.types').ElementType} ElementType
@@ -71,11 +72,7 @@ export function addSearchMatchMarkers(
         node.innerHTML = content;
     });
 }
-/**
- * @class
- * @mixes {ObserverType}
- * @implements {ObserverType}
- */
+
 class SearchTool {
     /** @type {string} */
     _prevValue = '';
@@ -94,7 +91,7 @@ class SearchTool {
         this.setConfig(config);
         this._initialize();
     }
-
+    /** @type {ObserverStoreType} */
     _observerTool = { callbacks: {} };
 
     _initialize() {
@@ -104,7 +101,6 @@ class SearchTool {
         clearTimeout(this.debounceSearchTimeout);
         this.debounceSearchTimeout = setTimeout(this.onSearchInput, debounceDelay);
     }
-
     /**
      * Sets the configuration.
      * @param {SearchToolType} config - The configuration options.

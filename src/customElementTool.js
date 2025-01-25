@@ -1,5 +1,6 @@
 /**
  * @typedef {import('./zoneTool.types').ElementType} ElementType
+ * @typedef {import('./common.types').CallableType} CallableType
  */
 import { dashedToCamel } from './stringTool.js';
 import { destroyComponentZones, hasZone } from './zoneTool.js';
@@ -46,7 +47,7 @@ export function getProperty(element, name, config = element._config ?? {}) {
  * @param {ElementType} element - The element to get the property from.
  * @param {string} name - The property name.
  * @param {Record<string, unknown>} [config] - The configuration object.
- * @returns {unknown} The value of the property as an array.
+ * @returns {(string | number | unknown)[]} The value of the property as an array.
  */
 export function getArrayProperty(element, name, config = element._config) {
     const value = getProperty(element, name, config);
@@ -58,7 +59,7 @@ export function getArrayProperty(element, name, config = element._config) {
 
 /**
  * Checks if an element has content.
- * @param {ElementType} element
+ * @param {CallableType} element
  * @param {string} property
  * @returns {boolean}
  */
@@ -87,7 +88,7 @@ export default {
 
 /**
  * Checks if a component can render.
- * @param {ElementType} component - The component to check.
+ * @param {ElementType | any} component - The component to check.
  * @param {number} timeout
  * @returns {boolean} Whether the component can render.
  */

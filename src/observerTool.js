@@ -4,8 +4,10 @@
  */
 /**
  * @typedef {import('./observerTool.types').ObserverType} ObserverType
+ * @typedef {import('./observerTool.types').ObserverInstanceType} ObserverInstanceType
  * @typedef {import('./observerTool.types').SignalType} SignalType
  * @typedef {import('./observerTool.types').UnsubscribeType} UnsubscribeType
+ * @typedef {import('./zoneTool.types').ElementType} ElementType
  */
 import { debounce } from './functionTool';
 
@@ -61,7 +63,7 @@ const reportSignals = (signalName, instance) => {
 const ObserverTool = {
     /**
      * Binds the subscribe, callSubscribers, initializeSubscriptions and unsubscribeProperty methods to the instance.
-     * @param {ObserverType} instance
+     * @param {ObserverInstanceType} instance
      */
     mixin(instance) {
         instance.on = ObserverTool.on.bind(instance);

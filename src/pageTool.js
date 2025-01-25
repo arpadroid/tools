@@ -58,7 +58,7 @@ export function onResize(callback) {
 function initializeOnScroll(callback) {
     window.addEventListener('scroll', callback);
     let isScrolling = false;
-    /** @type {ReturnType<typeof setTimeout>} */
+    /** @type {any | undefined} */
     let scrollStartTimeout;
     /**
      * Calls the scroll start callback functions.

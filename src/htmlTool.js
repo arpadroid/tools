@@ -1,3 +1,6 @@
+/**
+ * @typedef {import('./zoneTool.types.js').ElementType} ElementType
+ */
 import { camelToDashed } from './stringTool.js';
 
 /**
@@ -43,7 +46,7 @@ export function processTemplateRegex(template, props = {}) {
 
 /**
  * Maps an array of items to an HTML string.
- * @param {Array<unknown>} items - The items to map.
+ * @param {unknown[]} items - The items to map.
  * @param {() => void} callback - The callback function to process the items.
  * @returns {string} The HTML string.
  */
@@ -53,7 +56,7 @@ export function mapHTML(items, callback) {
 
 /**
  * Renders an HTML string with the provided variables.
- * @param {boolean | Function | unknown} condition - The condition to render the HTML.
+ * @param {unknown | (() => unknown)} condition - The condition to render the HTML.
  * @param {string} html - The HTML string to render.
  * @returns {string} The rendered HTML string.
  */
@@ -65,7 +68,7 @@ export function render(condition, html = '') {
 /**
  * Renders an HTML node from a string.
  * @param {string} html
- * @returns {HTMLElement | unknown}
+ * @returns {ElementType | Node | null}
  */
 export function renderNode(html = '') {
     const trimmedHtml = html?.trim() ?? '';

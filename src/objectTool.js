@@ -1,4 +1,7 @@
 /**
+ * @typedef {import('./zoneTool.types').ElementType} ElementType
+ */
+/**
  * Counts the number of properties in an object.
  * @param {Record<string, unknown>} obj
  * @returns {number}
@@ -53,19 +56,18 @@ export function mergeObjects(obj = {}, obj2 = {}, strict = false) {
 
 /**
  * Copies an object and its properties.
- * @param {Record<string, unknown>} object
- * @returns {Record<string, unknown>}
+ * @param {Record<string, any>} object
+ * @returns {Record<string, any>}
  */
 export function copyObjectProps(object) {
     /**
-     * @type {Record<string, unknown>}
+     * @type {Record<string, any>}
      */
     const props = {};
     for (const [key, value] of Object.entries(object)) {
         if (Array.isArray(value)) {
             props[key] = [...value];
         } else if (isObject(value)) {
-            // @ts-ignore
             props[key] = { ...value };
         } else {
             props[key] = value;
@@ -79,7 +81,7 @@ export function copyObjectProps(object) {
  * @param {string} path
  * @param {Record<string, unknown>} object
  * @param {unknown} defaultValue
- * @returns {unknown}
+ * @returns {unknown | Record<string, unknown>}
  */
 export function getPropertyValue(path, object, defaultValue) {
     /** @type {string[]} */
@@ -115,7 +117,7 @@ export function createFormData(obj = {}) {
 
 /**
  * Binds methods to an object.
- * @param {Record<string, () => void>} obj
+ * @param {import('./common.types').SettableType} obj
  * @param {...string} methods
  */
 export function bind(obj, ...methods) {

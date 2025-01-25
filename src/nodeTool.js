@@ -4,7 +4,7 @@ import { isObject } from './objectTool';
 /**
  * Adds attributes to a node.
  * @param {HTMLElement} node
- * @param {Record<string, string | boolean>} attributes
+ * @param {Record<string, any>} attributes
  */
 export function attr(node, attributes) {
     if (!node || typeof node.setAttribute !== 'function' || !isObject(attributes)) {
@@ -186,7 +186,7 @@ export function getOffset(node) {
 /**
  * Adds a double click event listener to a node.
  * @param {HTMLElement} node
- * @param {Function} callback
+ * @param {() => void} callback
  * @param {number} delay
  */
 export function onDoubleClick(node, callback, delay = 500) {

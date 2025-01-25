@@ -1,3 +1,4 @@
+export * from './common.types';
 export * from './placeTool.types';
 export * from './observerTool.types';
 export * from './searchTool.types';
