@@ -1,5 +1,5 @@
 /**
- * A class that provides a means to subscribe to properties of an instance via observer pattern.
+ * A set of functions that provide pub/sub functionality.
  * It acts as a mixin, and should be used as such via the mixin method.
  */
 /**
@@ -9,6 +9,7 @@
  * @typedef {import('./observerTool.types').UnsubscribeType} UnsubscribeType
  * @typedef {import('./observerTool.types').SignalCallBackType} SignalCallBackType
  * @typedef {import('./observerTool.types').ListenerType} ListenerType
+ * @typedef {import('./observerTool.types').OffType} OffType
  * @typedef {import('../zoneTool/zoneTool.types').ElementType} ElementType
  */
 import { debounce } from '../functionTool/functionTool';
@@ -142,31 +143,39 @@ export function observerMixin(instance) {
 // #region Dummy Methods
 /////////////////////////////
 
-const dummyText =
-    'This method should be overridden by the observerMixin method, if not there is a problem.';
+const dummyText = 'This method should be overridden by the observerMixin method, if not there is a problem.';
+
+/**
+ * A dummy log method.
+ * @param {...any} args
+ * @returns {void}
+ */
+function logDummy(...args) {
+    console.error(dummyText, { args });
+}
 
 /**
  * A dummy signal method.
  * @type {SignalType}
  */
 export function dummySignal(signalName, ...payload) {
-    console.error(dummyText, { signalName, payload });
+    logDummy(signalName, payload);
 }
 
 /**
  * A dummy callback method.
  * @type {SignalCallBackType}
  */
-export function dummyCallback(value, param1, param2) {
-    console.warn(dummyText, { value, param1, param2 });
+export function dummyCallback(...payload) {
+    logDummy(payload);
 }
 
 /**
  * A dummy unsubscribe method.
  * @type {UnsubscribeType}
  */
-export function dummyUnsubscribe() {
-    console.warn(dummyText);
+export function dummyUnsubscribe(...payload) {
+    logDummy(payload);
 }
 
 /**
@@ -175,17 +184,17 @@ export function dummyUnsubscribe() {
  * @this {ObserverType}
  */
 export function dummyListener(signalName, callback, unsubscribes) {
-    console.error(dummyText, { signalName, callback, unsubscribes });
+    logDummy({ signalName, callback, unsubscribes });
     return dummyUnsubscribe;
 }
 
 /**
  * A dummy off method.
- * @type {import('./observerTool.types').OffType}
+ * @type {OffType}
  * @this {ObserverType}
  */
 export function dummyOff(signalName, callback) {
-    console.error(dummyText, { signalName, callback });
+    logDummy({ signalName, callback });
 }
 
 /////////////////////////////

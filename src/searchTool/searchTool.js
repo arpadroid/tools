@@ -138,11 +138,10 @@ export class SearchTool {
         }
         if (container instanceof HTMLElement) {
             // @ts-ignore
-            return Array.from(container?.childNodes || []).filter(node => node instanceof HTMLElement);
+            return Array.from(container?.childNodes || []).filter(node => node instanceof Node);
         }
         return this.config?.nodes ?? [];
     }
-
 
     /**
      * Executes a search on an input element.

@@ -6,14 +6,14 @@ export type SignalType = (
     payload3?: unknown
 ) => void;
 
-export type SignalCallBackType = (payload?: unknown, payload2?: unknown, payload3?: unknown) => void;
+export type SignalCallBackType = (...args: any[]) => void;
 
 export type UnsubscribeType = () => void;
 
 export type ListenerType = (
     signalName: string,
     callback: SignalCallBackType,
-    unsubscribes: UnsubscribeType[] | undefined
+    unsubscribes?: UnsubscribeType[] | undefined
 ) => UnsubscribeType | undefined;
 
 export type OffType = (signalName: string, callback: SignalCallBackType) => void;
