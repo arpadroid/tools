@@ -68,7 +68,7 @@ export function render(condition, html = '') {
 /**
  * Renders an HTML node from a string.
  * @param {string} html
- * @returns {ElementType | Node | null}
+ * @returns {Node | null}
  */
 export function renderNode(html = '') {
     const trimmedHtml = html?.trim() ?? '';

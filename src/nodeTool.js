@@ -100,7 +100,7 @@ export function style(node, css = {}) {
 /**
  * Append nodes to a container with a document fragment for performance.
  * @param {HTMLElement | Element} container
- * @param {HTMLElement[] | NodeList} nodes
+ * @param {Element[] | NodeList | Node[]} nodes
  * @param {boolean} prepend - Whether to prepend the nodes.
  */
 export function appendNodes(container, nodes = [], prepend = false) {
@@ -114,8 +114,8 @@ export function appendNodes(container, nodes = [], prepend = false) {
 
 /**
  * Sets nodes to a container.
- * @param {HTMLElement} container
- * @param {HTMLElement[]} nodes
+ * @param {Element} container
+ * @param {(Element)[]} nodes
  */
 export function setNodes(container, nodes = []) {
     container.innerHTML = '';

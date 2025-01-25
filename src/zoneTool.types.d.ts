@@ -25,4 +25,4 @@ export type ComponentType = HTMLElement & {
     [key: string]: any;
 };
 
-export type ElementType = ComponentType & (Element | HTMLElement | ZoneType | ParentNode);
+export type ElementType = ComponentType & (Element | HTMLElement | ZoneType | ParentNode | Node);
