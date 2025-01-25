@@ -156,7 +156,7 @@ export function getZone(component, name) {
             if (zone.getAttribute('name') === name) return zone;
         }
     }
-    return false;
+    return null;
 }
 
 /**

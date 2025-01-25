@@ -54,7 +54,7 @@ export function getArrayProperty(element, name, config = element._config) {
     if (typeof value === 'string') {
         return value.split(',').map(item => item.trim());
     }
-    return value;
+    return Array.isArray(value) ? value : [];
 }
 
 /**
