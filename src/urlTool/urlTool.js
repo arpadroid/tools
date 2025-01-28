@@ -171,7 +171,7 @@ export function matchPath(url, route) {
  */
 export function matchPaths(url, routes) {
     for (const route of routes) {
-        if (matchPath(url, route)) {
+        if (typeof route === 'string' && matchPath(url, route)) {
             return true;
         }
     }
@@ -264,4 +264,16 @@ export function removeURLParam(name, url) {
             });
         }, {});
     return rv + objectToQueryString(newParams);
+}
+
+/**
+ * Returns the parent path of given url.
+ * @param {string} url - A URL string.
+ * @returns {string} - The parent path of the given url.
+ */
+export function getParentPath(url) {
+    const path = getURLPath(url);
+    const parts = path.split('/');
+    parts.pop();
+    return parts.join('/');
 }

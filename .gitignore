@@ -4,3 +4,4 @@ dist/
 junit.xml
 storybook-static/
 .tsbuildinfo
+.types/

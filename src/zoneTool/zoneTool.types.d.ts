@@ -22,7 +22,7 @@ export type ComponentType = HTMLElement & {
     _hasRendered?: boolean;
     _lastRendered?: number;
     _config?: Record<string, unknown>;
-    [key: string]: any;
+    [key: string]: unknown;
 };
 
-export type ElementType = ComponentType & (Element | HTMLElement | ZoneType | ParentNode | Node);
+export type ElementType = ComponentType & (Element | HTMLElement | ZoneType | ParentNode | Node) | any;

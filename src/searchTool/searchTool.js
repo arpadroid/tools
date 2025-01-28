@@ -129,7 +129,7 @@ export class SearchTool {
 
     /**
      * Returns the list of nodes to search through.
-     * @returns {ElementType[]}
+     * @returns {HTMLElement[]}
      */
     getNodes() {
         const { getNodes, container } = this.config || {};

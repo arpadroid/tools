@@ -1,4 +1,4 @@
-export type CropInterface = {
+export type CropType = {
     x: number;
     y: number;
     width: number;

@@ -1,5 +1,5 @@
 /**
- * @typedef {import('./imageTool.types').CropInterface} CropInterface
+ * @typedef {import('../types').CropType} CropType
  */
 
 /**
@@ -23,7 +23,7 @@ const DEFAULT_CROP = { x: 0, y: 0, width: 0, height: 0, ratio: 1 };
 /**
  * Up-scales an image to the available space in the image HTML container while maintaining the aspect ratio.
  * @param {HTMLImageElement} image - The image element.
- * @param {CropInterface} opt - The crop options.
+ * @param {CropType} opt - The crop options.
  */
 export function upscale(image, opt = { ...DEFAULT_CROP }) {
     let { width = 0, height = 0 } = opt;
@@ -47,8 +47,8 @@ export function upscale(image, opt = { ...DEFAULT_CROP }) {
 /**
  * Crops an image.
  * @param {HTMLImageElement} image - The image element.
- * @param {CropInterface} opt - The crop options.
- * @returns {CropInterface} - The cropped image data.
+ * @param {CropType} opt - The crop options.
+ * @returns {CropType} - The cropped image data.
  */
 export function crop(image, opt = { ...DEFAULT_CROP }) {
     upscale(image, opt);

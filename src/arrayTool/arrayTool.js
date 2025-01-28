@@ -9,7 +9,7 @@ export function arrayUnique(array) {
 
 /**
  * Checks if an array is empty.
- * @param {[]} array - The input array.
+ * @param {any} array - The input array.
  * @returns {boolean} - True if the array is empty, false otherwise.
  */
 export function arrayEmpty(array) {
