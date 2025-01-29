@@ -81,7 +81,7 @@ export function formatBytes(bytes, precision = 1) {
     if (bytes === 0) {
         return '0 bytes';
     }
-    if (isNaN(parseFloat(bytes.toString())) || !isFinite(bytes)) {
+    if (typeof bytes === 'undefined' || !isFinite(bytes)) {
         return '';
     }
     const units = ['bytes', 'KB', 'MB', 'GB', 'TB', 'PB'];

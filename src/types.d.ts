@@ -1,4 +1,4 @@
-export { SettableType, CallableType } from './common.types';
+export { SettableType, CallableType, AbstractContentInterface } from './common.types';
 export { PlaceToolOptionsType } from './placeTool/placeTool.types';
 export {
     SignalType,

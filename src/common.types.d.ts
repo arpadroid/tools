@@ -6,3 +6,5 @@ export type SettableType<T = any> = T & {
 export type CallableType<T = any> = T & {
     [key: string]: any;
 };
+
+export type AbstractContentInterface = string | number | HTMLElement;
