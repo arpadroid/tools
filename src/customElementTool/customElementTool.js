@@ -20,7 +20,7 @@ export function hasProperty(element, name, config = element._config) {
     if (element.hasAttribute(name)) {
         return true;
     }
-    if (config && typeof config[dashedToCamel(name)] !== 'undefined') {
+    if (typeof config[dashedToCamel(name)] !== 'undefined') {
         return config[dashedToCamel(name)];
     }
 }
@@ -47,14 +47,14 @@ export function getProperty(element, name, config = element._config ?? {}) {
  * @param {ElementType} element - The element to get the property from.
  * @param {string} name - The property name.
  * @param {Record<string, unknown>} [config] - The configuration object.
- * @returns {(string | number | unknown)[]} The value of the property as an array.
+ * @returns {(string | number | unknown)[] | unknown} The value of the property as an array.
  */
 export function getArrayProperty(element, name, config = element._config) {
     const value = getProperty(element, name, config);
     if (typeof value === 'string') {
         return value.split(',').map(item => item.trim());
     }
-    return Array.isArray(value) ? value : [];
+    return value;
 }
 
 /**
@@ -65,7 +65,7 @@ export function getArrayProperty(element, name, config = element._config) {
  */
 export function hasContent(element, property) {
     if (typeof element?.getProperty === 'function') {
-        const rv = element.getProperty(property);
+        const rv = element?.getProperty(property);
         if (typeof rv === 'string' && rv.length) {
             return true;
         }
