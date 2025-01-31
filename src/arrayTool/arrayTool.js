@@ -56,14 +56,16 @@ export function sortObjectArrayByKey(array, key, direction = 'asc') {
 /**
  * Searches an array of objects for a query within specified fields and returns the results.
  * @param {Record<string, unknown>[]} array - The input array.
- * @param {string} query - The search query.
+ * @param {unknown | string} query - The search query.
  * @param {string[]} searchFields - The fields to search.
  * @returns {Record<string, unknown>[]} - The filtered array.
  */
 export function searchObjectArray(array = [], query, searchFields = ['name']) {
     if (!query) return [...array];
     return array.filter(item =>
-        searchFields.some(field => item[field]?.toString().toLowerCase().includes(query.toLowerCase()))
+        searchFields.some(field =>
+            item[field]?.toString().toLowerCase().includes(query.toString().toLowerCase())
+        )
     );
 }
 
