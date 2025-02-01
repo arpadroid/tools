@@ -6,7 +6,7 @@ import { camelToDashed } from '../stringTool/stringTool.js';
 /**
  * Processes a template string and replaces the placeholders with the provided props.
  * @param {string} template - The template string.
- * @param {Record<string, string>} props - The props to replace the placeholders with.
+ * @param {Record<string, unknown>} props - The props to replace the placeholders with.
  * @returns {string} The processed template.
  */
 export function processTemplate(template, props = {}) {
@@ -68,7 +68,7 @@ export function render(condition, html = '') {
 /**
  * Renders an HTML node from a string.
  * @param {string} html
- * @returns {Node | null}
+ * @returns {Node | HTMLElement | null}
  */
 export function renderNode(html = '') {
     const trimmedHtml = html?.trim() ?? '';
