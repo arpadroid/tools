@@ -19,7 +19,7 @@ export function validateRequired(value) {
 
 /**
  * Checks if a value has a maximum length.
- * @param {string | number} value - The value to be checked.
+ * @param {string | number | unknown[]} value - The value to be checked.
  * @param {number} maxLength - The maximum length allowed.
  * @returns {boolean | undefined} - True if the value has a maximum length, false otherwise.
  */
@@ -34,7 +34,7 @@ export function validateMaxLength(value, maxLength) {
 
 /**
  * Checks if a value has a minimum length.
- * @param {string | number} value - The value to be checked.
+ * @param {string | number | unknown[]} value - The value to be checked.
  * @param {number} minLength - The minimum length allowed.
  * @returns {boolean | undefined} - True if the value has a minimum length, false otherwise.
  */

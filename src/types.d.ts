@@ -10,7 +10,11 @@ export {
     ObserverStoreType,
     ObserverInstanceType
 } from './observerTool/observerTool.types';
-export { SearchResultType, SearchToolType } from './searchTool/searchTool.types';
+export {
+    SearchResultType,
+    SearchToolConfigType,
+    SearchToolCallbackType
+} from './searchTool/searchTool.types';
 export {
     ComponentType,
     // ElementType,

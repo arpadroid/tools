@@ -6,7 +6,7 @@ import { sanitizeSearchInput } from '../stringTool/stringTool.js';
  * @typedef {import('../observerTool/observerTool.types').ObserverType} ObserverType
  * @typedef {import('../observerTool/observerTool.types').ObserverStoreType} ObserverStoreType
  * @typedef {import('../observerTool/observerTool.types').ListenerType} ListenerType
- * @typedef {import('./searchTool.types').SearchToolType} SearchToolType
+ * @typedef {import('./searchTool.types').SearchToolConfigType} SearchToolConfigType
  * @typedef {import('../zoneTool/zoneTool.types').ElementType} ElementType
  */
 
@@ -80,7 +80,7 @@ export class SearchTool {
     /**
      * Creates a new SearchTool instance.
      * @param {HTMLInputElement} input - The input element.
-     * @param {SearchToolType} [config] - The configuration options.
+     * @param {SearchToolConfigType} [config] - The configuration options.
      */
     constructor(input, config = {}) {
         this.signal = dummySignal;
@@ -104,18 +104,18 @@ export class SearchTool {
     }
     /**
      * Sets the configuration.
-     * @param {SearchToolType} config - The configuration options.
+     * @param {SearchToolConfigType} config - The configuration options.
      * @returns {SearchTool}
      */
     setConfig(config = {}) {
-        /** @type {SearchToolType} */
+        /** @type {SearchToolConfigType} */
         this.config = mergeObjects(this.getDefaultConfig(), config);
         return this;
     }
 
     /**
      * Returns the default configuration options.
-     * @returns {SearchToolType}
+     * @returns {SearchToolConfigType}
      */
     getDefaultConfig() {
         return {
@@ -151,7 +151,8 @@ export class SearchTool {
      */
     async doSearch(event, query = this.input.value, nodes = this.getNodes()) {
         const { onSearch } = this.config || {};
-        if (typeof onSearch === 'function' && onSearch({ query, event, nodes }) === false) {
+        const onSearchRv = onSearch && (await onSearch({ query, event, nodes }));
+        if (typeof onSearch === 'function' && onSearchRv === false) {
             return;
         }
         const { matches, nonMatches } = await searchNodes(query, nodes, (node, isMatch) =>

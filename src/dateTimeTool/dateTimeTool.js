@@ -37,7 +37,7 @@ export function getTimezoneOffset(date = new Date()) {
 
 /**
  * Checks if a given date is in the future.
- * @param {Date} dateTime - The date and time to compare.
+ * @param {Date | string} dateTime - The date and time to compare.
  * @returns {boolean} - True if the date is in the future, false otherwise.
  */
 export function isFuture(dateTime) {
@@ -46,8 +46,8 @@ export function isFuture(dateTime) {
 
 /**
  * Checks if one date is before another date.
- * @param {Date} dateTime - The first date and time to compare.
- * @param {Date} dateTime2 - The second date and time to compare.
+ * @param {Date | string} dateTime - The first date and time to compare.
+ * @param {Date | string} dateTime2 - The second date and time to compare.
  * @returns {boolean} - True if the first date is before the second date, false otherwise.
  */
 export function isBefore(dateTime, dateTime2) {
@@ -56,8 +56,8 @@ export function isBefore(dateTime, dateTime2) {
 
 /**
  * Checks if one date is after another date.
- * @param {Date} dateTime - The first date and time to compare.
- * @param {Date} dateTime2 - The second date and time to compare.
+ * @param {Date | string} dateTime - The first date and time to compare.
+ * @param {Date | string} dateTime2 - The second date and time to compare.
  * @returns {boolean} - True if the first date is after the second date, false otherwise.
  */
 export function isAfter(dateTime, dateTime2) {
@@ -66,7 +66,7 @@ export function isAfter(dateTime, dateTime2) {
 
 /**
  * Checks if a given date is in the past.
- * @param {Date} dateTime - The date and time to compare.
+ * @param {Date | string} dateTime - The date and time to compare.
  * @returns {boolean} - True if the date is in the past, false otherwise.
  */
 export function isPast(dateTime) {
@@ -156,7 +156,7 @@ export function addTimezoneOffset(date) {
 
 /**
  * Formats a given date into a specified format.
- * @param {Date} _date - The date object to format.
+ * @param {Date | string} _date - The date object to format.
  * @param {string} format - The format string.
  * @param {boolean} addOffset - Whether to add the timezone offset to the date.
  * @param {string} locale - The locale to use for formatting.

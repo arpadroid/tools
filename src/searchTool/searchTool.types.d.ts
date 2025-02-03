@@ -1,4 +1,4 @@
-export interface SearchResultType {
+export type SearchResultType = {
     query: string;
     totalResults?: number;
     items?: [];
@@ -6,11 +6,13 @@ export interface SearchResultType {
     nodes?: Element[];
 }
 
-export interface SearchToolType {
-    container?: HTMLElement;
+export type SearchToolCallbackType = (result: SearchResultType) => Promise<SearchResultType | boolean | void>;
+
+export type SearchToolConfigType = {
+    container?: HTMLElement | Element | null;
     matchClass?: string;
     debounceDelay?: number;
-    onSearch?: (result: SearchResultType) => Promise<SearchResultType> | boolean | void;
+    onSearch?: SearchToolCallbackType;
     onSearchNode?: (node: Element, isMatch: boolean) => void | boolean;
     getNodes?: () => HTMLElement[];
     searchSelector?: string;
