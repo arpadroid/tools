@@ -145,7 +145,7 @@ export class SearchTool {
 
     /**
      * Executes a search on an input element.
-     * @param {Event | undefined} event - The event object.
+     * @param {Event | undefined} [event] - The event object.
      * @param {string} [query]
      * @param {Element[]} [nodes] - The list of nodes to search through.
      */

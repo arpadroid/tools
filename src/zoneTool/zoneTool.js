@@ -140,7 +140,6 @@ export async function placeZone(zone) {
  * @returns {boolean} Whether the node has the zone.
  */
 export function hasZone(component, name) {
-    // @ts-ignore
     return component?.zonesByName?.has(name) || component?.parentElement?.zonesByName?.has(name);
 }
 
