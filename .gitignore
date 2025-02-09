@@ -5,4 +5,4 @@ junit.xml
 storybook-static/
 .tsbuildinfo
 tsconfig.tsbuildinfo
-.types/
+.tmp/
