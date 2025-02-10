@@ -137,8 +137,9 @@ export class SearchTool {
             return getNodes();
         }
         if (container instanceof HTMLElement) {
-            // @ts-ignore
-            return Array.from(container?.childNodes || []).filter(node => node instanceof Node);
+            return /** @type {HTMLElement[]} */ (
+                Array.from(container?.childNodes || []).filter(node => node instanceof Node)
+            );
         }
         return this.config?.nodes ?? [];
     }

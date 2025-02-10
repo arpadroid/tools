@@ -1,6 +1,9 @@
 /**
+ * @typedef {import('./fileTool.types').FilePayloadType} FilePayloadType
+ */
+/**
  * Get the extension of a file.
- * @param {File} file
+ * @param {FilePayloadType} file
  * @returns {string}
  */
 export function getExtension(file) {
@@ -9,11 +12,11 @@ export function getExtension(file) {
 
 /**
  * Get the name of a file.
- * @param {File} file
+ * @param {FilePayloadType} file
  * @returns {string}
  */
 export function getFileName(file) {
-    return file.name.split('.').shift() || '';
+    return file?.name?.split('.').shift() || '';
 }
 
 /**
@@ -112,14 +115,14 @@ export function eventContainsFiles(event) {
 
 /**
  * Given a file object, returns a new object with processed data.
- * @param {File} file
+ * @param {FilePayloadType} file
  * @returns {Record<string, unknown>}
  */
 export function processFile(file) {
     return {
         extension: getExtension(file),
         title: getFileName(file),
-        size: formatBytes(file.size),
+        size: file.size && formatBytes(file.size),
         name: file.name,
         file: file instanceof File ? file : null
     };
@@ -134,6 +137,10 @@ export function processFile(file) {
 // eslint-disable-next-line sonarjs/cognitive-complexity
 export function getFileType(ext) {
     ext instanceof File && (ext = getExtension(ext));
+    if (typeof ext !== 'string') {
+        return 'file';
+    }
+    ext = ext.toLowerCase();
     if (['jpg', 'jpeg', 'png', 'gif', 'svg', 'bmp', 'tiff', 'webp'].includes(ext)) {
         return 'image';
     }
@@ -184,7 +191,7 @@ export function getFileType(ext) {
 
 /**
  * Returns the icon for a file based on its extension.
- * @param {string | File} ext - If a string, it should be the extension of the file e.g 'jpg', 'pdf'.
+ * @param {string} ext - If a string, it should be the extension of the file e.g 'jpg', 'pdf'.
  * If a File object, it will be processed to get the extension.
  * @returns {string | undefined}
  */

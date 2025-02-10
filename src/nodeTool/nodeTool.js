@@ -92,8 +92,7 @@ export function setContent(node, content) {
  * @param {Partial<CSSStyleDeclaration>} css
  */
 export function style(node, css = {}) {
-    for (const [key, value] of Object.entries(css)) {
-        // @ts-ignore
+    for (const [key, value] of Object.entries(css)) { // @ts-ignore
         node.style[key] = value;
     }
 }

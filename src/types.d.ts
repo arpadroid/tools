@@ -23,3 +23,4 @@ export {
 } from './zoneTool/zoneTool.types';
 export { DocumentType, NodeType } from './nodeTool/nodeTool.types';
 export { CropType } from './imageTool/imageTool.types';
+export { FilePayloadType } from './fileTool/fileTool.types';
