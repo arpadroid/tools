@@ -124,7 +124,7 @@ export function attrString(attributes = {}) {
 
 /**
  * Renders a class attribute.
- * @param {...string | Record<string, boolean | string[]>} classes
+ * @param {...string | Record<string, boolean | string[] | string>} classes
  * @returns {string}
  */
 export function classNames(...classes) {

@@ -2,7 +2,13 @@
     "name": "@arpadroid/tools",
     "version": "0.0.17",
     "description": "A Javascript utility library",
-    "exports": "./dist/arpadroid-tools.js",
+    "exports": {
+        ".": "./dist/arpadroid-tools.js",
+        "./object": {
+            "default": "./src/objectTool/objectTool.js",
+            "types": "./dist/@types/objectTool/objectTool.d.ts"
+        }
+    },
     "types": "./dist/@types/types.compiled.d.ts",
     "type": "module",
     "sideEffects": false,

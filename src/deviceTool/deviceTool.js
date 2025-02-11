@@ -1,6 +1,7 @@
 /**
  * @typedef {import("../nodeTool/nodeTool.types").NodeType} NodeType
  * @typedef {import("../nodeTool/nodeTool.types").DocumentType} DocumentType
+ * @typedef {import("../zoneTool/zoneTool.types").ElementType} ElementType
  */
 /**
  * Checks if the user agent is Opera Mini.
@@ -117,7 +118,7 @@ export function getViewportSize() {
 
 /**
  * Goes full screen.
- * @param {NodeType} node - The node to go full screen.
+ * @param {ElementType} node - The node to go full screen.
  */
 export function goFullScreen(node) {
     if (node.requestFullscreen) {
