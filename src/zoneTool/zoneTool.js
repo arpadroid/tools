@@ -106,21 +106,22 @@ export async function placeZone(zone) {
     const zoneName = zone.getAttribute('name');
     const component = parent && findNodeComponent(parent);
     const zoneContainer = component?.querySelector(`[zone="${zoneName}"]`);
+    const nodes = zoneContainer?.childNodes;
     const zoneComponent = findNodeComponent(zoneContainer);
+    /** @type {ZoneToolPlaceZoneType} */
+    const payload = { nodes, zoneName, zoneComponent, zoneContainer, zone };
+
     if (!zoneContainer || !zoneComponent) {
         component && zoneName && component?.zonesByName?.add(zoneName);
-        LOST_ZONES.add(zone);
+        let registerLostZone = true;
+        if (typeof component?._onLostZone === 'function' && component._onLostZone(payload) === true) {
+            registerLostZone = false;
+        }
+        registerLostZone && LOST_ZONES.add(zone);
         return;
     }
 
-    if (
-        zoneComponent &&
-        '_onPlaceZone' in zoneComponent &&
-        typeof zoneComponent._onPlaceZone === 'function'
-    ) {
-        const nodes = zoneContainer.childNodes;
-        /** @type {ZoneToolPlaceZoneType} */
-        const payload = { nodes, zoneName, zoneComponent, zoneContainer, zone };
+    if (typeof zoneComponent?._onPlaceZone === 'function') {
         zoneComponent._onPlaceZone(payload);
     }
     ZONES.delete(zone);
@@ -191,8 +192,8 @@ export const benchmark = (start, end) => {
  */
 
 /**
- * Benchmarks zone placement. 
- * @type {BenchmarkCallback} 
+ * Benchmarks zone placement.
+ * @type {BenchmarkCallback}
  */
 const benchMarkCallback = (start, end) => benchmark(start, end);
 

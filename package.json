@@ -5,8 +5,8 @@
     "exports": {
         ".": "./dist/arpadroid-tools.js",
         "./object": {
-            "default": "./src/objectTool/objectTool.js",
-            "types": "./dist/@types/objectTool/objectTool.d.ts"
+            "types": "./dist/@types/objectTool/objectTool.d.ts",
+            "default": "./src/objectTool/objectTool.js"
         }
     },
     "types": "./dist/@types/types.compiled.d.ts",
