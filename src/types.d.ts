@@ -1,5 +1,6 @@
 export { SettableType, CallableType, AbstractContentInterface } from './common.types';
 export { PlaceToolOptionsType } from './placeTool/placeTool.types';
+export { CustomElementChildOptionsType } from './customElementTool/customElementTool.types';
 export {
     SignalType,
     SignalCallBackType,

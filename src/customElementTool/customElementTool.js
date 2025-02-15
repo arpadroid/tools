@@ -1,9 +1,14 @@
 /**
  * @typedef {import('../zoneTool/zoneTool.types').ElementType} ElementType
+ * @typedef {import('../zoneTool/zoneTool.types').ComponentType} ComponentType
  * @typedef {import('../common.types').CallableType} CallableType
+ * @typedef {import('./customElementTool.types.js').CustomElementChildOptionsType} CustomElementChildOptionsType
  */
 import { dashedToCamel } from '../stringTool/stringTool.js';
 import { destroyComponentZones, hasZone } from '../zoneTool/zoneTool.js';
+import { attrString } from '../htmlTool/htmlTool.js';
+
+const html = String.raw;
 
 /**
  * Checks if an element has a property as an attribute or defined in the configuration.
@@ -103,4 +108,39 @@ export function canRender(component, timeout = 200) {
     }
     component._lastRendered = Date.now();
     return true;
+}
+
+/**
+ * Computes the class name for a child element.
+ * @param {ComponentType} component - The component to check.
+ * @param {string} name
+ * @returns {string}
+ */
+function getChildClassName(component, name) {
+    let className = '';
+    const baseClass = component?.getClassName() || '';
+    baseClass && (className += `${baseClass}__`);
+    className += dashedToCamel(name);
+    return className;
+}
+
+/**
+ * Renders a child element.
+ * @param {ComponentType | any} component - The component to check.
+ * @param {string} name - The name of the child.
+ * @param {CustomElementChildOptionsType} [config] - The configuration object.
+ * @returns {string}
+ */
+export function renderChild(component, name, config = {}) {
+    if (!component?.hasContent(name)) return '';
+    const {
+        tag = 'div',
+        attr = {},
+        hasZone = true,
+        className = getChildClassName(component, name),
+        content = component?.getProperty(name) || ''
+    } = config;
+    className && (attr.class = className);
+    hasZone && (attr.zone = name);
+    return html`<${tag} ${attrString(attr)}>${content}</${tag}>`;
 }

@@ -15,9 +15,11 @@ export type ZoneType = HTMLElement & {
 export type ComponentType = HTMLElement & {
     _parentNode?: ParentNode | null;
     _onPlaceZone?: (zone: ZoneToolPlaceZoneType) => void;
-    getProperty?: (name: string) => string | null | undefined;
+    getProperty: (name: string) => string | null | undefined;
+    getClassName: () => string;
     _zones?: Set<ZoneType>;
     zonesByName?: Set<string>;
+    hasContent: (name: string) => boolean;
     originalContent?: string;
     _hasRendered?: boolean;
     _lastRendered?: number;
@@ -25,4 +27,4 @@ export type ComponentType = HTMLElement & {
     [key: string]: unknown;
 };
 
-export type ElementType = ComponentType & (Element | HTMLElement | ZoneType | ParentNode | Node) | any;
+export type ElementType = (ComponentType & (Element | HTMLElement | ZoneType | ParentNode | Node)) | any;
