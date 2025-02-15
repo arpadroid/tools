@@ -8,13 +8,27 @@ import { debounce, throttle } from '../functionTool/functionTool.js';
 import { appendNodes } from '../nodeTool/nodeTool.js';
 
 /** @type {boolean} */
-const VERBOSE = false;
+const VERBOSE = true;
 /** @type {Set<ZoneType>} */
 export const LOST_ZONES = new Set();
 /** @type {Set<ZoneType>} */
 export const ZONES = new Set();
 /** @type {string} */
 export const ZONE_SELECTOR = 'zone';
+
+/**
+ * Returns the zones in a nice printable format.
+ * @param {Set<ZoneType> | ZoneType[]} [zones] - The zones to print.
+ * @returns {Record<string, unknown>[]} The printable zones.
+ */
+export function getPrintableZones(zones = ZONES) {
+    return Array.from(zones).map(zone => ({
+        name: zone.getAttribute('name'),
+        zoneHTML: zone.outerHTML,
+        zoneText: zone.innerText,
+        parentHTML: zone._parentNode
+    }));
+}
 
 /**
  * Selects all zones from a node.
@@ -127,7 +141,7 @@ export async function placeZone(zone) {
     ZONES.delete(zone);
     LOST_ZONES.delete(zone);
     const append = () => appendNodes(zoneContainer, zone.childNodes);
-    if ('onRendered' in zoneComponent && typeof zoneComponent.onRendered === 'function') {
+    if (typeof zoneComponent.onRendered === 'function') {
         zoneComponent.onRendered(append);
     } else {
         append();
@@ -166,11 +180,7 @@ export function getZone(component, name) {
  */
 export const benchmark = (start, end) => {
     if (LOST_ZONES.size) {
-        const zoneMap = Array.from(LOST_ZONES).map(zone => ({
-            name: zone.getAttribute('name'),
-            zoneHTML: zone.outerHTML,
-            parentHTML: zone._parentNode
-        }));
+        const zoneMap = getPrintableZones(LOST_ZONES);
         console.warn(`${LOST_ZONES.size} zones could not be placed:`, zoneMap);
     }
 
