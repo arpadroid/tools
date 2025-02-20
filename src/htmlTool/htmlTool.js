@@ -116,6 +116,8 @@ export function attrString(attributes = {}) {
             attrArray.push(`${attrName}="${value}"`);
         } else if (typeof value === 'number' && value !== 0) {
             attrArray.push(`${attrName}="${value}"`);
+        } else if (Array.isArray(value) && value.length > 0) {
+            attrArray.push(`${attrName}="${value.join(',')}"`);
         }
     }
 

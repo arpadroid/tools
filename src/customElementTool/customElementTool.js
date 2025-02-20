@@ -3,6 +3,7 @@
  * @typedef {import('../zoneTool/zoneTool.types').ComponentType} ComponentType
  * @typedef {import('../common.types').CallableType} CallableType
  * @typedef {import('./customElementTool.types.js').CustomElementChildOptionsType} CustomElementChildOptionsType
+ * @typedef {import('./customElementTool.types.js').CustomElementConstructor} CustomElementConstructor
  */
 import { dashedToCamel } from '../stringTool/stringTool.js';
 import { destroyComponentZones, hasZone } from '../zoneTool/zoneTool.js';
@@ -143,4 +144,25 @@ export function renderChild(component, name, config = {}) {
     className && (attr.class = className);
     hasZone && (attr.zone = name);
     return html`<${tag} ${attrString(attr)}>${content}</${tag}>`;
+}
+
+/**
+ * Defines a custom element.
+ * @param {string} name - The name of the element.
+ * @param {CustomElementConstructor} component
+ * @param {Record<string, unknown>} [options]
+ */
+export function defineCustomElement(name, component, options = {}) {
+    if (!customElements.get(name)) {
+        customElements.define(name, component, options);
+    } else {
+        console.warn(
+            `Custom element ${name} already exists. You are probably loading duplicate code or some conflicting libraries`,
+            {
+                name,
+                component,
+                options
+            }
+        );
+    }
 }

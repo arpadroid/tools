@@ -7,6 +7,14 @@
         "./object": {
             "types": "./dist/@types/objectTool/objectTool.d.ts",
             "default": "./src/objectTool/objectTool.js"
+        },
+        "./node": {
+            "types": "./dist/@types/nodeTool/nodeTool.d.ts",
+            "default": "./src/nodeTool/nodeTool.js"
+        },
+        "./html": {
+            "types": "./dist/@types/htmlTool/htmlTool.d.ts",
+            "default": "./src/htmlTool/htmlTool.js"
         }
     },
     "types": "./dist/@types/types.compiled.d.ts",

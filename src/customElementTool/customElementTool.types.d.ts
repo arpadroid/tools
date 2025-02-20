@@ -5,3 +5,7 @@ export type CustomElementChildOptionsType = {
     content?: string;
     hasZone?: boolean;
 };
+
+export interface CustomElementConstructor {
+    new (...args: any[]): HTMLElement;
+}
