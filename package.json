@@ -21,7 +21,7 @@
     "type": "module",
     "sideEffects": false,
     "scripts": {
-        "build": "node ./node_modules/@arpadroid/arpadroid/scripts/build-project.mjs --project=tools --minify",
+        "build": "node ./node_modules/@arpadroid/module/scripts/build-project.mjs --project=tools --minify",
         "prepublish": "npm run build",
         "test": "jest",
         "test:coverage": "jest --coverage",
@@ -48,7 +48,7 @@
     },
     "homepage": "https://github.com/arpadroid/tools#readme",
     "devDependencies": {
-        "@arpadroid/arpadroid": "file:../arpadroid",
+        "@arpadroid/module": "file:../module",
         "@babel/core": "^7.23.9",
         "@babel/plugin-syntax-import-assertions": "^7.23.3",
         "@babel/preset-env": "^7.23.9",
