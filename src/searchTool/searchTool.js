@@ -52,10 +52,12 @@ export function addSearchMatchMarkers(
 ) {
     const selected = container.querySelectorAll(contentSelector);
     /** @type {ElementType[]} */
-    // @ts-ignore
-    const nodes = contentSelector
-        ? Array.from(container instanceof HTMLElement ? selected || [] : [])
-        : [container];
+    let nodes = [];
+    if (contentSelector) {
+        nodes = Array.from(container instanceof HTMLElement ? selected || [] : []);
+    } else {
+        nodes = [container];
+    }
     nodes.forEach(node => {
         node.originalContent = node.originalContent ?? node.innerHTML;
         let content = node.originalContent;
