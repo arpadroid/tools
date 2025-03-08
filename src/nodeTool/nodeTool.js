@@ -114,7 +114,7 @@ export function appendNodes(container, nodes = [], prepend = false) {
 /**
  * Sets nodes to a container.
  * @param {Element} container
- * @param {(Element)[]} nodes
+ * @param {Element[]} nodes
  */
 export function setNodes(container, nodes = []) {
     container.innerHTML = '';

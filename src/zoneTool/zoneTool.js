@@ -8,7 +8,7 @@ import { debounce, throttle } from '../functionTool/functionTool.js';
 import { appendNodes } from '../nodeTool/nodeTool.js';
 
 /** @type {boolean} */
-const VERBOSE = true;
+const VERBOSE = false;
 /** @type {Set<ZoneType>} */
 export const LOST_ZONES = new Set();
 /** @type {Set<ZoneType>} */
