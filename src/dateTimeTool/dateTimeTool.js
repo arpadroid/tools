@@ -173,7 +173,7 @@ export function formatDate(_date, format = 'DD-MM-YYYY HH:mm:ss', addOffset = fa
     const hours = normalizeTimeZeroes(date.getHours());
     const minutes = normalizeTimeZeroes(date.getMinutes());
     const seconds = normalizeTimeZeroes(date.getSeconds());
-    return format
+    const rv = format
         .replace('YYYY', year.toString())
         .replace('YY', year.toString().substr(-2))
         .replace('MMMM', date.toLocaleString(locale, { month: 'long' }))
@@ -184,6 +184,10 @@ export function formatDate(_date, format = 'DD-MM-YYYY HH:mm:ss', addOffset = fa
         .replace('HH', hours)
         .replace('mm', minutes)
         .replace('ss', seconds);
+    if (rv === 'NaN') {
+        return '';
+    }
+    return rv;
 }
 
 /**
