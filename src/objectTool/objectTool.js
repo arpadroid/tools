@@ -1,3 +1,5 @@
+import { mechanize } from '../stringTool/stringTool.js';
+
 /**
  * Counts the number of properties in an object.
  * @param {Record<string, unknown>} obj
@@ -135,4 +137,30 @@ export function sortKeys(obj) {
         .sort()
         .forEach(key => (ordered[key] = obj[key]));
     return ordered;
+}
+
+/**
+ * Creates an id based in an object's properties.
+ * @param {Record<string, unknown>} obj
+ * @param {string} divider
+ * @param {string[]} preferences
+ * @returns {string}
+ */
+export function getObjectId(obj, divider = '-', preferences = ['value', 'id', 'name', 'title']) {
+    for (const preference of preferences) {
+        const pref = /** @type {string} */ obj[preference];
+        if (typeof pref === 'string') {
+            return mechanize(pref);
+        }
+    }
+    const ordered = sortKeys(obj);
+    /** @type {string[]} */
+    const parts = [];
+    Object.keys(ordered).forEach(key => {
+        const val = ordered[key];
+        if (typeof val === 'string' || typeof val === 'number') {
+            parts.push(String(val).trim());
+        }
+    });
+    return mechanize(parts.join(divider));
 }

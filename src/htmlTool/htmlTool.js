@@ -39,7 +39,7 @@ export function processTemplate(template, props = {}) {
  * @todo Measure the performance difference between this function and processTemplate.
  */
 export function processTemplateRegex(template, props = {}) {
-    return template?.replace(/{([^}]+)}/g, (match, p1) => {
+    return template?.replace(/{([^{}]*)}/g, (match, p1) => {
         return props[p1] || '';
     });
 }
@@ -148,5 +148,7 @@ export function classNames(...classes) {
             return classNames(..._class);
         }
     };
-    return classes.map(classMap).filter(Boolean).join(' ');
+    return classes.map(classMap).filter((val) => {
+        return typeof val === 'string' && val.length > 0 && val !== 'false';
+    }).join(' ');
 }
