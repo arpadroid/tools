@@ -1,3 +1,4 @@
+/* eslint-disable sonarjs/no-ignored-exceptions */
 /**
  * @typedef {import('../zoneTool/zoneTool.types').ElementType} ElementType
  * @typedef {import('../zoneTool/zoneTool.types').ComponentType} ComponentType
@@ -43,7 +44,7 @@ export function getProperty(element, name, config = element._config ?? {}) {
     /** @todo Try to remove the try / catch. */
     try {
         return element.getAttribute(name) ?? config[configName];
-    } catch (error) {
+    } catch (_error) {
         return config[configName];
     }
 }

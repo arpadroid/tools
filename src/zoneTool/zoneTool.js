@@ -4,6 +4,7 @@
  * @typedef {import('../searchTool/searchTool.js').ElementType} ElementType
  */
 
+import { getProperty } from '../customElementTool/customElementTool.js';
 import { debounce, throttle } from '../functionTool/functionTool.js';
 import { appendNodes } from '../nodeTool/nodeTool.js';
 
@@ -15,6 +16,8 @@ export const LOST_ZONES = new Set();
 export const ZONES = new Set();
 /** @type {string} */
 export const ZONE_SELECTOR = 'zone';
+export const ZONE_INSERTION_INTERVAL = 10;
+export const ZONE_BENCHMARK_INTERVAL = 500;
 
 /**
  * Returns the zones in a nice printable format.
@@ -31,16 +34,29 @@ export function getPrintableZones(zones = ZONES) {
 }
 
 /**
+ * Filters zones.
+ * @param {ZoneType[]} zones - The zones to filter.
+ * @param {ElementType} component - The component to filter the zones for.
+ * @param {import('./zoneTool.types').ZoneFilterType} [filter] - The filter function.
+ * @returns {ZoneType[]} The filtered zones.
+ */
+export function filterZones(zones, component, filter = component._config?.zoneFilter) {
+    if (typeof filter === 'function') {
+        return filter(zones, component);
+    }
+    return zones;
+}
+
+/**
  * Selects all zones from a node.
  * @param {ElementType} node - The node to search.
  * @returns {ZoneType[]} The list of zones.
  */
 export function selectZones(node) {
-    const zoneSelector =
-        (typeof node?.getProperty === 'function' && node?.getProperty('zone-selector')) || ZONE_SELECTOR;
-
-    return Array.from(node.querySelectorAll(zoneSelector));
+    const zoneSelector = getProperty(node, 'zone-selector') || ZONE_SELECTOR;
+    return filterZones(Array.from(node.querySelectorAll(zoneSelector)), node);
 }
+
 /**
  * Finds the component that owns a zone.
  * @param {ElementType | any} zone - The zone to search.
@@ -151,7 +167,7 @@ export async function placeZone(zone) {
 /**
  * Checks if a node has a zone with a specific name.
  * @param {ElementType & HTMLElement} component - An HTML node.
- * @param {string} name - The name of the zone.
+ * @param {string} name
  * @returns {boolean} Whether the node has the zone.
  */
 export function hasZone(component, name) {
@@ -212,7 +228,7 @@ const benchMarkCallback = (start, end) => benchmark(start, end);
  * @type {BenchmarkCallback}
  */
 // @ts-ignore
-const benchmarkDebounced = debounce(benchMarkCallback, 500);
+const benchmarkDebounced = debounce(benchMarkCallback, ZONE_BENCHMARK_INTERVAL);
 
 /**
  * Inserts zones into the DOM.
@@ -243,7 +259,7 @@ export function insertZones(zones = ZONES, maxBatchSize = 25, isRetry = false, s
     });
 }
 
-export const insertZonesThrottled = throttle(insertZones, 10);
+export const insertZonesThrottled = throttle(insertZones, ZONE_INSERTION_INTERVAL);
 
 /**
  * Handles zones for a node.

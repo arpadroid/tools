@@ -19,6 +19,7 @@ export {
 export {
     ComponentType,
     // ElementType,
+    ZoneFilterType,
     ZoneToolPlaceZoneType,
     ZoneType
 } from './zoneTool/zoneTool.types';

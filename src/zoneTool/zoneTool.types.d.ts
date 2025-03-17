@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export type ZoneToolPlaceZoneType = {
     nodes?: NodeList;
     zoneName?: string | null;
@@ -26,5 +27,7 @@ export type ComponentType = HTMLElement & {
     _config?: Record<string, unknown>;
     [key: string]: unknown;
 };
+
+export type ZoneFilterType = (zones: ZoneType[], component: ElementType) => ZoneType[];
 
 export type ElementType = (ComponentType & (Element | HTMLElement | ZoneType | ParentNode | Node)) | any;
