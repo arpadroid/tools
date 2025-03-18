@@ -75,6 +75,45 @@ export function findNodeComponent(zone) {
 }
 
 /**
+ * Returns the zone registry of a zone.
+ * @param {ZoneType} zone - The zone to register.
+ * @returns {string[]} The zone registry.
+ */
+export function getZoneRegistry(zone) {
+    if (!(zone?._parentNode instanceof HTMLElement)) {
+        return [];
+    }
+    return zone._parentNode.getAttribute('zone-registry')?.trim().split(',').filter(Boolean) || [];
+}
+
+/**
+ * Adds a zone to the registry.
+ * @param {ZoneType} zone - The zone to register.
+ */
+export function registerZoneInParentNode(zone) {
+    if (!(zone?._parentNode instanceof HTMLElement)) {
+        console.error('Zone has no parent:', zone);
+        return;
+    }
+    const registry = getZoneRegistry(zone);
+    const zoneName = zone.getAttribute('name');
+    if (zoneName && !registry.includes(zoneName)) {
+        registry.push(zoneName);
+        zone._parentNode.setAttribute('zone-registry', registry.join(','));
+    }
+}
+
+/**
+ * Checks if a component has a zone registered.
+ * @param {ElementType} component
+ * @param {string} zoneName
+ * @returns {boolean} Whether the zone is registered.
+ */
+export function hasRegisteredZone(component, zoneName) {
+    return component?.getAttribute('zone-registry')?.split(',').includes(zoneName);
+}
+
+/**
  * Adds a zone.
  * @param {ZoneType} zone - The zone to add.
  * @param {Set<ZoneType>} [zones] - The list of zones to add to.
@@ -94,6 +133,7 @@ export async function addZone(zone, zones = ZONES, $store = new Set(), parentNod
     const zoneName = zone.getAttribute('name');
     if (zoneName) {
         nodeComponent?.zonesByName?.add(zoneName);
+        registerZoneInParentNode(zone);
         store?.add(zone);
         zones?.add(zone);
     } else {
@@ -171,7 +211,11 @@ export async function placeZone(zone) {
  * @returns {boolean} Whether the node has the zone.
  */
 export function hasZone(component, name) {
-    return component?.zonesByName?.has(name) || component?.parentElement?.zonesByName?.has(name);
+    return (
+        hasRegisteredZone(component, name) ||
+        component?.zonesByName?.has(name) ||
+        component?.parentElement?.zonesByName?.has(name)
+    );
 }
 
 /**
