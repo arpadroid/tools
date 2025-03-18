@@ -9,7 +9,7 @@ import { debounce, throttle } from '../functionTool/functionTool.js';
 import { appendNodes } from '../nodeTool/nodeTool.js';
 
 /** @type {boolean} */
-const VERBOSE = false;
+const VERBOSE = true;
 /** @type {Set<ZoneType>} */
 export const LOST_ZONES = new Set();
 /** @type {Set<ZoneType>} */
@@ -22,7 +22,7 @@ export const ZONE_BENCHMARK_INTERVAL = 500;
 /**
  * Returns the zones in a nice printable format.
  * @param {Set<ZoneType> | ZoneType[]} [zones] - The zones to print.
- * @returns {Record<string, unknown>[]} The printable zones.
+ * @returns {Record<string, unknown>[]}
  */
 export function getPrintableZones(zones = ZONES) {
     return Array.from(zones).map(zone => ({
@@ -115,7 +115,7 @@ export function removeZone(zone, zones = ZONES) {
  * Extracts the zones from a node and stores them in an reference object.
  * @param {ElementType} node - The node to search.
  * @param {Set<ZoneType>} [store] - The key/value store object to add the zones to.
- * @param {ElementType} [parentNode] - The parent node of the zones.
+ * @param {ElementType} [parentNode]
  */
 export function extractZones(node, store = new Set(), parentNode) {
     const zones = selectZones(node);
@@ -177,7 +177,7 @@ export function hasZone(component, name) {
 /**
  * Gets a zone from a component.
  * @param {ElementType} component - The component to search.
- * @param {string} name - The name of the zone.
+ * @param {string} name
  * @returns {ZoneType | null} The zone or false if not found.
  */
 export function getZone(component, name) {

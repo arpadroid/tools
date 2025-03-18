@@ -134,16 +134,18 @@ function getChildClassName(component, name) {
  * @returns {string}
  */
 export function renderChild(component, name, config = {}) {
-    if (!component?.hasContent(name)) return '';
+    if (!hasContent(component, name)) return '';
     const {
         tag = 'div',
         attr = {},
         hasZone = true,
+        zoneName = name,
+        propName = name,
         className = getChildClassName(component, name),
-        content = component?.getProperty(name) || ''
+        content = getProperty(component, propName) || ''
     } = config;
     className && (attr.class = className);
-    hasZone && (attr.zone = name);
+    hasZone && (attr.zone = zoneName);
     return html`<${tag} ${attrString(attr)}>${content}</${tag}>`;
 }
 
