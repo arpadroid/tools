@@ -6,6 +6,7 @@ export type CustomElementChildOptionsType = {
     hasZone?: boolean;
     zoneName?: string;
     propName?: string;
+    canRender?: (component) => boolean;
 };
 
 export interface CustomElementConstructor {

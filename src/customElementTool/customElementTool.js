@@ -125,6 +125,19 @@ function getChildClassName(component, name) {
     className += dashedToCamel(name);
     return className;
 }
+/**
+ * Renders a child element.
+ * @param {ComponentType | any} component - The component to check.
+ * @param {string} name - The name of the child.
+ * @param {CustomElementChildOptionsType} [config] - The configuration object.
+ * @returns {boolean}
+ */
+export function canRenderChild(component, name, config = {}) {
+    if (typeof config.canRender === 'function' && config.canRender(component)) {
+        return true;
+    }
+    return hasContent(component, name);
+}
 
 /**
  * Renders a child element.
@@ -134,7 +147,7 @@ function getChildClassName(component, name) {
  * @returns {string}
  */
 export function renderChild(component, name, config = {}) {
-    if (!hasContent(component, name)) return '';
+    if (!canRenderChild(component, name, config)) return '';
     const {
         tag = 'div',
         attr = {},
