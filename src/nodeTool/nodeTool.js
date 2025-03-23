@@ -5,12 +5,16 @@ import { isObject } from '../objectTool/objectTool';
  * Adds attributes to a node.
  * @param {HTMLElement} node
  * @param {Record<string, any>} attributes
+ * @param {boolean} [override=false]
  */
-export function attr(node, attributes) {
+export function attr(node, attributes, override = true) {
     if (!node || typeof node.setAttribute !== 'function' || !isObject(attributes)) {
         return;
     }
     for (const [key, value] of Object.entries(attributes)) {
+        if (!override && node.hasAttribute(key)) {
+            continue;
+        }
         if (value === false || value == null) {
             node.removeAttribute(key);
         } else {

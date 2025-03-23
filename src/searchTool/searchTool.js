@@ -50,7 +50,7 @@ export function addSearchMatchMarkers(
     contentSelector = '',
     className = 'searchMatch'
 ) {
-    const selected = container.querySelectorAll(contentSelector);
+    const selected = (container instanceof HTMLElement && container?.querySelectorAll(contentSelector)) || [];
     /** @type {ElementType[]} */
     let nodes = [];
     if (contentSelector) {
@@ -90,20 +90,33 @@ export class SearchTool {
         this.onSearchInput = this.onSearchInput.bind(this);
         this.onSearchNode = this.onSearchNode.bind(this);
         /** @type {HTMLInputElement} */
-        this.input = input;
         this.setConfig(config);
-        this._initialize();
+        this._initialize(input);
     }
     /** @type {ObserverStoreType} */
     _observerTool = { callbacks: {} };
 
-    _initialize() {
+    /**
+     * Initializes the search tool private.
+     * @param {HTMLInputElement} input - The input element.
+     */
+    _initialize(input) {
         const { debounceDelay } = this.config || {};
-        this.input.removeEventListener('input', this.onSearchInput);
-        this.input.addEventListener('input', this.onSearchInput);
+        this.initialize(input);
         clearTimeout(this.debounceSearchTimeout);
         this.debounceSearchTimeout = setTimeout(this.onSearchInput, debounceDelay);
     }
+
+    /**
+     * Initializes the search tool.
+     * @param {HTMLInputElement} input - The input element.
+     */
+    initialize(input) {
+        this.input = input;
+        input.removeEventListener('input', this.onSearchInput);
+        input.addEventListener('input', this.onSearchInput);
+    }
+
     /**
      * Sets the configuration.
      * @param {SearchToolConfigType} config - The configuration options.
@@ -152,7 +165,7 @@ export class SearchTool {
      * @param {string} [query]
      * @param {Element[]} [nodes] - The list of nodes to search through.
      */
-    async doSearch(event, query = this.input.value, nodes = this.getNodes()) {
+    async doSearch(event, query = this.input?.value || '', nodes = this.getNodes()) {
         const { onSearch } = this.config || {};
         const onSearchRv = onSearch && (await onSearch({ query, event, nodes }));
         if (typeof onSearch === 'function' && onSearchRv === false) {
@@ -175,10 +188,10 @@ export class SearchTool {
         const { debounceDelay } = this.config || {};
         clearTimeout(this._searchTimeout);
         this._searchTimeout = setTimeout(() => {
-            if (this.input.value !== this._prevValue) {
+            if (this.input?.value && this.input?.value !== this._prevValue) {
                 this.doSearch(this.onSearchEvent);
             }
-            this._prevValue = this.input.value;
+            this._prevValue = this.input?.value || '';
             this.onSearchEvent = undefined;
         }, Number(debounceDelay));
     }
@@ -194,7 +207,7 @@ export class SearchTool {
         if (typeof onSearchNode === 'function' && onSearchNode(node, isMatch) === false) {
             return;
         }
-        const value = this.input.value;
+        const value = this.input?.value;
         if (addMarkers) {
             addSearchMatchMarkers(node, isMatch ? value : '', searchSelector, matchClass);
         }
