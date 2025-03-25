@@ -79,10 +79,10 @@ export function getSafeID(str) {
  * @returns {string[]} An array of parsed email addresses.
  */
 export function parseOutlookEmails(str) {
-    const regex = /<([^\s<>@]+@?[^\s<>@]+)>/g;
+    const regex = /<([^<>@\s]+@[^<>@\s]+)>/g;
     let rv = Array.from(str.matchAll(regex), match => match[1]);
     if (!rv?.length) {
-        rv = str.replace(/[;]/g, ' ').replace(/[,]/g, ' ').split(/\s+/);
+        rv = str.replace(/;/g, ' ').replace(/,/g, ' ').split(/\s+/);
     }
     return rv.filter(email => email.includes('@'));
 }
@@ -144,6 +144,7 @@ export function removeWhiteSpace(str) {
  * @returns {string} The string without slashes.
  */
 export function removeSlashes(str) {
+    // eslint-disable-next-line sonarjs/slow-regex, sonarjs/anchor-precedence
     return str?.replace(/^\/+|\/+$/g, '');
 }
 
@@ -153,7 +154,7 @@ export function removeSlashes(str) {
  * @returns {string|null} The currency symbol or null if not found.
  */
 export function extractCurrency(str) {
-    const pattern = /[\£\$\€]{1}/g;
+    const pattern = /[\£\$\€]/g;
     const matches = str.match(pattern);
     return matches?.length ? matches[0] : null;
 }

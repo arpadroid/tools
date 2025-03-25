@@ -8,3 +8,10 @@ export type CallableType<T = any> = T & {
 };
 
 export type AbstractContentInterface = string | number | HTMLElement;
+
+declare global {
+    interface Window {
+        arpaSafeIDs: Record<string, boolean>;
+        i18nInstance: any;
+    }
+}
