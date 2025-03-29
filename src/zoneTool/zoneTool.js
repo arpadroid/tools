@@ -20,6 +20,8 @@ export const ZONE_INSERTION_INTERVAL = 10;
 export const ZONE_BENCHMARK_INTERVAL = 500;
 export const ZONES_LOADED_CALLBACKS = new Set();
 
+let originalInsertSize = 0;
+
 /**
  * Returns the zones in a nice printable format.
  * @param {Set<ZoneType> | ZoneType[]} [zones] - The zones to print.
@@ -130,12 +132,11 @@ export function hasRegisteredZone(component, zoneName) {
  * @param {Set<ZoneType>} [$store] - An optional store array.
  * @param {Set<ZoneType>} [zones] - The list of zones to add to.
  */
-export async function addZone(zone, parentNode, $store = parentNode._zones || new Set(), zones = ZONES) {
+export async function addZone(zone, parentNode, $store = parentNode?._zones || new Set(), zones = ZONES) {
     if (zone?.tagName?.toLowerCase() !== 'zone' || zones.has(zone)) {
         console.error('Invalid or existing zone:', zone);
         return;
     }
-
     zone._parentNode = parentNode || zone.parentNode;
     const nodeComponent = zone._parentNode || findNodeComponent(zone);
     const store = nodeComponent && '_zones' in nodeComponent ? nodeComponent._zones : $store;
@@ -149,6 +150,17 @@ export async function addZone(zone, parentNode, $store = parentNode._zones || ne
     } else {
         console.warn('Zone has no name:', zone);
     }
+}
+
+/**
+ * Used to insert a zone into a component while the algorithm is running.
+ * @param {ZoneType} zone - The zone to add.
+ * @param {ElementType} [component] - The container of the zone.
+ */
+export async function insertZone(zone, component) {
+    zone._parentNode = component;
+    originalInsertSize++;
+    ZONES?.add(zone);
 }
 
 /**
@@ -169,7 +181,6 @@ export function removeZone(zone, zones = ZONES) {
 export function extractZones(node, config = {}) {
     const { store = node._zones || new Set(), parentNode, zoneSelector } = config;
     const zones = selectZones(node, zoneSelector);
-    // zones.length && console.log('zones', getPrintableZones(zones));
     for (const zone of zones) {
         zone.innerHTML.trim() && addZone(zone, parentNode, store, ZONES);
         zone.remove();
@@ -344,7 +355,7 @@ const benchmarkDebounced = debounce(benchMarkCallback, ZONE_BENCHMARK_INTERVAL);
  * @param {number} [start] - The start time.
  */
 export function insertZones(zones = ZONES, maxBatchSize = 25, isRetry = false, start = performance.now()) {
-    const originalSize = zones.size;
+    originalInsertSize = zones.size;
     let batch = 0;
     for (const zone of zones) {
         placeZone(zone);
@@ -352,7 +363,7 @@ export function insertZones(zones = ZONES, maxBatchSize = 25, isRetry = false, s
         if (batch >= maxBatchSize) break;
     }
 
-    const doRetry = !isRetry || ZONES.size < originalSize;
+    const doRetry = !isRetry || ZONES.size < originalInsertSize;
     setTimeout(() => {
         if (ZONES.size && doRetry) {
             insertZones(zones, maxBatchSize, true, start);
@@ -377,17 +388,12 @@ export function handleZones() {
 /**
  * Mixin for zone functionality.
  * @param {ElementType | undefined} component
- * @param {ElementType | undefined} [parent]
  */
-export function zoneMixin(component, parent) {
+export function zoneMixin(component) {
     if (!component) return;
     !(component?._zones instanceof Set) && (component._zones = new Set());
-    if (!component.zonesByName) {
-        component.zonesByName = new Set();
-    }
-    extractZones(component, {
-        parentNode: parent
-    });
+    !component.zonesByName && (component.zonesByName = new Set());
+    extractZones(component);
 }
 
 /**
