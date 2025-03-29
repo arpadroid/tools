@@ -96,7 +96,8 @@ export function setContent(node, content) {
  * @param {Partial<CSSStyleDeclaration>} css
  */
 export function style(node, css = {}) {
-    for (const [key, value] of Object.entries(css)) { // @ts-ignore
+    for (const [key, value] of Object.entries(css)) {
+        // @ts-ignore
         node.style[key] = value;
     }
 }
@@ -217,5 +218,26 @@ export function addCssRule(selector, styles) {
         style.setAttribute('type', 'text/css');
         style.innerHTML = content;
         document.head.appendChild(style);
+    }
+}
+
+/**
+ * Adds event listeners to nodes.
+ * @param {HTMLElement | HTMLElement[]} nodes
+ * @param {string | string[]} events
+ * @param {(event: Event) => void} callback
+ * @param {Record<string, unknown>} options
+ */
+export function listen(nodes, events = [], callback, options = {}) {
+    nodes = Array.isArray(nodes) ? nodes : [nodes];
+    events = Array.isArray(events) ? events : [events];
+    for (const node of nodes) {
+        if (!(node instanceof HTMLElement)) {
+            continue;
+        }
+        for (const event of events) {
+            node.removeEventListener(event, callback, options);
+            node.addEventListener(event, callback, options);
+        }
     }
 }

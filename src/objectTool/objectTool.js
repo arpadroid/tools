@@ -118,9 +118,14 @@ export function createFormData(obj = {}) {
  * Binds methods to an object.
  * @param {import('../common.types.js').SettableType} obj
  * @param {...string} methods
+ * @throws {TypeError} If the method is not a function.
  */
 export function bind(obj, ...methods) {
     for (const method of methods) {
+        if (typeof obj[method] !== 'function') {
+            console.error(`Method ${method} is not a function in`, obj);
+            continue;
+        }
         obj[method] = obj[method].bind(obj);
     }
 }

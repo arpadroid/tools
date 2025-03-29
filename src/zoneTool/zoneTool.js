@@ -18,6 +18,7 @@ export const ZONES = new Set();
 export const ZONE_SELECTOR = 'zone';
 export const ZONE_INSERTION_INTERVAL = 10;
 export const ZONE_BENCHMARK_INTERVAL = 500;
+export const ZONES_LOADED_CALLBACKS = new Set();
 
 /**
  * Returns the zones in a nice printable format.
@@ -48,13 +49,22 @@ export function filterZones(zones, component, filter = component._config?.zoneFi
 }
 
 /**
- * Selects all zones from a node.
- * @param {ElementType} node - The node to search.
- * @returns {ZoneType[]} The list of zones.
+ * Retrieves the zone selector from a component.
+ * @param {ElementType} component - The component to retrieve the zone selector from.
+ * @returns {string} The zone selector.
  */
-export function selectZones(node) {
-    const zoneSelector = getProperty(node, 'zone-selector') || ZONE_SELECTOR;
-    return filterZones(Array.from(node.querySelectorAll(zoneSelector)), node);
+export function getSelector(component) {
+    return /** @type {string} */ (getProperty(component, 'zone-selector') || ZONE_SELECTOR);
+}
+
+/**
+ * Selects all zones from a node.
+ * @param {ElementType} node
+ * @param {string} [selector]
+ * @returns {ZoneType[]}
+ */
+export function selectZones(node, selector = getSelector(node)) {
+    return filterZones(Array.from(node.querySelectorAll(selector)), node);
 }
 
 /**
@@ -77,7 +87,7 @@ export function findNodeComponent(zone) {
 /**
  * Returns the zone registry of a zone.
  * @param {ZoneType} zone - The zone to register.
- * @returns {string[]} The zone registry.
+ * @returns {string[]}
  */
 export function getZoneRegistry(zone) {
     if (!(zone?._parentNode instanceof HTMLElement)) {
@@ -116,18 +126,18 @@ export function hasRegisteredZone(component, zoneName) {
 /**
  * Adds a zone.
  * @param {ZoneType} zone - The zone to add.
- * @param {Set<ZoneType>} [zones] - The list of zones to add to.
- * @param {Set<ZoneType>} [$store] - An optional store array.
  * @param {ElementType} [parentNode] - The container of the zone.
+ * @param {Set<ZoneType>} [$store] - An optional store array.
+ * @param {Set<ZoneType>} [zones] - The list of zones to add to.
  */
-export async function addZone(zone, zones = ZONES, $store = new Set(), parentNode) {
+export async function addZone(zone, parentNode, $store = parentNode._zones || new Set(), zones = ZONES) {
     if (zone?.tagName?.toLowerCase() !== 'zone' || zones.has(zone)) {
         console.error('Invalid or existing zone:', zone);
         return;
     }
 
     zone._parentNode = parentNode || zone.parentNode;
-    const nodeComponent = findNodeComponent(zone);
+    const nodeComponent = zone._parentNode || findNodeComponent(zone);
     const store = nodeComponent && '_zones' in nodeComponent ? nodeComponent._zones : $store;
     /** @type {string | null} */
     const zoneName = zone.getAttribute('name');
@@ -154,25 +164,60 @@ export function removeZone(zone, zones = ZONES) {
 /**
  * Extracts the zones from a node and stores them in an reference object.
  * @param {ElementType} node - The node to search.
- * @param {Set<ZoneType>} [store] - The key/value store object to add the zones to.
- * @param {ElementType} [parentNode]
+ * @param {{ store?: Set<ZoneType>, parentNode?: ElementType, zoneSelector?: string }} [config] - The configuration object.
  */
-export function extractZones(node, store = new Set(), parentNode) {
-    const zones = selectZones(node);
+export function extractZones(node, config = {}) {
+    const { store = node._zones || new Set(), parentNode, zoneSelector } = config;
+    const zones = selectZones(node, zoneSelector);
+    // zones.length && console.log('zones', getPrintableZones(zones));
     for (const zone of zones) {
-        zone.innerHTML.trim() && addZone(zone, ZONES, store, parentNode);
+        zone.innerHTML.trim() && addZone(zone, parentNode, store, ZONES);
         zone.remove();
     }
 }
 
 /**
- * Places the zone content into its corresponding container.
- * @param {ZoneType} zone
- * @returns {Promise<boolean | undefined>} Whether the zone was placed.
+ * Handles the lost zone.
+ * @param {ElementType} component - The component that lost the zone.
+ * @param {ZoneToolPlaceZoneType} payload
+ * @returns {boolean} Whether to register the lost zone.
  */
-export async function placeZone(zone) {
-    const parent = zone?._parentNode;
-    if (!parent) return;
+export function handleOnLostZone(component, payload) {
+    let registerLostZone = true;
+    if (typeof component?._onLostZone === 'function') {
+        const rv = component._onLostZone(payload);
+        rv && (registerLostZone = false);
+        if (typeof rv === 'function') {
+            ZONES_LOADED_CALLBACKS.add([rv, [payload]]);
+        }
+    }
+    return registerLostZone;
+}
+
+/**
+ * Called when there are no more zones to load.
+ * @returns {void}
+ */
+export function onZonesLoaded() {
+    if (ZONES_LOADED_CALLBACKS.size) {
+        for (const callbackPair of ZONES_LOADED_CALLBACKS) {
+            const fn = callbackPair[0];
+            const params = callbackPair[1];
+            if (typeof fn === 'function') {
+                fn(...params);
+            }
+        }
+        ZONES_LOADED_CALLBACKS.clear();
+    }
+}
+
+/**
+ * Resolves a zone and returns its component and container.
+ * @param {ZoneType} zone - The zone to resolve.
+ * @param {ElementType} [parent] - The parent node of the zone.
+ * @returns {{zoneComponent: ElementType, zoneContainer: ElementType, payload: ZoneToolPlaceZoneType}}
+ */
+export function resolveZone(zone, parent) {
     const zoneName = zone.getAttribute('name');
     const component = parent && findNodeComponent(parent);
     const zoneContainer = component?.querySelector(`[zone="${zoneName}"]`);
@@ -180,16 +225,30 @@ export async function placeZone(zone) {
     const zoneComponent = findNodeComponent(zoneContainer);
     /** @type {ZoneToolPlaceZoneType} */
     const payload = { nodes, zoneName, zoneComponent, zoneContainer, zone };
-
     if (!zoneContainer || !zoneComponent) {
         component && zoneName && component?.zonesByName?.add(zoneName);
-        let registerLostZone = true;
-        if (typeof component?._onLostZone === 'function' && component._onLostZone(payload) === true) {
-            registerLostZone = false;
+        const registerLostZone = handleOnLostZone(component, payload);
+        if (zone.innerHTML.trim() !== '' && registerLostZone) {
+            LOST_ZONES.add(zone);
+        } else {
+            removeZone(zone);
+            removeZone(zone, LOST_ZONES);
         }
-        registerLostZone && LOST_ZONES.add(zone);
-        return;
     }
+    return { zoneComponent, zoneContainer, payload };
+}
+
+/**
+ * Places the zone content into its corresponding container.
+ * @param {ZoneType} zone
+ * @param {ElementType} [parent] - The parent node of the zone.
+ * @returns {Promise<boolean | undefined>} Whether the zone was placed.
+ */
+export async function placeZone(zone, parent = zone._parentNode) {
+    if (!parent) return;
+
+    const { zoneComponent, zoneContainer, payload } = resolveZone(zone, parent);
+    if (!zoneContainer || !zoneComponent) return;
 
     if (typeof zoneComponent?._onPlaceZone === 'function') {
         zoneComponent._onPlaceZone(payload);
@@ -201,6 +260,9 @@ export async function placeZone(zone) {
         zoneComponent.onRendered(append);
     } else {
         append();
+    }
+    if (ZONES.size === 0) {
+        onZonesLoaded();
     }
 }
 
@@ -323,7 +385,9 @@ export function zoneMixin(component, parent) {
     if (!component.zonesByName) {
         component.zonesByName = new Set();
     }
-    extractZones(component, component._zones, parent);
+    extractZones(component, {
+        parentNode: parent
+    });
 }
 
 /**

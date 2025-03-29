@@ -10,6 +10,7 @@ import { dashedToCamel } from '../stringTool/stringTool.js';
 import { destroyComponentZones, hasZone } from '../zoneTool/zoneTool.js';
 import { attrString } from '../htmlTool/htmlTool.js';
 
+const VERBOSE = false;
 const html = String.raw;
 
 /**
@@ -171,14 +172,10 @@ export function renderChild(component, name, config = {}) {
 export function defineCustomElement(name, component, options = {}) {
     if (!customElements.get(name)) {
         customElements.define(name, component, options);
-    } else {
+    } else if (VERBOSE) {
         console.warn(
             `Custom element ${name} already exists. You are probably loading duplicate code or some conflicting libraries`,
-            {
-                name,
-                component,
-                options
-            }
+            { name, component, options }
         );
     }
 }
