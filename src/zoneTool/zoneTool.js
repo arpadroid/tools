@@ -206,10 +206,20 @@ export function handleOnLostZone(component, payload) {
 }
 
 /**
+ * Adds a callback to be called when all zones are loaded.
+ * @param {(payload: ZoneToolPlaceZoneType) => void} callback
+ * @param {any} [params] - The parameters to pass to the callback.
+ * @returns {void}
+ */
+export function onZonesLoaded(callback, params) {
+    ZONES_LOADED_CALLBACKS.add([callback, [params]]);
+}
+
+/**
  * Called when there are no more zones to load.
  * @returns {void}
  */
-export function onZonesLoaded() {
+export function _onZonesLoaded() {
     if (ZONES_LOADED_CALLBACKS.size) {
         for (const callbackPair of ZONES_LOADED_CALLBACKS) {
             const fn = callbackPair[0];
@@ -272,8 +282,8 @@ export async function placeZone(zone, parent = zone._parentNode) {
     } else {
         append();
     }
-    if (ZONES.size === 0) {
-        onZonesLoaded();
+    if (ZONES.size <= LOST_ZONES.size) {
+        _onZonesLoaded();
     }
 }
 
