@@ -225,7 +225,7 @@ export function addCssRule(selector, styles) {
  * Adds event listeners to nodes.
  * @param {HTMLElement | HTMLElement[]} nodes
  * @param {string | string[]} events
- * @param {(event: Event) => void} callback
+ * @param {(event: import('./nodeTool.types').AnyEvent) => void} callback
  * @param {Record<string, unknown>} options
  */
 export function listen(nodes, events = [], callback, options = {}) {

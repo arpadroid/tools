@@ -1,3 +1,5 @@
+export type AnyEvent = Event | KeyboardEvent | MouseEvent | FocusEvent | InputEvent | DragEvent | PointerEvent;
+
 export type NodeType = HTMLElement & {
     webkitExitFullscreen: () => void;
     webkitRequestFullscreen: () => void;
