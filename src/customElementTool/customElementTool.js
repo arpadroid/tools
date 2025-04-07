@@ -55,7 +55,7 @@ export function getProperty(element, name, config = element._config ?? {}) {
  * @param {ElementType} element - The element to get the property from.
  * @param {string} name - The property name.
  * @param {Record<string, unknown>} [config] - The configuration object.
- * @returns {(string | number | unknown)[] | unknown} The value of the property as an array.
+ * @returns {any[] | unknown} The value of the property as an array.
  */
 export function getArrayProperty(element, name, config = element._config) {
     const value = getProperty(element, name, config);
