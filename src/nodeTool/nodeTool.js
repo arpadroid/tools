@@ -49,6 +49,23 @@ export function getAttributes(node) {
 }
 
 /**
+ * Returns the attributes of a node with a prefix.
+ * @param {HTMLElement} node
+ * @param {string} prefix
+ * @returns {Record<string, string | boolean>}
+ */
+export function getAttributesWithPrefix(node, prefix) {
+    const attributes = getAttributes(node);
+    const filteredAttributes = Object.entries(attributes).reduce((acc, [key, value]) => {
+        if (key.startsWith(prefix)) { // @ts-ignore
+            acc[key.replace(prefix, '')] = value;
+        }
+        return acc;
+    }, {});
+    return filteredAttributes;
+}
+
+/**
  * Checks if a node is in the viewport.
  * @param {HTMLElement} node
  * @returns {boolean}
