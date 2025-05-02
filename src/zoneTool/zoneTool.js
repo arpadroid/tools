@@ -9,7 +9,7 @@ import { debounce, throttle } from '../functionTool/functionTool.js';
 import { appendNodes } from '../nodeTool/nodeTool.js';
 
 /** @type {boolean} */
-const VERBOSE = true;
+const VERBOSE = false;
 /** @type {Set<ZoneType>} */
 export const LOST_ZONES = new Set();
 /** @type {Set<ZoneType>} */
@@ -138,6 +138,8 @@ export async function addZone(zone, parentNode, $store = parentNode?._zones || n
         return;
     }
     zone._parentNode = parentNode || zone.parentNode;
+    const parent = /** @type {HTMLElement | null} */ (zone._parentNode);
+    zone._parentTag = parent?.tagName?.toLowerCase();
     const nodeComponent = zone._parentNode || findNodeComponent(zone);
     const store = nodeComponent && '_zones' in nodeComponent ? nodeComponent._zones : $store;
     /** @type {string | null} */
@@ -224,12 +226,23 @@ export function _onZonesLoaded() {
         for (const callbackPair of ZONES_LOADED_CALLBACKS) {
             const fn = callbackPair[0];
             const params = callbackPair[1];
-            if (typeof fn === 'function') {
-                fn(...params);
-            }
+            typeof fn === 'function' && fn(...params);
         }
         ZONES_LOADED_CALLBACKS.clear();
     }
+}
+
+/**
+ * Gets the resolver selector for a zone.
+ * @param {ElementType} component - The component to get the selector from.
+ * @param {string | null} [zoneName]
+ * @returns {string}
+ */
+export function getResolverSelector(component, zoneName) {
+    let selector = '[zone="{zoneName}"]';
+    const prop = component?.getProperty('zone-resolver-selector');
+    prop && (selector = prop);
+    return (zoneName && selector.replace(/{zoneName}/gi, zoneName)) || selector;
 }
 
 /**
@@ -241,7 +254,8 @@ export function _onZonesLoaded() {
 export function resolveZone(zone, parent) {
     const zoneName = zone.getAttribute('name');
     const component = parent && findNodeComponent(parent);
-    const zoneContainer = component?.querySelector(`[zone="${zoneName}"]`);
+    const resolverSelector = getResolverSelector(component, zoneName);
+    const zoneContainer = component?.querySelector(resolverSelector);
     const nodes = zoneContainer?.childNodes;
     const zoneComponent = findNodeComponent(zoneContainer);
     /** @type {ZoneToolPlaceZoneType} */

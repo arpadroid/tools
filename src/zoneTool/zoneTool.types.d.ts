@@ -9,6 +9,7 @@ export type ZoneToolPlaceZoneType = {
 
 export type ZoneType = HTMLElement & {
     _parentNode?: ParentNode | null;
+    _parentTag?: string | null;
     name: string;
     _onPlaceZone?: (zone: ZoneToolPlaceZoneType) => void;
 };
