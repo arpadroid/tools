@@ -43,11 +43,16 @@ export function hasProperty(element, name, config = element._config) {
 export function getProperty(element, name, config = element._config ?? {}) {
     const configName = dashedToCamel(name);
     /** @todo Try to remove the try / catch. */
+    let rv;
     try {
-        return element.getAttribute(name) ?? config[configName];
+        rv = element.getAttribute(name) ?? config[configName];
     } catch (_error) {
-        return config[configName];
+        rv = config[configName];
     }
+    if (rv === 'undefined') {
+        rv = undefined;
+    }
+    return rv;
 }
 
 /**
