@@ -9,6 +9,7 @@
 import { dashedToCamel } from '../stringTool/stringTool.js';
 import { destroyComponentZones, hasZone } from '../zoneTool/zoneTool.js';
 import { attrString } from '../htmlTool/htmlTool.js';
+import { mergeObjects } from '../objectTool/objectTool.js';
 
 const VERBOSE = false;
 const html = String.raw;
@@ -16,7 +17,7 @@ const html = String.raw;
 /**
  * Checks if an element has a property as an attribute or defined in the configuration.
  * @param {ElementType} element - The element to check.
- * @param {string} name - The property name.
+ * @param {string} name
  * @param {Record<string, unknown>} [config] - The configuration object.
  * @returns {unknown | undefined} Whether the element has the property.
  */
@@ -36,7 +37,7 @@ export function hasProperty(element, name, config = element._config) {
 /**
  * Gets the value of a property from the element's configuration or attributes.
  * @param {ElementType} element - The element to get the property from.
- * @param {string} name - The property name.
+ * @param {string} name
  * @param {Record<string, unknown>} [config] - The configuration object.
  * @returns {string | unknown} The value of the property.
  */
@@ -58,7 +59,7 @@ export function getProperty(element, name, config = element._config ?? {}) {
 /**
  * Gets the value of a property from the element's configuration or attributes as an array.
  * @param {ElementType} element - The element to get the property from.
- * @param {string} name - The property name.
+ * @param {string} name
  * @param {Record<string, unknown>} [config] - The configuration object.
  * @returns {any[] | unknown} The value of the property as an array.
  */
@@ -74,9 +75,11 @@ export function getArrayProperty(element, name, config = element._config) {
  * Checks if an element has content.
  * @param {CallableType} element
  * @param {string} property
+ * @param {CustomElementChildOptionsType} [config] - The configuration object.
  * @returns {boolean}
  */
-export function hasContent(element, property) {
+export function hasContent(element, property, config = {}) {
+    if (config.content) return true;
     if (typeof element?.getProperty === 'function') {
         const rv = element?.getProperty(property);
         if (typeof rv === 'string' && rv.length) {
@@ -134,35 +137,39 @@ function getChildClassName(component, name) {
 /**
  * Renders a child element.
  * @param {ComponentType | any} component - The component to check.
- * @param {string} name - The name of the child.
+ * @param {string} name
  * @param {CustomElementChildOptionsType} [config] - The configuration object.
  * @returns {boolean}
  */
 export function canRenderChild(component, name, config = {}) {
-    if (typeof config.canRender === 'function' && config.canRender(component)) {
-        return true;
+    const { canRender } = config;
+    if (canRender === true) return true;
+    if (typeof canRender === 'function') {
+        return canRender(component);
     }
-    return hasContent(component, name);
+    return hasContent(component, name, config);
 }
 
 /**
  * Renders a child element.
  * @param {ComponentType | any} component - The component to check.
- * @param {string} name - The name of the child.
+ * @param {string} name
  * @param {CustomElementChildOptionsType} [config] - The configuration object.
+ * @param {Record<string, string>} [attributes] - Additional attributes to add to the element.
  * @returns {string}
  */
-export function renderChild(component, name, config = {}) {
+export function renderChild(component, name, config = {}, attributes = {}) {
     if (!canRenderChild(component, name, config)) return '';
     const {
         tag = 'div',
-        attr = {},
         hasZone = true,
         zoneName = name,
         propName = name,
         className = getChildClassName(component, name),
         content = getProperty(component, propName) || ''
     } = config;
+    const attr = mergeObjects(config.attr || {}, attributes);
+    config.id && (attr.id = config.id);
     className && (attr.class = className);
     hasZone && (attr.zone = zoneName);
     return html`<${tag} ${attrString(attr)}>${content}</${tag}>`;
@@ -170,7 +177,7 @@ export function renderChild(component, name, config = {}) {
 
 /**
  * Defines a custom element.
- * @param {string} name - The name of the element.
+ * @param {string} name
  * @param {CustomElementConstructor} component
  * @param {Record<string, unknown>} [options]
  */

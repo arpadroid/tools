@@ -1,15 +1,35 @@
 /**
  * @typedef {import('../zoneTool/zoneTool.types.js').ElementType} ElementType
  */
+import { renderChild } from '../customElementTool/customElementTool.js';
 import { camelToDashed } from '../stringTool/stringTool.js';
+
+/**
+ * Processes a template variable.
+ * @param {string} name
+ * @param {unknown} value
+ * @param {ElementType} component
+ * @returns {unknown} The processed value.
+ */
+export function processTemplateVariable(name, value, component) {
+    if (!value && typeof component?.getTemplateChildren === 'function') {
+        const children = component?.getTemplateChildren(name);
+        const child = children[name];
+        if (child) {
+            value = renderChild(component, name, child);
+        }
+    }
+    return value || '';
+}
 
 /**
  * Processes a template string and replaces the placeholders with the provided props.
  * @param {string} template - The template string.
  * @param {Record<string, unknown>} props - The props to replace the placeholders with.
+ * @param {ElementType} [component] - The component instance.
  * @returns {string} The processed template.
  */
-export function processTemplate(template, props = {}) {
+export function processTemplate(template, props = {}, component = null) {
     if (!template) {
         return '';
     }
@@ -23,7 +43,8 @@ export function processTemplate(template, props = {}) {
             break;
         }
         const placeholder = template.slice(matchIndex + 1, endIndex);
-        result.push(props[placeholder] || '');
+        const val = processTemplateVariable(placeholder, props[placeholder], component);
+        result.push(val);
         startIndex = endIndex + 1;
     }
     result.push(template.slice(startIndex));
@@ -148,7 +169,8 @@ export function classNames(...classes) {
             return classNames(..._class);
         }
     };
-    return classes.map(classMap).filter((val) => {
-        return typeof val === 'string' && val.length > 0 && val !== 'false';
-    }).join(' ');
+    return classes
+        .map(classMap)
+        .filter(val => typeof val === 'string' && val.length > 0 && val !== 'false')
+        .join(' ');
 }

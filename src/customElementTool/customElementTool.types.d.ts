@@ -1,12 +1,13 @@
 export type CustomElementChildOptionsType = {
     tag?: string;
     attr?: Record<string, string>;
+    id?: string;
     className?: string;
     content?: string;
     hasZone?: boolean;
     zoneName?: string;
     propName?: string;
-    canRender?: (component) => boolean;
+    canRender?: ((component) => boolean) | boolean;
 };
 
 export interface CustomElementConstructor {
