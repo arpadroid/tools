@@ -1,22 +1,8 @@
-/* eslint-disable sonarjs/no-ignored-exceptions */
 /**
- * @typedef {import('../zoneTool/zoneTool.types').ElementType} ElementType
- * @typedef {import('../zoneTool/zoneTool.types').ComponentType} ComponentType
- * @typedef {import('../common.types').CallableType} CallableType
- * @typedef {import('./customElementTool.types.js').CustomElementChildOptionsType} CustomElementChildOptionsType
  * @typedef {import('./customElementTool.types.js').CustomElementConstructor} CustomElementConstructor
  */
-import { destroyComponentZones } from '../zoneTool/zoneTool.js';
 
 const VERBOSE = false;
-
-/**
- * Destroys the zones of a component.
- * @param {ElementType} component - The component to destroy.
- */
-export function onDestroy(component) {
-    destroyComponentZones(component);
-}
 
 /**
  * Defines a custom element.

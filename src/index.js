@@ -1,5 +1,4 @@
 /**
- * @typedef {import('./zoneTool/zoneTool.types').ElementType} ElementType
  * @typedef {import('./observerTool/observerTool.types').ListenerType} ListenerType
  * @typedef {import('./observerTool/observerTool.types').ObserverType} ObserverType
  */
@@ -20,7 +19,6 @@ export * from './validationTool/validationTool.js';
 export * from './placeTool/placeTool.js';
 export * from './searchTool/searchTool.js';
 export * from './htmlTool/htmlTool.js';
-export * from './zoneTool/zoneTool.js';
 export * from './functionTool/functionTool.js';
 export * from './customElementTool/customElementTool.js';
 export * from './observerTool/observerTool.js';

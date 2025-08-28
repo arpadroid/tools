@@ -1,5 +1,4 @@
 /**
- * @typedef {import('../zoneTool/zoneTool.types.js').ElementType} ElementType
  * @typedef {import('./htmlTool.types.js').ClassNamesValueType} ClassNamesValueType
  */
 import { camelToDashed } from '../stringTool/stringTool.js';
@@ -42,14 +41,14 @@ export function render(condition, html = '') {
 /**
  * Renders an HTML node from a string.
  * @param {string} html
- * @returns {HTMLElement | ElementType | null}
+ * @returns {HTMLElement | null}
  */
 export function renderNode(html = '') {
     const trimmedHtml = html?.trim() ?? '';
     if (!trimmedHtml) return null;
     const div = document.createElement('div');
     div.innerHTML = trimmedHtml;
-    return div?.firstChild;
+    return /** @type {HTMLElement | null} */ (div?.firstChild);
 }
 
 /**

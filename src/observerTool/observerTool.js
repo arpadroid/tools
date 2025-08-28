@@ -10,7 +10,6 @@
  * @typedef {import('./observerTool.types').SignalCallBackType} SignalCallBackType
  * @typedef {import('./observerTool.types').ListenerType} ListenerType
  * @typedef {import('./observerTool.types').OffType} OffType
- * @typedef {import('../zoneTool/zoneTool.types').ElementType} ElementType
  */
 import { debounce } from '../functionTool/functionTool';
 

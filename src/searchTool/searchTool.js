@@ -7,7 +7,6 @@ import { sanitizeSearchInput } from '../stringTool/stringTool.js';
  * @typedef {import('../observerTool/observerTool.types').ObserverStoreType} ObserverStoreType
  * @typedef {import('../observerTool/observerTool.types').ListenerType} ListenerType
  * @typedef {import('./searchTool.types').SearchToolConfigType} SearchToolConfigType
- * @typedef {import('../zoneTool/zoneTool.types').ElementType} ElementType
  */
 
 /**
@@ -51,7 +50,7 @@ export function addSearchMatchMarkers(
     className = 'searchMatch'
 ) {
     const selected = (container instanceof HTMLElement && container?.querySelectorAll(contentSelector)) || [];
-    /** @type {ElementType[]} */
+    /** @type {(Element & { originalContent?: string })[]} */
     let nodes = [];
     if (contentSelector) {
         nodes = Array.from(container instanceof HTMLElement ? selected || [] : []);
