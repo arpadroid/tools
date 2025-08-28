@@ -4,9 +4,8 @@
  * @typedef {import('../searchTool/searchTool.js').ElementType} ElementType
  */
 
-import { getProperty } from '../customElementTool/customElementTool.js';
 import { debounce, throttle } from '../functionTool/functionTool.js';
-import { appendNodes } from '../nodeTool/nodeTool.js';
+import { appendNodes, attr, getAttributesWithPrefix } from '../nodeTool/nodeTool.js';
 
 /** @type {boolean} */
 const VERBOSE = false;
@@ -56,7 +55,7 @@ export function filterZones(zones, component, filter = component._config?.zoneFi
  * @returns {string} The zone selector.
  */
 export function getSelector(component) {
-    return /** @type {string} */ (getProperty(component, 'zone-selector') || ZONE_SELECTOR);
+    return /** @type {string} */ (component?.getProperty('zone-selector') || ZONE_SELECTOR);
 }
 
 /**
@@ -290,6 +289,7 @@ export async function placeZone(zone, parent = zone._parentNode) {
     }
     ZONES.delete(zone);
     LOST_ZONES.delete(zone);
+    attr(zoneContainer, getAttributesWithPrefix(zone, 'el-'));
     const append = () => appendNodes(zoneContainer, zone.childNodes);
     if (typeof zoneComponent.onRendered === 'function') {
         zoneComponent.onRendered(append);

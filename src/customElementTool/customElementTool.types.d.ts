@@ -1,9 +1,9 @@
 export type CustomElementChildOptionsType = {
     tag?: string;
-    attr?: Record<string, string>;
+    attr?: Record<string, string | (() => string)>;
     id?: string;
     className?: string;
-    content?: string;
+    content?: string | (() => string);
     hasZone?: boolean;
     zoneName?: string;
     propName?: string;

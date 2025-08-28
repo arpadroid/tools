@@ -1,55 +1,8 @@
 /**
  * @typedef {import('../zoneTool/zoneTool.types.js').ElementType} ElementType
+ * @typedef {import('./htmlTool.types.js').ClassNamesValueType} ClassNamesValueType
  */
-import { renderChild } from '../customElementTool/customElementTool.js';
 import { camelToDashed } from '../stringTool/stringTool.js';
-
-/**
- * Processes a template variable.
- * @param {string} name
- * @param {unknown} value
- * @param {ElementType} component
- * @returns {unknown} The processed value.
- */
-export function processTemplateVariable(name, value, component) {
-    if (!value && typeof component?.getTemplateChildren === 'function') {
-        const children = component?.getTemplateChildren(name);
-        const child = children[name];
-        if (child) {
-            value = renderChild(component, name, child);
-        }
-    }
-    return value || '';
-}
-
-/**
- * Processes a template string and replaces the placeholders with the provided props.
- * @param {string} template - The template string.
- * @param {Record<string, unknown>} props - The props to replace the placeholders with.
- * @param {ElementType} [component] - The component instance.
- * @returns {string} The processed template.
- */
-export function processTemplate(template, props = {}, component = null) {
-    if (!template) {
-        return '';
-    }
-    const result = [];
-    let startIndex = 0;
-    let matchIndex = 0;
-    while ((matchIndex = template.indexOf('{', startIndex)) !== -1) {
-        result.push(template.slice(startIndex, matchIndex));
-        const endIndex = template.indexOf('}', matchIndex);
-        if (endIndex === -1) {
-            break;
-        }
-        const placeholder = template.slice(matchIndex + 1, endIndex);
-        const val = processTemplateVariable(placeholder, props[placeholder], component);
-        result.push(val);
-        startIndex = endIndex + 1;
-    }
-    result.push(template.slice(startIndex));
-    return result.join('');
-}
 
 /**
  * Processes a template string using a regular expression and replaces the placeholders with the provided props.
@@ -147,13 +100,13 @@ export function attrString(attributes = {}) {
 
 /**
  * Renders a class attribute.
- * @param {...string | Record<string, boolean | string[] | string>} classes
+ * @param {...ClassNamesValueType} classes
  * @returns {string}
  */
 export function classNames(...classes) {
     /**
      * Maps a class to a string.
-     * @param {string[] | Record<string, unknown> | string | undefined | boolean} _class
+     * @param {ClassNamesValueType} _class
      * @returns {string[] | string | undefined}
      */
     const classMap = _class => {

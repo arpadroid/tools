@@ -1,3 +1,5 @@
+import { CustomElementChildOptionsType } from '../customElementTool/customElementTool.types';
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export type ZoneToolPlaceZoneType = {
     nodes?: NodeList;
@@ -26,7 +28,10 @@ export type ComponentType = HTMLElement & {
     _hasRendered?: boolean;
     _lastRendered?: number;
     _config?: Record<string, unknown>;
+    templateChildren: Record<string, CustomElementChildOptionsType> | undefined;
+    getChildrenConfig: (childName?: string) => CustomElementChildOptionsType | undefined;
     [key: string]: unknown;
+    getChildConfig: (childName?: string) => CustomElementChildOptionsType | undefined;
 };
 
 export type ZoneFilterType = (zones: ZoneType[], component: ElementType) => ZoneType[];
