@@ -25,3 +25,4 @@ export * from './observerTool/observerTool.js';
 export * from './regexTool/regexTool.js';
 export * from './searchTool/searchTool.js';
 export * from './lazyLoaderTool/lazyLoaderTool.js';
+export * from './eventTool/eventTool.js';

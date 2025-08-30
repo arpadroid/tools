@@ -92,9 +92,10 @@ const memoizedMechanize = {};
 /**
  * Converts a string to a URL-friendly format, with memoization for faster lookup.
  * @param {string} str - The input string.
+ * @param {string} separator - The separator to use (default is '-').
  * @returns {string} The URL-friendly string.
  */
-export function mechanize(str = '') {
+export function mechanize(str = '', separator = '-') {
     if (memoizedMechanize[str]) {
         return memoizedMechanize[str];
     }
@@ -102,7 +103,7 @@ export function mechanize(str = '') {
     const result = str
         .toString()
         .trim()
-        .replace(/\s+/g, '-') // Replace spaces with hyphens
+        .replace(/\s+/g, separator) // Replace spaces with hyphens
         .replace(/[^\w\-]/g, '') // Remove non-alphanumeric characters except hyphens/underscores
         .toLowerCase();
 
