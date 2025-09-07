@@ -108,21 +108,22 @@ export function classNames(...classes) {
      * @param {ClassNamesValueType} _class
      * @returns {string[] | string | undefined}
      */
-    const classMap = _class => {
-        if (typeof _class === 'string') {
-            return _class;
-        }
-        if (typeof _class === 'object') {
-            return Object.entries(_class)
-                .map(([key, value]) => value && key)
-                .join(' ');
-        }
-        if (Array.isArray(_class)) {
-            return classNames(..._class);
-        }
-    };
-    return classes
-        .map(classMap)
-        .filter(val => typeof val === 'string' && val.length > 0 && val !== 'false')
-        .join(' ');
+    const classArr = classes
+        .map(item => {
+            if (typeof item === 'string') return item.trim();
+            if (Array.isArray(item)) return classNames(...item);
+            if (typeof item === 'object' && item !== null) {
+                let out = '';
+                for (const [key, value] of Object.entries(item)) {
+                    if (value) out += ` ${key}`;
+                }
+                return out.trim();
+            }
+            return '';
+        })
+        .filter(Boolean)
+        .join(' ')
+        .split(' ');
+
+    return [...new Set(classArr)].join(' ').replace(/\s+/g, ' ').trim();
 }

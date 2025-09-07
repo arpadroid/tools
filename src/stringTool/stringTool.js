@@ -114,7 +114,7 @@ export function mechanize(str = '', separator = '-') {
 /**
  * Generates a safe HTML ID with minimal re-computation.
  * @param {string} _id - The input string.
- * @returns {string} The safe HTML ID.
+ * @returns {string}
  */
 export function getSafeHtmlId(_id) {
     let id = mechanize(_id);
@@ -172,7 +172,7 @@ export function sanitizeSearchInput(str) {
 /**
  * Retrieves the initials from a string.
  * @param {string} str - The input string.
- * @returns {string} The initials.
+ * @returns {string}
  */
 export function getInitials(str) {
     return str
@@ -185,7 +185,7 @@ export function getInitials(str) {
 /**
  * Converts a string to seconds.
  * @param {string} str - The input string.
- * @returns {number} - Seconds.
+ * @returns {number}
  */
 export function timeStringToSeconds(str) {
     const parts = str.split(':');
@@ -198,8 +198,8 @@ export function timeStringToSeconds(str) {
 /**
  * Gets a string between two other strings.
  * @param {string} str - The input string.
- * @param {string} start - The start string.
- * @param {string} end - The end string.
+ * @param {string} start
+ * @param {string} end
  * @returns {string|null} - The string between the start and end strings.
  */
 export function getStringBetween(str, start, end) {
@@ -211,4 +211,18 @@ export function getStringBetween(str, start, end) {
     }
 
     return str.substring(startIndex + start.length, endIndex);
+}
+
+/**
+ * Escapes HTML special characters in a string to prevent XSS attacks.
+ * @param {string} unsafe - The input string.
+ * @returns {string} The escaped string.
+ */
+export function escapeHtml(unsafe) {
+    return unsafe
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
 }
