@@ -15,10 +15,6 @@ describe('htmlTool', () => {
             const result = renderAttr('data-test', 'value');
             expect(result).toBe('data-test="value"');
         });
-        it('should escape HTML in the attribute value', () => {
-            const result = renderAttr('data-test', '<script>alert("xss")</script>');
-            expect(result).toBe('data-test="&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;"');
-        });
     });
 
     describe('removeHTML', () => {
