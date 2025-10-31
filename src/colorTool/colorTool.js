@@ -1,3 +1,4 @@
+/* eslint-disable sonarjs/no-ignored-exceptions */
 /** @type {HTMLElement} */
 let colorNode;
 
@@ -40,7 +41,7 @@ export function stringToHex(color) {
     node.style.backgroundColor = color;
     try {
         return rgbToHex(window.getComputedStyle(node).backgroundColor);
-    } catch (err) {
+    } catch (_err) {
         return color;
     }
 }
@@ -61,7 +62,7 @@ export function validateColor(value) {
     try {
         const hex = rgbToHex(color);
         return Boolean(hex);
-    } catch (err) {
+    } catch (_err) {
         return false;
     }
 }
