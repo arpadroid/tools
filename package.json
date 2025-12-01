@@ -1,6 +1,6 @@
 {
     "name": "@arpadroid/tools",
-    "version": "1.0.0",
+    "version": "0.0.2",
     "description": "A modern front-end-focused JavaScript utility library.",
     "exports": {
         ".": "./dist/arpadroid-tools.js",
@@ -32,7 +32,8 @@
         "test:watch": "npm test -- --watch",
         "test:coverage": "npm test -- --coverage",
         "build:types": "tsc --declaration --emitDeclarationOnly --outDir dist",
-        "clean": "rm -rf dist/"
+        "clean": "rm -rf ./dist ./node_modules package-lock.json",
+        "clean:build": "npm run clean && npm install && npm run build"
     },
     "engines": {
         "node": ">=18.0.0",
@@ -64,7 +65,7 @@
     },
     "homepage": "https://github.com/arpadroid/tools#readme",
     "peerDependencies": {
-        "@arpadroid/module": "^1.0.0"
+        "@arpadroid/module": "file:../module"
     },
     "publishConfig": {
         "access": "public",
@@ -75,10 +76,5 @@
         "@babel/preset-env": "^7.23.9",
         "babel-jest": "^29.7.0",
         "jest-junit": "^16.0.0"
-    },
-    "dependencies": {
-        "@jest/globals": "^30.2.0",
-        "jest": "^30.2.0",
-        "jest-environment-jsdom": "^30.2.0"
     }
 }
