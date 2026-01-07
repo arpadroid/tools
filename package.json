@@ -27,8 +27,8 @@
         "LICENSE"
     ],
     "scripts": {
-        "build": "node ./node_modules/@arpadroid/module/scripts/build-project.mjs --project=tools --minify",
-        "test": "node ./node_modules/@arpadroid/module/scripts/test-project.mjs --project=tools --jest",
+        "build": "arpadroid-build --minify",
+        "test": "arpadroid-test --jest",
         "test:watch": "npm test -- --watch",
         "test:coverage": "npm test -- --coverage",
         "build:types": "tsc --declaration --emitDeclarationOnly --outDir dist",
