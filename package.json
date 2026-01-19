@@ -64,12 +64,15 @@
         "url": "https://github.com/arpadroid/tools/issues"
     },
     "homepage": "https://github.com/arpadroid/tools#readme",
-    "peerDependencies": {
-        "@arpadroid/module": "file:../module"
-    },
     "publishConfig": {
         "access": "public",
         "registry": "https://registry.npmjs.org/"
+    },
+    "dependencies": {
+        "@arpadroid/tools-iso": "file:../tools-iso"
+    },
+    "peerDependencies": {
+        "@arpadroid/module": "file:../module"
     },
     "devDependencies": {
         "@babel/core": "^7.23.9",

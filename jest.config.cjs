@@ -4,6 +4,9 @@ module.exports = {
     coverageReporters: ['html', 'text', 'cobertura'],
     testEnvironment: 'jsdom',
     moduleFileExtensions: ['js', 'mjs'],
+    moduleNameMapper: {
+        '^@arpadroid/tools-iso$': '<rootDir>/../tools-iso/src/index.js'
+    },
     transform: {
         '^.+\\.(js|jsx)$': 'babel-jest',
         '^.+\\.(js|jsx)$': '<rootDir>/node_modules/babel-jest',
