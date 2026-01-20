@@ -1,11 +1,10 @@
 /* eslint-disable security/detect-non-literal-regexp */
-import { mergeObjects } from '../objectTool/objectTool.js';
-import { dummySignal, observerMixin } from '../observerTool/observerTool.js';
-import { sanitizeSearchInput } from '../stringTool/stringTool.js';
+import { mergeObjects } from '@arpadroid/tools-iso';
+import { dummySignal, observerMixin } from '@arpadroid/signals';
+import { sanitizeSearchInput } from '@arpadroid/tools-iso';
 /**
- * @typedef {import('../observerTool/observerTool.types').ObserverType} ObserverType
- * @typedef {import('../observerTool/observerTool.types').ObserverStoreType} ObserverStoreType
- * @typedef {import('../observerTool/observerTool.types').ListenerType} ListenerType
+ * @typedef {import('@arpadroid/signals/observerTool').ObserverType} ObserverType
+ * @typedef {import('@arpadroid/signals/observerTool').ListenerType} ListenerType
  * @typedef {import('./searchTool.types').SearchToolConfigType} SearchToolConfigType
  */
 
@@ -92,7 +91,7 @@ export class SearchTool {
         this.setConfig(config);
         this._initialize(input);
     }
-    /** @type {ObserverStoreType} */
+    /** @type {{ callbacks?: Record<string, Set<import('@arpadroid/signals/observerTool').SignalCallBackType>> }} */
     _observerTool = { callbacks: {} };
 
     /**

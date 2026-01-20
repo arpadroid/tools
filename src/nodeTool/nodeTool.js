@@ -1,5 +1,5 @@
-import { mechanize } from '../stringTool/stringTool';
-import { isObject } from '../objectTool/objectTool';
+import { mechanize } from '@arpadroid/tools-iso/stringTool';
+import { isObject } from '@arpadroid/tools-iso/objectTool';
 
 /**
  * Adds attributes to a node.

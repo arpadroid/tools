@@ -11,6 +11,9 @@
 		},
 		{
 			"path": "../module"
+		},
+		{
+			"path": "../signals"
 		}
 	],
 	"settings": {}

@@ -69,6 +69,7 @@
         "registry": "https://registry.npmjs.org/"
     },
     "dependencies": {
+        "@arpadroid/signals": "file:../signals",
         "@arpadroid/tools-iso": "file:../tools-iso"
     },
     "peerDependencies": {
@@ -78,6 +79,8 @@
         "@babel/core": "^7.23.9",
         "@babel/preset-env": "^7.23.9",
         "babel-jest": "^29.7.0",
+        "jest": "^30.2.0",
+        "jest-environment-jsdom": "^30.2.0",
         "jest-junit": "^16.0.0"
     }
 }

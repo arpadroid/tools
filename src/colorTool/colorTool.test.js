@@ -1,4 +1,5 @@
-import { rgbToHex, validateColor } from './colorTool';
+import { rgbToHex, validateColor, stringToHex } from './colorTool';
+import { jest } from '@jest/globals';
 
 describe('ColorTool', () => {
     describe('rgbToHex', () => {
@@ -16,10 +17,38 @@ describe('ColorTool', () => {
     });
 
     describe('stringToHex', () => {
-        /**
-         * The stringToHex function converts a color string to a hexadecimal color value.
-         * @todo Add a test case for the stringToHex function.
-         */
+        it('should convert named color to hexadecimal', () => {
+            const hexColor = stringToHex('red');
+            expect(hexColor).toBe('#ff0000');
+        });
+
+        it('should handle hex color values', () => {
+            const hexColor = stringToHex('#00ff00');
+            expect(hexColor).toBe('#00ff00');
+        });
+
+        it('should handle RGB color values', () => {
+            const hexColor = stringToHex('rgb(0, 0, 255)');
+            expect(hexColor).toBe('#0000ff');
+        });
+
+        it('should return original color if conversion fails', () => {
+            // Mock getComputedStyle to throw an error
+            const originalGetComputedStyle = window.getComputedStyle;
+            window.getComputedStyle = jest.fn(() => {
+                throw new Error('Mock error');
+            });
+
+            const result = stringToHex('invalid-color');
+            expect(result).toBe('invalid-color');
+
+            window.getComputedStyle = originalGetComputedStyle;
+        });
+
+        it('should handle transparent color', () => {
+            const hexColor = stringToHex('transparent');
+            expect(typeof hexColor).toBe('string');
+        });
     });
 
     describe('validateColor', () => {
@@ -34,6 +63,14 @@ describe('ColorTool', () => {
             expect(validateColor('invalid-color')).toBe(false);
             expect(validateColor('#')).toBe(false);
             expect(validateColor('rgb(0, 255, 0, 0)')).toBe(false);
+        });
+
+        it('should return false for transparent', () => {
+            expect(validateColor('transparent')).toBe(false);
+        });
+
+        it('should handle catch block for rgbToHex errors', () => {
+            expect(validateColor('xyz')).toBe(false);
         });
     });
 });

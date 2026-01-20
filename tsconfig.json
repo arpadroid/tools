@@ -6,6 +6,7 @@
         // "tsBuildInfoFile": ".tsbuildinfo",
         "rootDir": "./src",
         "outDir": "./.tmp/.types",
+        "moduleResolution": "bundler"
         // "composite": true
     }
 }

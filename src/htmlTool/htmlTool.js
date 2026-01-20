@@ -1,7 +1,7 @@
 /**
  * @typedef {import('./htmlTool.types.js').ClassNamesValueType} ClassNamesValueType
  */
-import { camelToDashed } from '../stringTool/stringTool.js';
+import { camelToDashed } from '@arpadroid/tools-iso';
 
 /**
  * Processes a template string using a regular expression and replaces the placeholders with the provided props.

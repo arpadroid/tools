@@ -6,7 +6,7 @@
  * @typedef {import("../placeTool/placeTool.types").PlaceToolOptionsType} PlaceToolOptionsType
  */
 import { style } from '../nodeTool/nodeTool';
-import { mergeObjects } from '../objectTool/objectTool';
+import { mergeObjects } from '@arpadroid/tools-iso';
 
 /**
  * The default options for placing a node.
