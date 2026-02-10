@@ -32,8 +32,7 @@
         "test:watch": "npm test -- --watch",
         "test:coverage": "npm test -- --coverage",
         "build:types": "tsc --declaration --emitDeclarationOnly --outDir dist",
-        "clean": "rm -rf ./dist ./node_modules package-lock.json",
-        "clean:build": "npm run clean && npm install && npm run build"
+        "clean": "arpadroid-clean"
     },
     "engines": {
         "node": ">=18.0.0",
