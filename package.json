@@ -30,6 +30,8 @@
         "build": "arpadroid-build --minify",
         "test": "arpadroid-test --jest",
         "test:watch": "npm test -- --watch",
+        "t": "npm test -- --slim",
+        "t:w": "npm test -- --watch",
         "test:coverage": "npm test -- --coverage",
         "build:types": "tsc --declaration --emitDeclarationOnly --outDir dist",
         "clean": "arpadroid-clean"
@@ -74,10 +76,6 @@
     },
     "devDependencies": {
         "@babel/core": "^7.23.9",
-        "@babel/preset-env": "^7.23.9",
-        "babel-jest": "^30.2.0",
-        "jest": "^30.2.0",
-        "jest-environment-jsdom": "^30.2.0",
-        "jest-junit": "^16.0.0"
+        "@babel/preset-env": "^7.23.9"
     }
 }

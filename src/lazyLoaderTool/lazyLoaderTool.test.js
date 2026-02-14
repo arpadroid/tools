@@ -94,14 +94,15 @@ describe('lazyLoaderTool', () => {
     describe('loadNext', () => {
         it('should load the next image in the queue', async () => {
             const img = document.createElement('img');
-            img.dataset.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+            img.dataset.src =
+                'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
             lazyQueue.add(img);
 
             const resultPromise = loadNext();
-            
+
             // Manually trigger the load event since fake timers don't trigger it
             img.dispatchEvent(new Event('load'));
-            
+
             const result = await resultPromise;
             expect(result).toBe(img);
             expect(img.src).toBe(img.dataset.src);
@@ -113,7 +114,7 @@ describe('lazyLoaderTool', () => {
             lazyQueue.add(src);
 
             expect(lazyQueue.has(src)).toBe(true);
-            
+
             // loadNext will create an HTMLImageElement from the string
             const resultPromise = loadNext();
             expect(resultPromise).toBeInstanceOf(Promise);
@@ -125,10 +126,10 @@ describe('lazyLoaderTool', () => {
             lazyQueue.add(img);
 
             const resultPromise = loadNext();
-            
+
             // Manually trigger the error event
             img.dispatchEvent(new Event('error'));
-            
+
             const result = await resultPromise;
             expect(result).toBe(img);
             expect(hasLoadedSource('invalid-url')).toBe(true);
@@ -141,9 +142,12 @@ describe('lazyLoaderTool', () => {
         });
 
         it('should handle invalid image element', async () => {
+            jest.spyOn(console, 'error').mockImplementation(() => {});
             lazyQueue.add({});
             const result = await loadNext();
             expect(result).toEqual({});
+            expect(console.error).toHaveBeenCalledWith('Invalid image element.');
+            console.error.mockRestore();
         });
     });
 
@@ -151,13 +155,15 @@ describe('lazyLoaderTool', () => {
         it('should load a batch of images', () => {
             const img1 = document.createElement('img');
             const img2 = document.createElement('img');
-            img1.dataset.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
-            img2.dataset.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+            img1.dataset.src =
+                'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+            img2.dataset.src =
+                'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
 
             // Use lazyLoad which sets isLoading and starts the batch process
             lazyLoad(img1);
             lazyLoad(img2);
-            
+
             expect(lazyQueue.size).toBeGreaterThan(0);
         });
 
@@ -167,11 +173,12 @@ describe('lazyLoaderTool', () => {
 
         it('should continue loading if queue is not empty after batch', () => {
             clearLazyQueue();
-            
+
             // Add more images than batch size to force recursion
             for (let i = 0; i < 10; i++) {
                 const img = document.createElement('img');
-                img.dataset.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+                img.dataset.src =
+                    'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
                 lazyQueue.add(img);
             }
 
@@ -186,7 +193,8 @@ describe('lazyLoaderTool', () => {
     describe('lazyLoad', () => {
         it('should add image to queue and start loading', () => {
             const img = document.createElement('img');
-            img.dataset.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+            img.dataset.src =
+                'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
 
             lazyLoad(img);
 
@@ -198,7 +206,8 @@ describe('lazyLoaderTool', () => {
 
         it('should accept custom batch size', () => {
             const img = document.createElement('img');
-            img.dataset.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+            img.dataset.src =
+                'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
 
             lazyLoad(img, 10);
 
@@ -211,8 +220,10 @@ describe('lazyLoaderTool', () => {
         it('should handle multiple images added sequentially', () => {
             const img1 = document.createElement('img');
             const img2 = document.createElement('img');
-            img1.dataset.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
-            img2.dataset.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+            img1.dataset.src =
+                'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+            img2.dataset.src =
+                'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
 
             lazyLoad(img1);
             lazyLoad(img2);
@@ -226,8 +237,10 @@ describe('lazyLoaderTool', () => {
         it('should not start loading if already in progress', () => {
             const img1 = document.createElement('img');
             const img2 = document.createElement('img');
-            img1.dataset.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
-            img2.dataset.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+            img1.dataset.src =
+                'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+            img2.dataset.src =
+                'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
 
             lazyLoad(img1);
             // Add another immediately

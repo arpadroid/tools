@@ -3,11 +3,10 @@
     "include": ["src/index.js", "src/**/*"],
     "exclude": ["node_modules", "dist", "**/*.test.js"],
     "compilerOptions": {
-        // "tsBuildInfoFile": ".tsbuildinfo",
+        "tsBuildInfoFile": "./.tmp/.tsbuildinfo",
         "rootDir": "./src",
         "outDir": "./.tmp/.types",
         "moduleResolution": "bundler",
-        "types": ["node"],
-        // "composite": true
+        "types": ["node"]
     }
 }
