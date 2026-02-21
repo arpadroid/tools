@@ -1,12 +1,13 @@
 {
     "extends": "./node_modules/@arpadroid/module/src/tsconfig/esnext/tsconfig.json",
     "include": ["src/index.js", "src/**/*"],
-    "exclude": ["node_modules", "dist", "**/*.test.js"],
+    "exclude": ["./node_modules", "dist", "./dist/@types", "**/*.test.js", "**/node_modules/**"],
     "compilerOptions": {
         "tsBuildInfoFile": "./.tmp/.tsbuildinfo",
         "rootDir": "./src",
         "outDir": "./.tmp/.types",
         "moduleResolution": "bundler",
+        "skipLibCheck": false,
         "types": ["node"]
     }
 }

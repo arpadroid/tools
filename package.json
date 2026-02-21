@@ -3,7 +3,10 @@
     "version": "0.0.2",
     "description": "A modern front-end-focused JavaScript utility library.",
     "exports": {
-        ".": "./dist/arpadroid-tools.js",
+        ".": {
+            "types": "./dist/@types/types.compiled.d.ts",
+            "import": "./dist/arpadroid-tools.js"
+        },
         "./object": {
             "types": "./dist/@types/objectTool/objectTool.d.ts",
             "default": "./src/objectTool/objectTool.js"
@@ -34,7 +37,8 @@
         "t:w": "npm test -- --watch",
         "test:coverage": "npm test -- --coverage",
         "build:types": "tsc --declaration --emitDeclarationOnly --outDir dist",
-        "clean": "arpadroid-clean"
+        "clean": "arpadroid-clean",
+        "check:types": "arpadroid-check-types"
     },
     "engines": {
         "node": ">=18.0.0",

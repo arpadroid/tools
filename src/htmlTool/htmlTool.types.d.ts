@@ -1,7 +1,5 @@
-export type ClassNamesValueType =
-    | string
-    | string[]
-    | Record<string, ClassNamesValueType>
-    | undefined
-    | null
-    | false;
+export interface ClassNamesRecord {
+    [key: string]: ClassNamesValueType;
+}
+
+export type ClassNamesValueType = string | string[] | ClassNamesRecord | undefined | null | false;
