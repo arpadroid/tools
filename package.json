@@ -38,7 +38,8 @@
         "test:coverage": "npm test -- --coverage",
         "build:types": "tsc --declaration --emitDeclarationOnly --outDir dist",
         "clean": "arpadroid-clean",
-        "check:types": "arpadroid-check-types"
+        "check:types": "arpadroid-check-types",
+        "initialize": "arpadroid-initialize"
     },
     "engines": {
         "node": ">=18.0.0",

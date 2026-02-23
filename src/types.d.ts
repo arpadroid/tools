@@ -1,15 +1,9 @@
-import '@arpadroid/module/types/declarations'
+import '@arpadroid/module/types/declarations';
 
 export { SettableType, CallableType, AbstractContentInterface } from './common.types';
 export { PlaceToolOptionsType } from './placeTool/placeTool.types';
 
-export {
-    SignalType,
-    SignalCallBackType,
-    UnsubscribeType,
-    OffType,
-    ObserverInstanceType
-} from '@arpadroid/signals';
+export { UnsubscribeType, ObserverInstanceType } from '@arpadroid/signals';
 
 export {
     SearchResultType,
