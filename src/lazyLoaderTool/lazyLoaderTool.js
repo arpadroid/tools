@@ -4,7 +4,9 @@ let isLoading = false;
 let batchSize = 5;
 
 const controller = new AbortController();
-window.addEventListener('beforeunload', () => controller.abort());
+if (typeof window !== 'undefined') {
+    window.addEventListener('beforeunload', () => controller.abort());
+}
 
 /**
  * Get the source of an image.
