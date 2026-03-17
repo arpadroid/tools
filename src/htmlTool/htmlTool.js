@@ -20,7 +20,7 @@ export function processTemplateRegex(template, props = {}) {
 /**
  * Maps an array of items to an HTML string.
  * @param {unknown[]} items - The items to map.
- * @param {() => void} callback - The callback function to process the items.
+ * @param {(payload: any) => unknown} callback - The callback function to process the items.
  * @returns {string} The HTML string.
  */
 export function mapHTML(items, callback) {
