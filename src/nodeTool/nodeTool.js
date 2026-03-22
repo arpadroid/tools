@@ -57,7 +57,8 @@ export function getAttributes(node) {
 export function getAttributesWithPrefix(node, prefix) {
     const attributes = getAttributes(node);
     const filteredAttributes = Object.entries(attributes).reduce((acc, [key, value]) => {
-        if (key.startsWith(prefix)) { // @ts-ignore
+        if (key.startsWith(prefix)) {
+            // @ts-ignore
             acc[key.replace(prefix, '')] = value;
         }
         return acc;

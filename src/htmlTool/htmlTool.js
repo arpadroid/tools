@@ -1,7 +1,7 @@
 /**
  * @typedef {import('./htmlTool.types.js').ClassNamesValueType} ClassNamesValueType
  */
-import { camelToDashed } from '@arpadroid/tools-iso';
+export { attrString } from '@arpadroid/tools-iso';
 
 /**
  * Processes a template string using a regular expression and replaces the placeholders with the provided props.
@@ -41,14 +41,14 @@ export function render(condition, html = '') {
 /**
  * Renders an HTML node from a string.
  * @param {string} html
- * @returns {HTMLElement | null}
+ * @returns {HTMLElement | Node | null}
  */
 export function renderNode(html = '') {
     const trimmedHtml = html?.trim() ?? '';
     if (!trimmedHtml) return null;
     const div = document.createElement('div');
     div.innerHTML = trimmedHtml;
-    return /** @type {HTMLElement | null} */ (div?.firstChild);
+    return div?.firstChild;
 }
 
 /**
@@ -70,31 +70,6 @@ export function removeHTML(str) {
  */
 export function renderAttr(attr, value) {
     return render(value, `${attr}="${removeHTML(value)}"`);
-}
-
-/**
- * Renders attributes to a node.
- * @param {Record<string, unknown>} attributes
- * @returns {string}
- */
-export function attrString(attributes = {}) {
-    const attrArray = [];
-
-    for (const [key, value] of Object.entries(attributes)) {
-        const attrName = camelToDashed(key);
-
-        if (value === true) {
-            attrArray.push(attrName);
-        } else if (typeof value === 'string' && value.length > 0) {
-            attrArray.push(`${attrName}="${value}"`);
-        } else if (typeof value === 'number' && value !== 0) {
-            attrArray.push(`${attrName}="${value}"`);
-        } else if (Array.isArray(value) && value.length > 0) {
-            attrArray.push(`${attrName}="${value.join(',')}"`);
-        }
-    }
-
-    return attrArray.join(' ');
 }
 
 /**
