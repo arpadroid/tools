@@ -3,11 +3,7 @@ const config = {
     buildTypes: true,
     jest: {
         environment: 'jsdom'
-    },
-    logo: `           ┓    • ┓       ┓ 
-  ┏┓┏┓┏┓┏┓┏┫┏┓┏┓┓┏┫  ╋┏┓┏┓┃┏
-  ┗┻┛ ┣┛┗┻┗┻┛ ┗┛┗┗┻  ┗┗┛┗┛┗┛
-------┛-----------------------`
+    }
 };
 
 export default config;
