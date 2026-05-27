@@ -1,4 +1,4 @@
-import { mechanize } from '@arpadroid/tools-iso/stringTool';
+import { dashedToCamel, mechanize } from '@arpadroid/tools-iso/stringTool';
 import { isObject } from '@arpadroid/tools-iso/objectTool';
 
 /**
@@ -25,9 +25,11 @@ export function attr(node, attributes, override = true) {
 /**
  * Returns the attributes of a node.
  * @param {HTMLElement} node
+ * @param {{camelCaseKeys?: boolean}} [config]
  * @returns {Record<string, string | boolean>}
  */
-export function getAttributes(node) {
+export function getAttributes(node, config = {}) {
+    const { camelCaseKeys = false } = config;
     /**
      * Reduces the attributes of a node to an object.
      * @param {Record<string, string | boolean>} acc
@@ -42,7 +44,8 @@ export function getAttributes(node) {
         } else if (value === 'false') {
             value = false;
         }
-        acc[name] = value;
+        const keyName = camelCaseKeys ? dashedToCamel(name) : name;
+        acc[keyName] = value;
         return acc;
     };
     return Array.from(node.attributes).reduce(reduce, {});
