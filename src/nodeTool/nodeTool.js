@@ -125,7 +125,7 @@ export function style(node, css = {}) {
 /**
  * Append nodes to a container with a document fragment for performance.
  * @param {HTMLElement | Element} container
- * @param {Element[] | NodeList | Node[]} nodes
+ * @param {Element[] | NodeList | Node[] | []} nodes
  * @param {boolean} prepend - Whether to prepend the nodes.
  */
 export function appendNodes(container, nodes = [], prepend = false) {
