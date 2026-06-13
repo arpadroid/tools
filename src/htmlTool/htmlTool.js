@@ -1,7 +1,4 @@
-/**
- * @typedef {import('./htmlTool.types.js').ClassNamesValueType} ClassNamesValueType
- */
-export { attrString } from '@arpadroid/tools-iso';
+export { attrString, classNames } from '@arpadroid/tools-iso';
 
 /**
  * Processes a template string using a regular expression and replaces the placeholders with the provided props.
@@ -70,35 +67,4 @@ export function removeHTML(str) {
  */
 export function renderAttr(attr, value) {
     return render(value, `${attr}="${removeHTML(value)}"`);
-}
-
-/**
- * Renders a class attribute.
- * @param {...ClassNamesValueType} classes
- * @returns {string}
- */
-export function classNames(...classes) {
-    /**
-     * Maps a class to a string.
-     * @param {ClassNamesValueType} _class
-     * @returns {string[] | string | undefined}
-     */
-    const classArr = classes
-        .map(item => {
-            if (typeof item === 'string') return item.trim();
-            if (Array.isArray(item)) return classNames(...item);
-            if (typeof item === 'object' && item !== null) {
-                let out = '';
-                for (const [key, value] of Object.entries(item)) {
-                    if (value) out += ` ${key}`;
-                }
-                return out.trim();
-            }
-            return '';
-        })
-        .filter(Boolean)
-        .join(' ')
-        .split(' ');
-
-    return [...new Set(classArr)].join(' ').replace(/\s+/g, ' ').trim();
 }
