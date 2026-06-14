@@ -5,7 +5,7 @@ import { isObject } from '@arpadroid/tools-iso/objectTool';
  * Adds attributes to a node.
  * @param {HTMLElement} node
  * @param {Record<string, any>} attributes
- * @param {boolean} [override=false]
+ * @param {boolean} [override]
  */
 export function attr(node, attributes, override = true) {
     if (!node || typeof node.setAttribute !== 'function' || !isObject(attributes)) {
@@ -244,12 +244,15 @@ export function addCssRule(selector, styles) {
 
 /**
  * Adds event listeners to nodes.
- * @param {HTMLElement | HTMLElement[]} nodes
+ * @param {HTMLElement | HTMLElement[] | null | undefined | any} nodes
  * @param {string | string[]} events
  * @param {(event: import('./nodeTool.types').AnyEvent) => void} callback
  * @param {Record<string, unknown>} options
  */
 export function listen(nodes, events = [], callback, options = {}) {
+    if (!nodes || !events?.length || typeof callback !== 'function') {
+        return;
+    }
     nodes = Array.isArray(nodes) ? nodes : [nodes];
     events = Array.isArray(events) ? events : [events];
     for (const node of nodes) {
