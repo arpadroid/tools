@@ -247,7 +247,7 @@ export function addCssRule(selector, styles) {
  * @param {HTMLElement | HTMLElement[] | null | undefined | any} nodes
  * @param {string | string[]} events
  * @param {(event: import('./nodeTool.types').AnyEvent) => void} callback
- * @param {Record<string, unknown>} options
+ * @param {Record<string, unknown> | boolean} options
  */
 export function listen(nodes, events = [], callback, options = {}) {
     if (!nodes || !events?.length || typeof callback !== 'function') {
