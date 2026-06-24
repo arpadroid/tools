@@ -250,6 +250,9 @@ export function addCssRule(selector, styles) {
  * @param {Record<string, unknown> | boolean} options
  */
 export function listen(nodes, events = [], callback, options = {}) {
+    if (nodes instanceof NodeList || nodes instanceof HTMLCollection) {
+        nodes = Array.from(nodes);
+    }
     if (!nodes || !events?.length || typeof callback !== 'function') {
         return;
     }
