@@ -2,7 +2,7 @@ import { dashedToCamel, mechanize } from '@arpadroid/tools-iso/stringTool';
 import { isObject } from '@arpadroid/tools-iso/objectTool';
 
 /**
- * Adds attributes to a node.
+ * Apply attributes to a DOM node.
  * @param {HTMLElement} node
  * @param {Record<string, any>} attributes
  * @param {boolean} [override]
@@ -22,6 +22,9 @@ export function attr(node, attributes, override = true) {
         }
     }
 }
+
+export const applyAttributes = attr;
+
 /**
  * Returns the attributes of a node.
  * @param {HTMLElement} node
