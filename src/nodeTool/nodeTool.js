@@ -121,8 +121,13 @@ export function setContent(node, content) {
  */
 export function style(node, css = {}) {
     for (const [key, value] of Object.entries(css)) {
-        // @ts-ignore
-        node.style[key] = value;
+        if (typeof value === 'number' && !['opacity', 'zIndex'].includes(key)) {
+            // @ts-expect-error
+            node.style[key] = `${value}px`;
+        } else {
+            // @ts-expect-error
+            node.style[key] = value;
+        }
     }
 }
 /**
