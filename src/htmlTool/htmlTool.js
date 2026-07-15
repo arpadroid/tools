@@ -24,6 +24,8 @@ export function mapHTML(items, callback) {
     return items.map(callback).join('');
 }
 
+export const $map = mapHTML;
+
 /**
  * Renders an HTML string with the provided variables.
  * @param {unknown | (() => unknown)} condition - The condition to render the HTML.
