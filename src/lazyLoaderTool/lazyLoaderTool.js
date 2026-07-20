@@ -76,7 +76,7 @@ export function loadNext() {
 }
 
 /**
- * Clear the lazy queue.
+ * Clears the lazy queue and aborts any ongoing image loading.
  */
 export function clearLazyQueue() {
     lazyQueue.clear();
