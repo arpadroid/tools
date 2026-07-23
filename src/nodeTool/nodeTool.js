@@ -28,11 +28,11 @@ export const applyAttributes = attr;
 /**
  * Returns the attributes of a node.
  * @param {HTMLElement} node
- * @param {{camelCaseKeys?: boolean}} [config]
+ * @param {{camelCaseKeys?: boolean; convertFalseToBoolean?: boolean}} [config]
  * @returns {Record<string, string | boolean>}
  */
 export function getAttributes(node, config = {}) {
-    const { camelCaseKeys = false } = config;
+    const { camelCaseKeys = false, convertFalseToBoolean = true } = config;
     /**
      * Reduces the attributes of a node to an object.
      * @param {Record<string, string | boolean>} acc
@@ -44,7 +44,7 @@ export function getAttributes(node, config = {}) {
         const { name } = attr;
         if (value === '') {
             value = true;
-        } else if (value === 'false') {
+        } else if (value === 'false' && convertFalseToBoolean) {
             value = false;
         }
         const keyName = camelCaseKeys ? dashedToCamel(name) : name;
