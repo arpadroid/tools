@@ -1,5 +1,5 @@
 import { rgbToHex, validateColor, stringToHex } from './colorTool';
-import { jest } from '@jest/globals';
+import { jest, describe, it, expect } from '@jest/globals';
 
 describe('ColorTool', () => {
     describe('rgbToHex', () => {

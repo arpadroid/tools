@@ -1,5 +1,16 @@
 import { searchNodes, addSearchMatchMarkers, SearchTool } from './searchTool';
-import { jest } from '@jest/globals';
+import { jest, describe, it, expect, beforeEach, afterEach } from '@jest/globals';
+
+/** @typedef {import('./searchTool.types').SearchToolConfigType} SearchToolConfigType */
+/** @typedef {SearchTool & { config: SearchToolConfigType; on: (event: string, callback: (...args: unknown[]) => unknown) => unknown }} ObservableSearchTool */
+
+/**
+ * Creates a typed SearchTool instance.
+ * @param {HTMLInputElement} input
+ * @param {SearchToolConfigType} [config]
+ * @returns {ObservableSearchTool}
+ */
+const createSearchTool = (input, config) => /** @type {ObservableSearchTool} */ (new SearchTool(input, config));
 
 describe('searchTool', () => {
     describe('searchNodes', () => {
@@ -101,13 +112,15 @@ describe('searchTool', () => {
         it('should preserve original content', () => {
             const container = document.createElement('div');
             container.innerHTML = '<p>Hello World</p>';
-            const p = container.querySelector('p');
             document.body.appendChild(container);
 
             addSearchMatchMarkers(container, 'Hello', 'p');
             addSearchMatchMarkers(container, '', 'p');
 
-            expect(p.originalContent).toBe('Hello World');
+            const paragraph = /** @type {HTMLParagraphElement & { originalContent?: string }} */ (
+                container.querySelector('p')
+            );
+            expect(paragraph.originalContent).toBe('Hello World');
 
             document.body.removeChild(container);
         });
@@ -132,7 +145,7 @@ describe('searchTool', () => {
             addSearchMatchMarkers(container, 'Hello', 'p');
 
             const marks = container.querySelectorAll('mark');
-            expect(marks.length).toBe(3);
+            expect(marks).toHaveLength(3);
 
             document.body.removeChild(container);
         });
@@ -143,7 +156,8 @@ describe('searchTool', () => {
             document.body.appendChild(container);
 
             // Empty string selector will be handled by implementation's contentSelector check
-            addSearchMatchMarkers(container, 'Hello', null);
+            const falsySelector = /** @type {string} */ (/** @type {unknown} */ (null));
+            addSearchMatchMarkers(container, 'Hello', falsySelector);
 
             // Implementation should handle it without throwing
             expect(container.textContent).toContain('Hello');
@@ -153,7 +167,10 @@ describe('searchTool', () => {
     });
 
     describe('SearchTool', () => {
-        let input, searchTool;
+        /** @type {HTMLInputElement} */
+        let input = document.createElement('input');
+        /** @type {ObservableSearchTool | null} */
+        let searchTool = null;
 
         beforeEach(() => {
             input = document.createElement('input');
@@ -171,21 +188,21 @@ describe('searchTool', () => {
         });
 
         it('should create SearchTool instance', () => {
-            searchTool = new SearchTool(input);
+            searchTool = createSearchTool(input);
             expect(searchTool).toBeInstanceOf(SearchTool);
             expect(searchTool.input).toBe(input);
         });
 
         it('should set config', () => {
             const config = { debounceDelay: 1000, matchClass: 'custom' };
-            searchTool = new SearchTool(input, config);
+            searchTool = createSearchTool(input, config);
 
-            expect(searchTool.config.debounceDelay).toBe(1000);
-            expect(searchTool.config.matchClass).toBe('custom');
+            expect(searchTool.config?.debounceDelay).toBe(1000);
+            expect(searchTool.config?.matchClass).toBe('custom');
         });
 
         it('should get default config', () => {
-            searchTool = new SearchTool(input);
+            searchTool = createSearchTool(input);
             const defaultConfig = searchTool.getDefaultConfig();
 
             expect(defaultConfig.matchClass).toBe('searchMatch');
@@ -196,7 +213,7 @@ describe('searchTool', () => {
 
         it('should get nodes from config', () => {
             const nodes = [document.createElement('div'), document.createElement('div')];
-            searchTool = new SearchTool(input, { nodes });
+            searchTool = createSearchTool(input, { nodes });
 
             expect(searchTool.getNodes()).toBe(nodes);
         });
@@ -207,10 +224,10 @@ describe('searchTool', () => {
             container.appendChild(document.createElement('span'));
             document.body.appendChild(container);
 
-            searchTool = new SearchTool(input, { container });
+            searchTool = createSearchTool(input, { container });
             const nodes = searchTool.getNodes();
 
-            expect(nodes.length).toBe(2);
+            expect(nodes).toHaveLength(2);
 
             document.body.removeChild(container);
         });
@@ -219,7 +236,7 @@ describe('searchTool', () => {
             const mockNodes = [document.createElement('div')];
             const getNodes = jest.fn(() => mockNodes);
 
-            searchTool = new SearchTool(input, { getNodes });
+            searchTool = createSearchTool(input, { getNodes });
 
             expect(searchTool.getNodes()).toBe(mockNodes);
             expect(getNodes).toHaveBeenCalled();
@@ -231,7 +248,7 @@ describe('searchTool', () => {
             node1.textContent = 'Hello World';
             node2.textContent = 'Goodbye';
 
-            searchTool = new SearchTool(input, { nodes: [node1, node2], addMarkers: false });
+            searchTool = createSearchTool(input, { nodes: [node1, node2], addMarkers: false });
             await searchTool.doSearch(undefined, 'hello');
 
             expect(searchTool.matches).toHaveLength(1);
@@ -239,8 +256,9 @@ describe('searchTool', () => {
         });
 
         it('should handle onSearch callback', async () => {
-            const onSearch = jest.fn();
-            searchTool = new SearchTool(input, { onSearch, nodes: [], addMarkers: false });
+            /** @type {SearchToolConfigType['onSearch']} */
+            const onSearch = jest.fn(async () => undefined);
+            searchTool = createSearchTool(input, { onSearch, nodes: [], addMarkers: false });
 
             await searchTool.doSearch(undefined, 'test');
 
@@ -248,11 +266,12 @@ describe('searchTool', () => {
         });
 
         it('should stop search if onSearch returns false', async () => {
-            const onSearch = jest.fn(() => false);
+            /** @type {SearchToolConfigType['onSearch']} */
+            const onSearch = jest.fn(async () => false);
             const node = document.createElement('div');
             node.textContent = 'Hello';
 
-            searchTool = new SearchTool(input, { onSearch, nodes: [node], addMarkers: false });
+            searchTool = createSearchTool(input, { onSearch, nodes: [node], addMarkers: false });
             await searchTool.doSearch(undefined, 'hello');
 
             expect(searchTool.matches).toBeUndefined();
@@ -264,7 +283,7 @@ describe('searchTool', () => {
 
             const nodes = [document.createElement('div')];
             nodes[0].textContent = 'test';
-            searchTool = new SearchTool(input, { nodes, debounceDelay: 100, addMarkers: false });
+            searchTool = createSearchTool(input, { nodes, debounceDelay: 100, addMarkers: false });
 
             // Wait for initial timeout from constructor
             await new Promise(resolve => setTimeout(resolve, 150));
@@ -285,12 +304,13 @@ describe('searchTool', () => {
             // Use real timers
             jest.useRealTimers();
 
-            const onSearchNode = jest.fn();
+            /** @type {SearchToolConfigType['onSearchNode']} */
+            const onSearchNode = jest.fn(() => undefined);
             const node = document.createElement('div');
             node.textContent = 'Hello';
             document.body.appendChild(node);
 
-            searchTool = new SearchTool(input, {
+            searchTool = createSearchTool(input, {
                 nodes: [node],
                 onSearchNode,
                 debounceDelay: 50,
@@ -315,12 +335,13 @@ describe('searchTool', () => {
             // Use real timers
             jest.useRealTimers();
 
+            /** @type {SearchToolConfigType['onSearchNode']} */
             const onSearchNode = jest.fn(() => false);
             const node = document.createElement('div');
             node.textContent = 'Hello';
             document.body.appendChild(node);
 
-            searchTool = new SearchTool(input, {
+            searchTool = createSearchTool(input, {
                 nodes: [node],
                 onSearchNode,
                 addMarkers: true,
@@ -352,11 +373,11 @@ describe('searchTool', () => {
             document.body.appendChild(node1);
             document.body.appendChild(node2);
 
-            searchTool = new SearchTool(input, {
+            searchTool = createSearchTool(input, {
                 nodes: [node1, node2],
                 hideNonMatches: true,
                 debounceDelay: 50,
-                searchSelector: null,
+                searchSelector: '',
                 addMarkers: false
             });
 
@@ -380,8 +401,9 @@ describe('searchTool', () => {
             // Use real timers
             jest.useRealTimers();
 
-            const onSearch = jest.fn();
-            searchTool = new SearchTool(input, {
+            /** @type {SearchToolConfigType['onSearch']} */
+            const onSearch = jest.fn(async () => undefined);
+            searchTool = createSearchTool(input, {
                 nodes: [],
                 onSearch,
                 debounceDelay: 50,
@@ -403,7 +425,7 @@ describe('searchTool', () => {
             // Use real timers
             jest.useRealTimers();
 
-            searchTool = new SearchTool(input, { addMarkers: false, nodes: [], debounceDelay: 50 });
+            searchTool = createSearchTool(input, { addMarkers: false, nodes: [], debounceDelay: 50 });
 
             // Wait for initial constructor timeout
             await new Promise(resolve => setTimeout(resolve, 100));
@@ -421,8 +443,10 @@ describe('searchTool', () => {
 
         it('should support signal for search event', async () => {
             const callback = jest.fn();
-            searchTool = new SearchTool(input, { nodes: [], addMarkers: false });
-            searchTool.on('search', callback);
+            searchTool = createSearchTool(input, { nodes: [], addMarkers: false });
+            /** @type {ObservableSearchTool} */
+            const observableSearchTool = searchTool;
+            observableSearchTool.on('search', callback);
 
             await searchTool.doSearch(undefined, 'test');
 

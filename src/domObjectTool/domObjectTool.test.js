@@ -1,10 +1,12 @@
+/* eslint-disable id-length */
 import { getPropertyValue, createFormData, getObjectId } from './domObjectTool.js';
+import { describe, it, expect } from '@jest/globals';
 
 describe('domObjectTool', () => {
     describe('getPropertyValue', () => {
         it('should return nested property value', () => {
             const obj = { a: { b: { c: 'value' } } };
-            expect(getPropertyValue('a.b.c', obj)).toBe('value');
+            expect(getPropertyValue('a.b.c', obj, undefined)).toBe('value');
         });
 
         it('should return default value for undefined property', () => {
@@ -14,7 +16,13 @@ describe('domObjectTool', () => {
 
         it('should handle array path', () => {
             const obj = { a: { b: { c: 'value' } } };
-            expect(getPropertyValue(['a', 'b', 'c'], obj)).toBe('value');
+            expect(
+                getPropertyValue(
+                    /** @type {string} */ (/** @type {unknown} */ (['a', 'b', 'c'])),
+                    obj,
+                    undefined
+                )
+            ).toBe('value');
         });
 
         it('should return default value for deeply nested undefined property', () => {
@@ -24,7 +32,7 @@ describe('domObjectTool', () => {
 
         it('should handle single level property', () => {
             const obj = { name: 'test' };
-            expect(getPropertyValue('name', obj)).toBe('test');
+            expect(getPropertyValue('name', obj, undefined)).toBe('test');
         });
     });
 
@@ -48,7 +56,7 @@ describe('domObjectTool', () => {
         it('should handle empty object', () => {
             const formData = createFormData({});
             expect(formData).toBeInstanceOf(FormData);
-            expect(Array.from(formData.keys()).length).toBe(0);
+            expect(Array.from(formData.keys())).toHaveLength(0);
         });
 
         it('should handle undefined parameter', () => {
@@ -60,7 +68,7 @@ describe('domObjectTool', () => {
             const file = new File(['content'], 'test.txt', { type: 'text/plain' });
             const blob = new Blob(['data'], { type: 'application/json' });
             const obj = {
-                file: file,
+                file,
                 data: blob
             };
 
@@ -127,6 +135,7 @@ describe('domObjectTool', () => {
         });
 
         it('should handle empty object', () => {
+            /** @type {Record<string, unknown>} */
             const obj = {};
             const result = getObjectId(obj);
             expect(typeof result).toBe('string');

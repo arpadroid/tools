@@ -12,7 +12,7 @@ import {
     getFileType,
     getFileIcon
 } from './fileTool';
-import { jest } from '@jest/globals';
+import { jest, describe, it, expect } from '@jest/globals';
 
 describe('FileTool', () => {
     describe('getExtension', () => {
@@ -57,6 +57,7 @@ describe('FileTool', () => {
         });
 
         it('should return empty string for undefined', () => {
+            // @ts-expect-error
             expect(formatBytes(undefined)).toBe('');
         });
 
@@ -69,15 +70,16 @@ describe('FileTool', () => {
         it('should check if an event contains files', () => {
             const eventWithoutFiles = { dataTransfer: { types: [] } };
             const eventWithFiles = { dataTransfer: { types: ['Files'] } };
-
+            // @ts-expect-error
             expect(eventContainsFiles(eventWithoutFiles)).toBe(false);
+            // @ts-expect-error
             expect(eventContainsFiles(eventWithFiles)).toBe(true);
         });
     });
 
     describe('processFile', () => {
         it('should process a file and return a new object with processed data', () => {
-            const file = new File(['s'], 'example.txt', { type: 'text/plain' }, 1);
+            const file = new File(['s'], 'example.txt', { type: 'text/plain' });
             const processedFile = processFile(file);
             expect(processedFile.name).toBe('example.txt');
             expect(processedFile.size).toBe('1 bytes');
@@ -111,22 +113,24 @@ describe('FileTool', () => {
     describe('getBase64FromUrl', () => {
         it('should fetch and convert URL to base64', async () => {
             const mockBlob = new Blob(['test'], { type: 'text/plain' });
-            global.fetch = jest.fn(() =>
-                Promise.resolve({
-                    blob: () => Promise.resolve(mockBlob)
-                })
+            global.fetch = /** @type {typeof fetch} */ (
+                /** @type {unknown} */ (
+                    jest.fn(() =>
+                        Promise.resolve({
+                            blob: () => Promise.resolve(mockBlob)
+                        })
+                    )
+                )
             );
 
-            const result = await getBase64FromUrl('https://example.com/file.txt');
+            await getBase64FromUrl('https://example.com/file.txt');
             expect(global.fetch).toHaveBeenCalledWith('https://example.com/file.txt');
         });
 
         it('should handle fetch errors', async () => {
             global.fetch = jest.fn(() => Promise.reject(new Error('Fetch failed')));
 
-            await expect(getBase64FromUrl('https://example.com/file.txt')).rejects.toThrow(
-                'Fetch failed'
-            );
+            await expect(getBase64FromUrl('https://example.com/file.txt')).rejects.toThrow('Fetch failed');
         });
     });
 
@@ -223,8 +227,8 @@ describe('FileTool', () => {
         });
 
         it('should handle non-string input', () => {
-            expect(getFileType(123)).toBe('file');
-            expect(getFileType(null)).toBe('file');
+            expect(getFileType(/** @type {string} */ (/** @type {unknown} */ (123)))).toBe('file');
+            expect(getFileType(/** @type {string} */ (/** @type {unknown} */ (null)))).toBe('file');
         });
 
         it('should be case insensitive', () => {

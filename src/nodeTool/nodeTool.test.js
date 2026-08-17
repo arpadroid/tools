@@ -16,10 +16,11 @@ import {
     addCssRule,
     listen
 } from './nodeTool';
-import { jest } from '@jest/globals';
+import { jest, describe, it, expect, beforeEach, afterEach } from '@jest/globals';
 
 describe('nodeTool', () => {
-    let node;
+    /** @type {HTMLDivElement} */
+    let node = document.createElement('div');
 
     beforeEach(() => {
         // Create a new node before each test
@@ -28,7 +29,7 @@ describe('nodeTool', () => {
 
     afterEach(() => {
         // Clean up the node after each test
-        node = null;
+        node.replaceChildren();
     });
 
     describe('attr', () => {
@@ -47,11 +48,15 @@ describe('nodeTool', () => {
         });
 
         it('should handle null node gracefully', () => {
-            expect(() => attr(null, { id: 'test' })).not.toThrow();
+            const nullNode = /** @type {HTMLElement} */ (/** @type {unknown} */ (null));
+            expect(() => attr(nullNode, { id: 'test' })).not.toThrow();
         });
 
         it('should handle non-object attributes', () => {
-            expect(() => attr(node, 'notAnObject')).not.toThrow();
+            const nonObjectAttributes = /** @type {Record<string, any>} */ (
+                /** @type {unknown} */ ('notAnObject')
+            );
+            expect(() => attr(node, nonObjectAttributes)).not.toThrow();
         });
 
         it('should respect override flag', () => {
@@ -81,7 +86,12 @@ describe('nodeTool', () => {
                 top: 0,
                 bottom: 100,
                 left: 0,
-                right: 100
+                right: 100,
+                x: 0,
+                y: 0,
+                width: 100,
+                height: 100,
+                toJSON: () => ({})
             }));
             window.innerHeight = 500;
             window.innerWidth = 500;
@@ -95,7 +105,12 @@ describe('nodeTool', () => {
                 top: 600,
                 bottom: 700,
                 left: 600,
-                right: 700
+                right: 700,
+                x: 600,
+                y: 600,
+                width: 100,
+                height: 100,
+                toJSON: () => ({})
             }));
             window.innerHeight = 500;
             window.innerWidth = 500;
@@ -153,7 +168,8 @@ describe('nodeTool', () => {
         });
 
         it('should handle null child', () => {
-            expect(() => prepend(node, null)).not.toThrow();
+            const nullChild = /** @type {HTMLElement} */ (/** @type {unknown} */ (null));
+            expect(() => prepend(node, nullChild)).not.toThrow();
         });
     });
 
@@ -203,7 +219,9 @@ describe('nodeTool', () => {
         });
 
         it('should return node as-is for unsupported types', () => {
-            const obj = { custom: 'object' };
+            const obj = /** @type {HTMLElement} */ (
+                /** @type {unknown} */ ({ custom: 'object' })
+            );
             const resolved = resolveNode(obj);
             expect(resolved).toBe(obj);
         });
@@ -244,7 +262,7 @@ describe('nodeTool', () => {
         it('should return empty object if no matching attributes', () => {
             attr(node, { id: 'test' });
             const dataAttrs = getAttributesWithPrefix(node, 'data-');
-            expect(Object.keys(dataAttrs).length).toBe(0);
+            expect(Object.keys(dataAttrs)).toHaveLength(0);
         });
     });
 
@@ -253,7 +271,7 @@ describe('nodeTool', () => {
             const child1 = document.createElement('span');
             const child2 = document.createElement('span');
             appendNodes(node, [child1, child2]);
-            expect(node.children.length).toBe(2);
+            expect(node.children).toHaveLength(2);
             expect(node.children[0]).toBe(child1);
             expect(node.children[1]).toBe(child2);
         });
@@ -268,11 +286,12 @@ describe('nodeTool', () => {
 
         it('should handle empty nodes array', () => {
             appendNodes(node, []);
-            expect(node.children.length).toBe(0);
+            expect(node.children).toHaveLength(0);
         });
 
         it('should handle null container', () => {
-            expect(() => appendNodes(null, [document.createElement('div')])).not.toThrow();
+            const nullContainer = /** @type {HTMLElement} */ (/** @type {unknown} */ (null));
+            expect(() => appendNodes(nullContainer, [document.createElement('div')])).not.toThrow();
         });
     });
 
@@ -282,7 +301,7 @@ describe('nodeTool', () => {
             const child1 = document.createElement('div');
             const child2 = document.createElement('div');
             setNodes(node, [child1, child2]);
-            expect(node.children.length).toBe(2);
+            expect(node.children).toHaveLength(2);
             expect(node.querySelector('span')).toBeNull();
         });
     });
@@ -305,7 +324,8 @@ describe('nodeTool', () => {
         });
 
         it('should handle null node', () => {
-            const result = getScrollableParent(null);
+            const nullNode = /** @type {HTMLElement} */ (/** @type {unknown} */ (null));
+            const result = getScrollableParent(nullNode);
             expect(result).toBeNull();
         });
     });
@@ -362,7 +382,7 @@ describe('nodeTool', () => {
             addCssRule('.unique-class', 'color: blue;');
             addCssRule('.unique-class', 'color: green;');
             const styles = document.querySelectorAll('#unique-class');
-            expect(styles.length).toBe(1);
+            expect(styles).toHaveLength(1);
         });
     });
 

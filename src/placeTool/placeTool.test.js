@@ -1,4 +1,4 @@
-import { jest } from '@jest/globals';
+import { jest, describe, it, expect, beforeEach, afterEach } from '@jest/globals';
 import {
     resetNodePlacement,
     getAvailableTop,
@@ -12,8 +12,29 @@ import {
     placeNode
 } from './placeTool';
 
+/**
+ * Creates a complete DOMRect value for geometry mocks.
+ * @param {Partial<DOMRect>} [values]
+ * @returns {DOMRect}
+ */
+const createRect = (values = {}) => /** @type {DOMRect} */ ({
+    x: 0,
+    y: 0,
+    width: 0,
+    height: 0,
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+    toJSON: () => ({}),
+    ...values
+});
+
 describe('placeTool', () => {
-    let node, refNode;
+    /** @type {HTMLDivElement} */
+    let node = document.createElement('div');
+    /** @type {HTMLDivElement} */
+    let refNode = document.createElement('div');
 
     beforeEach(() => {
         node = document.createElement('div');
@@ -189,8 +210,8 @@ describe('placeTool', () => {
         });
 
         it('should swap to bottom when top space is insufficient', () => {
-            node.getBoundingClientRect = jest.fn(() => ({ height: 200 }));
-            refNode.getBoundingClientRect = jest.fn(() => ({ top: 50, bottom: 100 }));
+            node.getBoundingClientRect = jest.fn(() => createRect({ height: 200 }));
+            refNode.getBoundingClientRect = jest.fn(() => createRect({ top: 50, bottom: 100 }));
             window.innerHeight = 600;
 
             const opt = { position: 'top', offset: 10 };
@@ -200,8 +221,8 @@ describe('placeTool', () => {
         });
 
         it('should swap to top when bottom space is insufficient', () => {
-            node.getBoundingClientRect = jest.fn(() => ({ height: 200 }));
-            refNode.getBoundingClientRect = jest.fn(() => ({ top: 400, bottom: 450 }));
+            node.getBoundingClientRect = jest.fn(() => createRect({ height: 200 }));
+            refNode.getBoundingClientRect = jest.fn(() => createRect({ top: 400, bottom: 450 }));
             window.innerHeight = 500;
 
             const opt = { position: 'bottom', offset: 10 };
@@ -274,7 +295,7 @@ describe('placeTool', () => {
             const options = {
                 position: 'bottom-right',
                 offset: 10,
-                container: container
+                container
             };
 
             placeNode(node, refNode, options);
@@ -297,7 +318,7 @@ describe('placeTool', () => {
             const options = {
                 position: 'bottom-right',
                 offset: 10,
-                container: container
+                container
             };
 
             placeNode(node, refNode, options);
