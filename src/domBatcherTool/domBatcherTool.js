@@ -48,7 +48,7 @@ export class DomBatcherTool {
         let resolve;
         let reject;
         /** @type {BatchWriteType} */
-        return {
+        const rv = {
             attributes: {},
             element,
             methods: {
@@ -58,13 +58,14 @@ export class DomBatcherTool {
                 removeAttribute: {},
                 setAttribute: {}
             },
-            resolve,
-            reject,
             promise: new Promise((_resolve, _reject) => {
                 resolve = _resolve;
                 reject = _reject;
             })
         };
+        rv.resolve = resolve;
+        rv.reject = reject;
+        return rv;
     }
 
     /**
@@ -133,17 +134,17 @@ export class DomBatcherTool {
      */
     doWrite(write) {
         const { element, methods, attributes, resolve } = write;
-
         const { remove, prepend, append, replaceChildren } = methods;
         if (remove === true) {
             element?.remove();
+            resolve?.();
+            this.writes.delete(element);
             return;
         }
         prepend instanceof Set && element?.prepend(...prepend);
         append instanceof Set && element?.append(...append);
         replaceChildren && element?.replaceChildren(replaceChildren);
 
-        if (!element) return;
         if (isObject(attributes) && element instanceof HTMLElement) {
             attr(element, attributes);
         }
@@ -155,11 +156,9 @@ export class DomBatcherTool {
         await new Promise(resolve => requestAnimationFrame(resolve));
         const writes = Array.from(this.writes.entries());
         if (writes.length === 0) return;
-
         const { batchSize = 100, timeout = 0 } = config;
         const batch = writes.splice(0, batchSize);
         batch.forEach(([, write]) => this.doWrite(write));
-
         setTimeout(() => this.flushWrites(config), timeout);
     }
 
@@ -178,7 +177,6 @@ export class DomBatcherTool {
         if (typeof callback === 'function' && callback() === false) {
             return false;
         }
-
         if (typeof method === 'string') {
             this.handleMethodWrite(write, config);
         } else if (prop && typeof value === 'string') {
@@ -193,5 +191,16 @@ export class DomBatcherTool {
         }
 
         return write.promise;
+    }
+
+    /**
+     * Waits for the specified node to be available in the DOM.
+     * @param {Element} node
+     * @returns {Promise<void | boolean>}
+     */
+    async waitFor(node) {
+        const { promise } = this?.writes.get(node) || {};
+        promise instanceof Promise && (await promise);
+        return promise instanceof Promise ? promise : Promise.resolve();
     }
 }
