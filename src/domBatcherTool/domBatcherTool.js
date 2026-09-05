@@ -50,12 +50,13 @@ export class DomBatcherTool {
         /** @type {BatchWriteType} */
         const rv = {
             attributes: {},
+            props: {},
             element,
             methods: {
                 append: new Set(),
                 prepend: new Set(),
                 remove: false,
-                removeAttribute: {},
+                removeAttribute: new Set(),
                 setAttribute: {}
             },
             promise: new Promise((_resolve, _reject) => {
@@ -72,8 +73,16 @@ export class DomBatcherTool {
      * @param {Element} element
      * @returns {BatchWriteType}
      */
+    getWriteStub(element) {
+        return this.getWrite(element) || this.getDefaultWrite(element);
+    }
+
+    /**
+     * @param {Element} element
+     * @returns {BatchWriteType | undefined}
+     */
     getWrite(element) {
-        return this.writes.get(element) || this.getDefaultWrite(element);
+        return this.writes.get(element);
     }
 
     /**
@@ -102,48 +111,28 @@ export class DomBatcherTool {
     }
 
     /**
-     * @param {Element} element
-     * @param {string} html
-     * @returns {Promise<void | boolean>}
-     */
-    innerHTML(element, html) {
-        return this.write(element, { prop: 'innerHTML', value: html });
-    }
-
-    /**
-     * @param {Element} element
-     * @param {PropWriteType} name
-     * @param {BatchValueType} value
-     * @returns {Promise<void | boolean>}
-     */
-    writeProp(element, name, value) {
-        return this.write(element, { prop: name, value });
-    }
-
-    /**
-     * @param {Element} element
-     * @returns {Promise<void | boolean>}
-     */
-    remove(element) {
-        return this.write(element, { method: 'remove', value: true });
-    }
-
-    /**
      * Writes a batch of DOM operations to the specified element.
      * @param {BatchWriteType} write
      */
     doWrite(write) {
-        const { element, methods, attributes, resolve } = write;
-        const { remove, prepend, append, replaceChildren } = methods;
+        const { element, methods, attributes, resolve, props } = write;
+        const { remove, prepend, append, replaceChildren, removeAttribute } = methods;
         if (remove === true) {
             element?.remove();
             resolve?.();
             this.writes.delete(element);
             return;
         }
+        for (const [key, value] of Object.entries(props)) {
+            if (element instanceof HTMLElement) {
+                // @ts-expect-error
+                element[key] = value;
+            }
+        }
         prepend instanceof Set && element?.prepend(...prepend);
         append instanceof Set && element?.append(...append);
         replaceChildren && element?.replaceChildren(replaceChildren);
+        removeAttribute instanceof Set && removeAttribute.forEach(attr => element?.removeAttribute(attr));
 
         if (isObject(attributes) && element instanceof HTMLElement) {
             attr(element, attributes);
@@ -159,6 +148,7 @@ export class DomBatcherTool {
         const { batchSize = 100, timeout = 0 } = config;
         const batch = writes.splice(0, batchSize);
         batch.forEach(([, write]) => this.doWrite(write));
+
         setTimeout(() => this.flushWrites(config), timeout);
     }
 
@@ -171,7 +161,7 @@ export class DomBatcherTool {
     async write(element, config = {}) {
         config.element = element;
         /** @type {BatchWriteType} */
-        const write = this.getWrite(element);
+        const write = this.getWriteStub(element);
 
         const { method, prop, value = '', attributes, callback } = config;
         if (typeof callback === 'function' && callback() === false) {
@@ -180,7 +170,7 @@ export class DomBatcherTool {
         if (typeof method === 'string') {
             this.handleMethodWrite(write, config);
         } else if (prop && typeof value === 'string') {
-            write.attributes[prop] = value;
+            write.props[prop] = value;
         }
         if (attributes) {
             Object.assign(write.attributes, attributes);
@@ -203,4 +193,58 @@ export class DomBatcherTool {
         promise instanceof Promise && (await promise);
         return promise instanceof Promise ? promise : Promise.resolve();
     }
+
+    ////////////////////////////
+    // #region Write Utils
+    ///////////////////////////
+
+    /**
+     * @param {Element} element
+     * @returns {Promise<void | boolean>}
+     */
+    remove(element) {
+        return this.write(element, { method: 'remove', value: true });
+    }
+
+    /**
+     * @param {Element} element
+     * @param {string} html
+     * @returns {Promise<void | boolean>}
+     */
+    innerHTML(element, html) {
+        return this.write(element, { prop: 'innerHTML', value: html });
+    }
+
+    /**
+     * Removes an attribute from the specified element.
+     * @param {Element} element
+     * @param {string} name
+     * @returns {Promise<void | boolean>}
+     */
+    removeAttribute(element, name) {
+        return this.write(element, { method: 'removeAttribute', value: name });
+    }
+
+    /**
+     * Sets an attribute on the specified element.
+     * @param {Element} element
+     * @param {string} name
+     * @param {string} value
+     * @returns {Promise<void | boolean>}
+     */
+    setAttribute(element, name, value) {
+        return this.write(element, { attributes: { [name]: value } });
+    }
+
+    /**
+     * @param {Element} element
+     * @param {PropWriteType} name
+     * @param {BatchValueType} value
+     * @returns {Promise<void | boolean>}
+     */
+    writeProp(element, name, value) {
+        return this.write(element, { prop: name, value });
+    }
+
+    // #endregion Write Utils
 }

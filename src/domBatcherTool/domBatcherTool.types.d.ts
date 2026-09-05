@@ -6,6 +6,7 @@ export type DomBatcherToolConfigType = {
 export type BatchWriteType = {
     element: Element;
     attributes: Record<string, string>;
+    props: Record<string, string>;
     promise: Promise<boolean | void>;
     resolve?: (value: boolean | void) => void;
     reject?: (reason?: unknown) => void;
@@ -13,7 +14,7 @@ export type BatchWriteType = {
         append?: Set<Element>;
         prepend?: Set<Element>;
         remove?: boolean;
-        removeAttribute?: Record<string, string>;
+        removeAttribute?: Set<string>;
         setAttribute?: Record<string, string>;
         textContent?: string;
         replaceChildren?: Element;
@@ -22,7 +23,13 @@ export type BatchWriteType = {
 
 export type BatchWriteMapType = Map<Element, BatchWriteType>;
 
-export type BatchValueType = string | Record<string, string> | boolean | Element[] | DocumentFragment | Set<Element>;
+export type BatchValueType =
+    | string
+    | Record<string, string>
+    | boolean
+    | Element[]
+    | DocumentFragment
+    | Set<Element>;
 
 export type BatchAttributesType = Record<string, string>;
 
@@ -36,6 +43,7 @@ export type WriteType = {
 };
 
 export type MethodWriteType =
+    | 'removeAttribute'
     | 'appendChild'
     | 'replaceChild'
     | 'replaceChildren'
