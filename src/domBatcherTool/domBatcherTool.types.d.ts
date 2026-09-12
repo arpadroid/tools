@@ -10,6 +10,7 @@ export type BatchWriteType = {
     promise: Promise<boolean | void>;
     resolve?: (value: boolean | void) => void;
     reject?: (reason?: unknown) => void;
+    fn: (() => void)[];
     methods: {
         append?: Set<Element>;
         prepend?: Set<Element>;
@@ -18,6 +19,7 @@ export type BatchWriteType = {
         setAttribute?: Record<string, string>;
         textContent?: string;
         replaceChildren?: Element;
+        replaceWith?: Element;
     };
 };
 
@@ -36,6 +38,7 @@ export type BatchAttributesType = Record<string, string>;
 export type WriteType = {
     element?: Element;
     method?: MethodWriteType;
+    fn?: () => void;
     prop?: PropWriteType;
     value?: BatchValueType | (() => BatchValueType);
     attributes?: BatchAttributesType | (() => BatchAttributesType);
@@ -47,6 +50,7 @@ export type MethodWriteType =
     | 'appendChild'
     | 'replaceChild'
     | 'replaceChildren'
+    | 'replaceWith'
     | 'append'
     | 'prepend'
     | 'remove'

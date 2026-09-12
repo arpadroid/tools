@@ -33,7 +33,7 @@ export class DomBatcherTool {
     getDefaultConfig() {
         /** @type {DomBatcherToolConfigType} */
         const config = {
-            batchSize: 80,
+            batchSize: 200,
             timeout: 0
         };
         return config;
@@ -51,13 +51,15 @@ export class DomBatcherTool {
         const rv = {
             attributes: {},
             props: {},
+            fn: [],
             element,
             methods: {
                 append: new Set(),
                 prepend: new Set(),
                 remove: false,
                 removeAttribute: new Set(),
-                setAttribute: {}
+                setAttribute: {},
+                replaceWith: undefined
             },
             promise: new Promise((_resolve, _reject) => {
                 resolve = _resolve;
@@ -115,13 +117,18 @@ export class DomBatcherTool {
      * @param {BatchWriteType} write
      */
     doWrite(write) {
-        const { element, methods, attributes, resolve, props } = write;
+        const { element, methods, attributes, resolve, props, fn } = write;
         const { remove, prepend, append, replaceChildren, removeAttribute } = methods;
         if (remove === true) {
             element?.remove();
             resolve?.();
             this.writes.delete(element);
             return;
+        }
+        for (const method of fn) {
+            if (typeof fn === 'function') {
+                method();
+            }
         }
         for (const [key, value] of Object.entries(props)) {
             if (element instanceof HTMLElement) {
@@ -163,9 +170,12 @@ export class DomBatcherTool {
         /** @type {BatchWriteType} */
         const write = this.getWriteStub(element);
 
-        const { method, prop, value = '', attributes, callback } = config;
+        const { method, prop, value = '', attributes, callback, fn } = config;
         if (typeof callback === 'function' && callback() === false) {
             return false;
+        }
+        if (typeof fn === 'function') {
+            write.fn.push(fn);
         }
         if (typeof method === 'string') {
             this.handleMethodWrite(write, config);
@@ -181,6 +191,17 @@ export class DomBatcherTool {
         }
 
         return write.promise;
+    }
+
+    /**
+     * Writes to the specified element using a method and value.
+     * @param {Element} element
+     * @param {import('./domBatcherTool.types').MethodWriteType} method
+     * @param {any} value
+     * @returns {Promise<void | boolean>}
+     */
+    async writeMethod(element, method, value) {
+        return this.write(element, { method, value });
     }
 
     /**
@@ -244,6 +265,16 @@ export class DomBatcherTool {
      */
     writeProp(element, name, value) {
         return this.write(element, { prop: name, value });
+    }
+
+    /**
+     * Writes to the specified element with a callback function.
+     * @param {Element} element
+     * @param {() => boolean} fn
+     * @returns {Promise<void | boolean>}
+     */
+    writeFn(element, fn) {
+        return this.write(element, { fn });
     }
 
     // #endregion Write Utils
