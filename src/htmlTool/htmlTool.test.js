@@ -1,4 +1,4 @@
-/* eslint-disable sonarjs/no-duplicate-string */
+import { describe, it, expect } from '@jest/globals';
 
 import {
     attrString,
@@ -38,6 +38,7 @@ describe('htmlTool', () => {
         it('should return null for empty/null/undefined/whitespace strings', () => {
             expect(renderNode('')).toBeNull();
             expect(renderNode('   ')).toBeNull();
+            // @ts-expect-error
             expect(renderNode(null)).toBeNull();
             expect(renderNode(undefined)).toBeNull();
         });
@@ -45,8 +46,8 @@ describe('htmlTool', () => {
         it('should return a node with correct properties', () => {
             const result = renderNode('<div class="hello">Hello</div>');
             expect(result).toBeInstanceOf(HTMLElement);
-            expect(result?.classList.contains('hello')).toBe(true);
-            expect(result?.tagName).toBe('DIV');
+            expect(result instanceof HTMLElement && result.classList.contains('hello')).toBe(true);
+            expect(result instanceof HTMLElement && result.tagName).toBe('DIV');
             expect(result?.textContent).toBe('Hello');
         });
     });
@@ -84,14 +85,16 @@ describe('htmlTool', () => {
 
     describe('processTemplateRegex', () => {
         it('should replace placeholders with props', () => {
-            expect(processTemplateRegex('Hello {name}, you are {age} years old', { name: 'John', age: '30' }))
-                .toBe('Hello John, you are 30 years old');
+            expect(
+                processTemplateRegex('Hello {name}, you are {age} years old', { name: 'John', age: '30' })
+            ).toBe('Hello John, you are 30 years old');
             expect(processTemplateRegex('{name} and {name}', { name: 'John' })).toBe('John and John');
         });
 
         it('should handle missing or empty props', () => {
-            expect(processTemplateRegex('Hello {name}, you are {age} years old', { name: 'John' }))
-                .toBe('Hello John, you are  years old');
+            expect(processTemplateRegex('Hello {name}, you are {age} years old', { name: 'John' })).toBe(
+                'Hello John, you are  years old'
+            );
             expect(processTemplateRegex('Hello {name}')).toBe('Hello ');
             expect(processTemplateRegex('Hello World', {})).toBe('Hello World');
         });

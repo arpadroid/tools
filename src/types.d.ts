@@ -14,3 +14,14 @@ export {
 export { DocumentType, NodeType, AnyEvent } from './nodeTool/nodeTool.types';
 export { CropType } from './imageTool/imageTool.types';
 export { FilePayloadType } from './fileTool/fileTool.types';
+
+export {
+    DomBatcherToolConfigType,
+    BatchWriteType,
+    BatchWriteMapType,
+    BatchValueType,
+    BatchAttributesType,
+    WriteType,
+    MethodWriteType,
+    PropWriteType
+} from './domBatcherTool/domBatcherTool.types';

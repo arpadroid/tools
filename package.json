@@ -75,12 +75,11 @@
         "registry": "https://registry.npmjs.org/"
     },
     "peerDependencies": {
-        "@arpadroid/module": "file:../module",
         "@arpadroid/signals": "file:../signals",
         "@arpadroid/tools-iso": "file:../tools-iso"
     },
     "devDependencies": {
-        "@babel/core": "^7.23.9",
-        "@babel/preset-env": "^7.23.9"
+        "@arpadroid/module": "file:../module",
+        "@babel/preset-env": "^8.0.2"
     }
 }

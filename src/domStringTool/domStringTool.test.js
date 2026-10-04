@@ -1,3 +1,4 @@
+import { describe, it, expect, beforeEach } from '@jest/globals';
 import { getSafeHtmlId } from './domStringTool.js';
 
 describe('domStringTool', () => {
@@ -15,18 +16,13 @@ describe('domStringTool', () => {
         });
         it('should handle environment without window', () => {
             const originalWindow = global.window;
-            delete global.window;
+            Reflect.deleteProperty(global, 'window');
             const id = getSafeHtmlId('test-id');
             expect(id).toBe('test-id');
             global.window = originalWindow;
         });
-        it('should mechanize the input string', () => {
-            const id = getSafeHtmlId('Hello World!');
-            expect(id).toMatch(/^[a-z0-9-]+$/);
-        });
-
-        it('should handle special characters', () => {
-            const id = getSafeHtmlId('Test@#$%ID');
+        it.each(['Hello World!', 'Test@#$%ID', 'test---id'])('should mechanize %s', input => {
+            const id = getSafeHtmlId(input);
             expect(id).toMatch(/^[a-z0-9-]+$/);
         });
 
@@ -66,11 +62,6 @@ describe('domStringTool', () => {
         it('should handle mixed case', () => {
             const id = getSafeHtmlId('MixedCaseID');
             expect(id).toBe('mixedcaseid');
-        });
-
-        it('should handle consecutive special characters', () => {
-            const id = getSafeHtmlId('test---id');
-            expect(id).toMatch(/^[a-z0-9-]+$/);
         });
 
         it('should handle unicode characters', () => {

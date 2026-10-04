@@ -1,0 +1,281 @@
+/**
+ * @typedef {import('./domBatcherTool.types').BatchWriteType} BatchWriteType
+ * @typedef {import('./domBatcherTool.types').WriteType} WriteType
+ * @typedef {import('./domBatcherTool.types').DomBatcherToolConfigType} DomBatcherToolConfigType
+ * @typedef {import('./domBatcherTool.types').BatchWriteMapType} BatchWriteMapType
+ * @typedef {import('./domBatcherTool.types').BatchValueType} BatchValueType
+ * @typedef {import('./domBatcherTool.types').PropWriteType} PropWriteType
+ */
+import { isObject, mergeObjects } from '@arpadroid/tools-iso';
+import { attr } from '../nodeTool/nodeTool.js';
+
+export class DomBatcherTool {
+    /** @type {BatchWriteMapType} */
+    writes = new Map();
+
+    constructor(config = {}) {
+        this.setConfig(config);
+    }
+
+    /**
+     * Sets the configuration for the DomBatcherTool component.
+     * @param {DomBatcherToolConfigType} config
+     */
+    setConfig(config) {
+        /** @type {DomBatcherToolConfigType} */
+        this._config = mergeObjects(this.getDefaultConfig(), config);
+    }
+
+    /**
+     * Returns the default configuration for the DomBatcherTool component.
+     * @returns {DomBatcherToolConfigType}
+     */
+    getDefaultConfig() {
+        /** @type {DomBatcherToolConfigType} */
+        const config = {
+            batchSize: 200,
+            timeout: 0
+        };
+        return config;
+    }
+
+    /**
+     * Returns the default write configuration for an element.
+     * @param {Element} element
+     * @returns {BatchWriteType}
+     */
+    getDefaultWrite(element) {
+        let resolve;
+        let reject;
+        /** @type {BatchWriteType} */
+        const rv = {
+            attributes: {},
+            props: {},
+            fn: [],
+            element,
+            methods: {
+                append: new Set(),
+                prepend: new Set(),
+                remove: false,
+                removeAttribute: new Set(),
+                setAttribute: {},
+                replaceWith: undefined
+            },
+            promise: new Promise((_resolve, _reject) => {
+                resolve = _resolve;
+                reject = _reject;
+            })
+        };
+        rv.resolve = resolve;
+        rv.reject = reject;
+        return rv;
+    }
+
+    /**
+     * @param {Element} element
+     * @returns {BatchWriteType}
+     */
+    getWriteStub(element) {
+        return this.getWrite(element) || this.getDefaultWrite(element);
+    }
+
+    /**
+     * @param {Element} element
+     * @returns {BatchWriteType | undefined}
+     */
+    getWrite(element) {
+        return this.writes.get(element);
+    }
+
+    /**
+     * Handles method writes for a given write object.
+     * @param {BatchWriteType} write
+     * @param {WriteType} config
+     */
+    handleMethodWrite(write, config = {}) {
+        const { method, value = '' } = config;
+        const methodName = /** @type {keyof BatchWriteType['methods']} */ (method);
+        const methods = /** @type {Record<string, unknown>} */ (write.methods);
+        if (typeof methodName !== 'string' || !methods) {
+            return;
+        }
+        const payload = methods[methodName];
+        if (payload instanceof Set) {
+            payload.add(value);
+        } else if (Array.isArray(payload)) {
+            payload.push(value);
+        } else if (isObject(payload) && isObject(value)) {
+            // @ts-ignore
+            Object.assign(payload, value);
+        } else {
+            methods[methodName] = value;
+        }
+    }
+
+    /**
+     * Writes a batch of DOM operations to the specified element.
+     * @param {BatchWriteType} write
+     */
+    doWrite(write) {
+        const { element, methods, attributes, resolve, props, fn } = write;
+        const { remove, prepend, append, replaceChildren, removeAttribute } = methods;
+        if (remove === true) {
+            element?.remove();
+            resolve?.();
+            this.writes.delete(element);
+            return;
+        }
+        for (const method of fn) {
+            if (typeof fn === 'function') {
+                method();
+            }
+        }
+        for (const [key, value] of Object.entries(props)) {
+            if (element instanceof HTMLElement) {
+                // @ts-expect-error
+                element[key] = value;
+            }
+        }
+        prepend instanceof Set && element?.prepend(...prepend);
+        append instanceof Set && element?.append(...append);
+        replaceChildren && element?.replaceChildren(replaceChildren);
+        removeAttribute instanceof Set && removeAttribute.forEach(attr => element?.removeAttribute(attr));
+
+        if (isObject(attributes) && element instanceof HTMLElement) {
+            attr(element, attributes);
+        }
+        this.writes.delete(element);
+        resolve?.();
+    }
+
+    async flushWrites(config = this._config || {}) {
+        await new Promise(resolve => requestAnimationFrame(resolve));
+        const writes = Array.from(this.writes.entries());
+        if (writes.length === 0) return;
+        const { batchSize = 100, timeout = 0 } = config;
+        const batch = writes.splice(0, batchSize);
+        batch.forEach(([, write]) => this.doWrite(write));
+
+        setTimeout(() => this.flushWrites(config), timeout);
+    }
+
+    /**
+     * Batches dom write operations [innerHTML, textContent, etc.] to improve performance.
+     * @param {Element} element
+     * @param {WriteType} config
+     * @returns {Promise<void | boolean>}
+     */
+    async write(element, config = {}) {
+        config.element = element;
+        /** @type {BatchWriteType} */
+        const write = this.getWriteStub(element);
+
+        const { method, prop, value = '', attributes, callback, fn } = config;
+        if (typeof callback === 'function' && callback() === false) {
+            return false;
+        }
+        if (typeof fn === 'function') {
+            write.fn.push(fn);
+        }
+        if (typeof method === 'string') {
+            this.handleMethodWrite(write, config);
+        } else if (prop && typeof value === 'string') {
+            write.props[prop] = value;
+        }
+        if (attributes) {
+            Object.assign(write.attributes, attributes);
+        }
+        this.writes.set(element, write);
+        if (this.writes.size === 1) {
+            this.flushWrites();
+        }
+
+        return write.promise;
+    }
+
+    /**
+     * Writes to the specified element using a method and value.
+     * @param {Element} element
+     * @param {import('./domBatcherTool.types').MethodWriteType} method
+     * @param {any} value
+     * @returns {Promise<void | boolean>}
+     */
+    async writeMethod(element, method, value) {
+        return this.write(element, { method, value });
+    }
+
+    /**
+     * Waits for the specified node to be available in the DOM.
+     * @param {Element} node
+     * @returns {Promise<void | boolean>}
+     */
+    async waitFor(node) {
+        const { promise } = this?.writes.get(node) || {};
+        promise instanceof Promise && (await promise);
+        return promise instanceof Promise ? promise : Promise.resolve();
+    }
+
+    ////////////////////////////
+    // #region Write Utils
+    ///////////////////////////
+
+    /**
+     * @param {Element} element
+     * @returns {Promise<void | boolean>}
+     */
+    remove(element) {
+        return this.write(element, { method: 'remove', value: true });
+    }
+
+    /**
+     * @param {Element} element
+     * @param {string} html
+     * @returns {Promise<void | boolean>}
+     */
+    innerHTML(element, html) {
+        return this.write(element, { prop: 'innerHTML', value: html });
+    }
+
+    /**
+     * Removes an attribute from the specified element.
+     * @param {Element} element
+     * @param {string} name
+     * @returns {Promise<void | boolean>}
+     */
+    removeAttribute(element, name) {
+        return this.write(element, { method: 'removeAttribute', value: name });
+    }
+
+    /**
+     * Sets an attribute on the specified element.
+     * @param {Element} element
+     * @param {string} name
+     * @param {string} value
+     * @returns {Promise<void | boolean>}
+     */
+    setAttribute(element, name, value) {
+        return this.write(element, { attributes: { [name]: value } });
+    }
+
+    /**
+     * @param {Element} element
+     * @param {PropWriteType} name
+     * @param {BatchValueType} value
+     * @returns {Promise<void | boolean>}
+     */
+    writeProp(element, name, value) {
+        return this.write(element, { prop: name, value });
+    }
+
+    /**
+     * Writes to the specified element with a callback function.
+     * @param {Element} element
+     * @param {() => boolean} fn
+     * @returns {Promise<void | boolean>}
+     */
+    writeFn(element, fn) {
+        return this.write(element, { fn });
+    }
+
+    // #endregion Write Utils
+}

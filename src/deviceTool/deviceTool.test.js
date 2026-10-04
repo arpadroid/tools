@@ -15,10 +15,11 @@ import {
     goFullScreen,
     exitFullScreen
 } from './deviceTool';
-import { jest } from '@jest/globals';
+import { jest, describe, it, expect, beforeEach, afterEach } from '@jest/globals';
 
 describe('deviceTool', () => {
-    let originalUserAgent;
+    /** @type {string} */
+    let originalUserAgent = navigator.userAgent;
 
     beforeEach(() => {
         originalUserAgent = navigator.userAgent;
@@ -142,27 +143,13 @@ describe('deviceTool', () => {
     });
 
     describe('isIOSPhone', () => {
-        it('should detect iPhone', () => {
+        it.each([
+            'Mozilla/5.0 (iPhone; CPU iPhone OS 14_6 like Mac OS X)',
+            'Mozilla/5.0 (iPad; CPU OS 14_6 like Mac OS X)',
+            'Mozilla/5.0 (iPod touch; CPU iPhone OS 14_6 like Mac OS X)'
+        ])('should detect iOS device', userAgent => {
             Object.defineProperty(navigator, 'userAgent', {
-                value: 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_6 like Mac OS X)',
-                writable: true,
-                configurable: true
-            });
-            expect(isIOSPhone()).toBe(true);
-        });
-
-        it('should detect iPad', () => {
-            Object.defineProperty(navigator, 'userAgent', {
-                value: 'Mozilla/5.0 (iPad; CPU OS 14_6 like Mac OS X)',
-                writable: true,
-                configurable: true
-            });
-            expect(isIOSPhone()).toBe(true);
-        });
-
-        it('should detect iPod', () => {
-            Object.defineProperty(navigator, 'userAgent', {
-                value: 'Mozilla/5.0 (iPod touch; CPU iPhone OS 14_6 like Mac OS X)',
+                value: userAgent,
                 writable: true,
                 configurable: true
             });
@@ -315,20 +302,24 @@ describe('deviceTool', () => {
     describe('goFullScreen', () => {
         it('should call requestFullscreen on the node', () => {
             const node = document.createElement('div');
-            node.requestFullscreen = jest.fn();
+            node.requestFullscreen = jest.fn(async () => undefined);
             goFullScreen(node);
             expect(node.requestFullscreen).toHaveBeenCalled();
         });
 
         it('should call webkitRequestFullscreen for Safari', () => {
-            const node = document.createElement('div');
+            const node = /** @type {HTMLDivElement & { webkitRequestFullscreen: () => void }} */ (
+                document.createElement('div')
+            );
             node.webkitRequestFullscreen = jest.fn();
             goFullScreen(node);
             expect(node.webkitRequestFullscreen).toHaveBeenCalled();
         });
 
         it('should call msRequestFullscreen for IE11', () => {
-            const node = document.createElement('div');
+            const node = /** @type {HTMLDivElement & { msRequestFullscreen: () => void }} */ (
+                document.createElement('div')
+            );
             node.msRequestFullscreen = jest.fn();
             goFullScreen(node);
             expect(node.msRequestFullscreen).toHaveBeenCalled();
@@ -337,31 +328,34 @@ describe('deviceTool', () => {
 
     describe('exitFullScreen', () => {
         it('should call exitFullscreen on document', () => {
-            const mockExitFullscreen = jest.fn();
-            delete document.exitFullscreen;
-            delete document.webkitExitFullscreen;
-            delete document.msExitFullscreen;
-            document.exitFullscreen = mockExitFullscreen;
+            const mockExitFullscreen = jest.fn(async () => undefined);
+            const fullscreenDocument = /** @type {Document & { webkitExitFullscreen?: () => Promise<void>; msExitFullscreen?: () => Promise<void> }} */ (document);
+            Reflect.deleteProperty(fullscreenDocument, 'exitFullscreen');
+            Reflect.deleteProperty(fullscreenDocument, 'webkitExitFullscreen');
+            Reflect.deleteProperty(fullscreenDocument, 'msExitFullscreen');
+            fullscreenDocument.exitFullscreen = mockExitFullscreen;
             exitFullScreen();
             expect(mockExitFullscreen).toHaveBeenCalled();
         });
 
         it('should call webkitExitFullscreen for Safari', () => {
-            const mockWebkitExitFullscreen = jest.fn();
-            delete document.exitFullscreen;
-            delete document.webkitExitFullscreen;
-            delete document.msExitFullscreen;
-            document.webkitExitFullscreen = mockWebkitExitFullscreen;
+            const mockWebkitExitFullscreen = jest.fn(async () => undefined);
+            const fullscreenDocument = /** @type {Document & { webkitExitFullscreen?: () => Promise<void>; msExitFullscreen?: () => Promise<void> }} */ (document);
+            Reflect.deleteProperty(fullscreenDocument, 'exitFullscreen');
+            Reflect.deleteProperty(fullscreenDocument, 'webkitExitFullscreen');
+            Reflect.deleteProperty(fullscreenDocument, 'msExitFullscreen');
+            fullscreenDocument.webkitExitFullscreen = mockWebkitExitFullscreen;
             exitFullScreen();
             expect(mockWebkitExitFullscreen).toHaveBeenCalled();
         });
 
         it('should call msExitFullscreen for IE11', () => {
-            const mockMsExitFullscreen = jest.fn();
-            delete document.exitFullscreen;
-            delete document.webkitExitFullscreen;
-            delete document.msExitFullscreen;
-            document.msExitFullscreen = mockMsExitFullscreen;
+            const mockMsExitFullscreen = jest.fn(async () => undefined);
+            const fullscreenDocument = /** @type {Document & { webkitExitFullscreen?: () => Promise<void>; msExitFullscreen?: () => Promise<void> }} */ (document);
+            Reflect.deleteProperty(fullscreenDocument, 'exitFullscreen');
+            Reflect.deleteProperty(fullscreenDocument, 'webkitExitFullscreen');
+            Reflect.deleteProperty(fullscreenDocument, 'msExitFullscreen');
+            fullscreenDocument.msExitFullscreen = mockMsExitFullscreen;
             exitFullScreen();
             expect(mockMsExitFullscreen).toHaveBeenCalled();
         });

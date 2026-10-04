@@ -1,6 +1,5 @@
 .tmp/
 .tsbuildinfo
-bundle-stats.html
 coverage/
 dist/
 junit.xml

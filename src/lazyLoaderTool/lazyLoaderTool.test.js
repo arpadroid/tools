@@ -9,7 +9,7 @@ import {
     lazyQueue,
     loadedSources
 } from './lazyLoaderTool';
-import { jest } from '@jest/globals';
+import { jest, describe, it, expect, beforeEach, afterEach } from '@jest/globals';
 
 describe('lazyLoaderTool', () => {
     beforeEach(() => {
@@ -142,12 +142,12 @@ describe('lazyLoaderTool', () => {
         });
 
         it('should handle invalid image element', async () => {
-            jest.spyOn(console, 'error').mockImplementation(() => {});
+            const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
             lazyQueue.add({});
             const result = await loadNext();
             expect(result).toEqual({});
             expect(console.error).toHaveBeenCalledWith('Invalid image element.');
-            console.error.mockRestore();
+            consoleErrorSpy.mockRestore();
         });
     });
 
@@ -183,7 +183,7 @@ describe('lazyLoaderTool', () => {
             }
 
             // Start loading - this will trigger the recursion path
-            loadBatch(2); // Use small batch size
+            loadBatch();
 
             // Verify queue still has items (the recursion happened)
             expect(lazyQueue.size).toBeGreaterThan(0);

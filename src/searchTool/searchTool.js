@@ -12,7 +12,7 @@ import { sanitizeSearchInput } from '@arpadroid/tools-iso';
  * Searches through an array of nodes and returns a list of matches and non-matches.
  * @param {string} searchValue
  * @param {Element[]} nodes
- * @param {(node: Element, isMatch?: boolean) => void} callback - The callback function to execute on search.
+ * @param {(node: Element, isMatch?: boolean) => void} [callback] - The callback function to execute on search.
  * @returns {Promise<{matches: Element[], nonMatches: Element[], query: string}>}
  */
 export async function searchNodes(searchValue, nodes, callback) {

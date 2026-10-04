@@ -17,6 +17,7 @@ export * from './pageTool/pageTool.js';
 export * from './placeTool/placeTool.js';
 export * from './searchTool/searchTool.js';
 export * from './domStringTool/domStringTool.js';
+export * from './domBatcherTool/domBatcherTool.js';
 
 export * from '@arpadroid/signals';
 export * from '@arpadroid/tools-iso';

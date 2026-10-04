@@ -2,7 +2,7 @@ import { dashedToCamel, mechanize } from '@arpadroid/tools-iso/stringTool';
 import { isObject } from '@arpadroid/tools-iso/objectTool';
 
 /**
- * Adds attributes to a node.
+ * Apply attributes to a DOM node.
  * @param {HTMLElement} node
  * @param {Record<string, any>} attributes
  * @param {boolean} [override]
@@ -22,14 +22,17 @@ export function attr(node, attributes, override = true) {
         }
     }
 }
+
+export const applyAttributes = attr;
+
 /**
  * Returns the attributes of a node.
  * @param {HTMLElement} node
- * @param {{camelCaseKeys?: boolean}} [config]
+ * @param {{camelCaseKeys?: boolean; convertFalseToBoolean?: boolean}} [config]
  * @returns {Record<string, string | boolean>}
  */
 export function getAttributes(node, config = {}) {
-    const { camelCaseKeys = false } = config;
+    const { camelCaseKeys = false, convertFalseToBoolean = true } = config;
     /**
      * Reduces the attributes of a node to an object.
      * @param {Record<string, string | boolean>} acc
@@ -41,7 +44,7 @@ export function getAttributes(node, config = {}) {
         const { name } = attr;
         if (value === '') {
             value = true;
-        } else if (value === 'false') {
+        } else if (value === 'false' && convertFalseToBoolean) {
             value = false;
         }
         const keyName = camelCaseKeys ? dashedToCamel(name) : name;
@@ -118,14 +121,19 @@ export function setContent(node, content) {
  */
 export function style(node, css = {}) {
     for (const [key, value] of Object.entries(css)) {
-        // @ts-ignore
-        node.style[key] = value;
+        if (typeof value === 'number' && !['opacity', 'zIndex'].includes(key)) {
+            // @ts-expect-error
+            node.style[key] = `${value}px`;
+        } else {
+            // @ts-expect-error
+            node.style[key] = value;
+        }
     }
 }
 /**
  * Append nodes to a container with a document fragment for performance.
  * @param {HTMLElement | Element} container
- * @param {Element[] | NodeList | Node[] | []} nodes
+ * @param {(Element | Node)[] | NodeList | []} nodes
  * @param {boolean} prepend - Whether to prepend the nodes.
  */
 export function appendNodes(container, nodes = [], prepend = false) {
@@ -140,7 +148,7 @@ export function appendNodes(container, nodes = [], prepend = false) {
 /**
  * Sets nodes to a container.
  * @param {Element} container
- * @param {Element[]} nodes
+ * @param {(Element | Node)[]} nodes
  */
 export function setNodes(container, nodes = []) {
     container.innerHTML = '';

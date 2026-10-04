@@ -1,8 +1,9 @@
 import { getDisplaySize, upscale, crop, getMaximumSize } from './imageTool';
-import { jest } from '@jest/globals';
+import { jest, describe, it, expect, beforeEach } from '@jest/globals';
 
 describe('imageTool', () => {
-    let img;
+    /** @type {HTMLImageElement} */
+    let img = document.createElement('img');
 
     beforeEach(() => {
         img = document.createElement('img');
@@ -126,15 +127,15 @@ describe('imageTool', () => {
         it('should create canvas and return crop data', () => {
             // Mock canvas context
             const mockCanvas = document.createElement('canvas');
-            mockCanvas.getContext = jest.fn(() => ({
+            mockCanvas.getContext = /** @type {HTMLCanvasElement['getContext']} */ (/** @type {unknown} */ (jest.fn(() => ({
                 drawImage: jest.fn(),
                 getImageData: jest.fn(() => ({})),
                 putImageData: jest.fn()
-            }));
+            }))));
             mockCanvas.toDataURL = jest.fn(() => 'data:image/png;base64,test');
 
             const originalCreateElement = document.createElement.bind(document);
-            document.createElement = jest.fn((tag) => {
+            document.createElement = jest.fn((/** @type {string} */ tag) => {
                 if (tag === 'canvas') return mockCanvas;
                 return originalCreateElement(tag);
             });
@@ -161,7 +162,7 @@ describe('imageTool', () => {
             mockCanvas.toDataURL = jest.fn(() => '');
 
             const originalCreateElement = document.createElement.bind(document);
-            document.createElement = jest.fn((tag) => {
+            document.createElement = jest.fn((/** @type {string} */ tag) => {
                 if (tag === 'canvas') return mockCanvas;
                 return originalCreateElement(tag);
             });
@@ -174,36 +175,17 @@ describe('imageTool', () => {
     });
 
     describe('getMaximumSize', () => {
-        it('should return default max size for small screens', () => {
-            Object.defineProperty(window.screen, 'width', { value: 400, writable: true, configurable: true });
-            Object.defineProperty(window.screen, 'height', { value: 300, writable: true, configurable: true });
+        it.each([
+            [400, 300, 500],
+            [900, 600, 1000],
+            [1400, 900, 1500],
+            [2600, 1600, 2500]
+        ])('should return the expected max size for %s x %s screens', (width, height, expectedSize) => {
+            Object.defineProperty(window.screen, 'width', { value: width, writable: true, configurable: true });
+            Object.defineProperty(window.screen, 'height', { value: height, writable: true, configurable: true });
 
             const size = getMaximumSize();
-            expect(size).toBe(500);
-        });
-
-        it('should return appropriate size for medium screens', () => {
-            Object.defineProperty(window.screen, 'width', { value: 900, writable: true, configurable: true });
-            Object.defineProperty(window.screen, 'height', { value: 600, writable: true, configurable: true });
-
-            const size = getMaximumSize();
-            expect(size).toBe(1000);
-        });
-
-        it('should return appropriate size for large screens', () => {
-            Object.defineProperty(window.screen, 'width', { value: 1400, writable: true, configurable: true });
-            Object.defineProperty(window.screen, 'height', { value: 900, writable: true, configurable: true });
-
-            const size = getMaximumSize();
-            expect(size).toBe(1500);
-        });
-
-        it('should return max size for very large screens', () => {
-            Object.defineProperty(window.screen, 'width', { value: 2600, writable: true, configurable: true });
-            Object.defineProperty(window.screen, 'height', { value: 1600, writable: true, configurable: true });
-
-            const size = getMaximumSize();
-            expect(size).toBe(2500);
+            expect(size).toBe(expectedSize);
         });
 
         it('should use custom max size and breakpoints', () => {

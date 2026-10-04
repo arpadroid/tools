@@ -17,7 +17,7 @@ const defaultOptions = {
     offset: 4,
     verticalOffset: 4,
     horizontalOffset: 4,
-    container: document.body
+    container: document.getElementById('storybook-root') || document.body
 };
 
 /**
@@ -136,6 +136,9 @@ export function placeY(node, refNode, opt) {
     const height = node.offsetHeight;
     const availableTop = getAvailableTop(refNode);
     const availableBottom = getAvailableBottom(refNode);
+    if (!opt.position) {
+        return;
+    }
     const positions = opt.position?.split('-');
     if (positions?.includes('bottom')) {
         if (availableBottom < height && availableTop > availableBottom) {
@@ -159,6 +162,9 @@ export function placeY(node, refNode, opt) {
  * @param {PlaceToolOptionsType} opt - The options for placing the node.
  */
 export function placeX(node, refNode, opt) {
+    if (!opt.position) {
+        return;
+    }
     const positions = opt.position?.split('-');
     if (positions?.includes('right')) {
         placeRight(node, refNode, opt);
@@ -175,8 +181,12 @@ export function placeX(node, refNode, opt) {
  */
 export const placeNode = (node, refNode = node.parentElement || document.body, options) => {
     const opt = getOptions(options);
-    if (opt?.container instanceof HTMLElement && node.parentNode !== opt.container) {
-        opt.container.appendChild(node);
+    let { container = document.getElementById('storybook-root') || document.body } = opt;
+    if (typeof container === 'string') {
+        container = document.querySelector(container);
+    }
+    if (container instanceof HTMLElement && node.parentNode !== container) {
+        container.appendChild(node);
     }
     resetNodePlacement(node);
     placeY(node, refNode, opt);
