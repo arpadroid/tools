@@ -109,7 +109,7 @@ export function setContent(node, content) {
     if (typeof content === 'string') {
         node.textContent = content;
     } else if (content instanceof HTMLElement) {
-        node.innerHTML = '';
+        node.replaceChildren();
         node.appendChild(content);
     }
 }
@@ -151,7 +151,7 @@ export function appendNodes(container, nodes = [], prepend = false) {
  * @param {(Element | Node)[]} nodes
  */
 export function setNodes(container, nodes = []) {
-    container.innerHTML = '';
+    container.replaceChildren();
     appendNodes(container, nodes);
 }
 

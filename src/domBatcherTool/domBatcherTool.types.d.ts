@@ -18,7 +18,7 @@ export type BatchWriteType = {
         removeAttribute?: Set<string>;
         setAttribute?: Record<string, string>;
         textContent?: string;
-        replaceChildren?: Element;
+        replaceChildren?: Element[] | NodeList;
         replaceWith?: Element;
     };
 };
@@ -43,6 +43,8 @@ export type WriteType = {
     value?: BatchValueType | (() => BatchValueType);
     attributes?: BatchAttributesType | (() => BatchAttributesType);
     callback?: () => boolean | void | Promise<boolean | void>;
+    batchSize?: number;
+    timeout?: number;
 };
 
 export type MethodWriteType =

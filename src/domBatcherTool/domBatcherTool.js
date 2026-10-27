@@ -54,8 +54,6 @@ export class DomBatcherTool {
             fn: [],
             element,
             methods: {
-                append: new Set(),
-                prepend: new Set(),
                 remove: false,
                 removeAttribute: new Set(),
                 setAttribute: {},
@@ -101,7 +99,11 @@ export class DomBatcherTool {
         }
         const payload = methods[methodName];
         if (payload instanceof Set) {
-            payload.add(value);
+            if (Array.isArray(value)) {
+                value.forEach(val => payload.add(val));
+            } else {
+                payload.add(value);
+            }
         } else if (Array.isArray(payload)) {
             payload.push(value);
         } else if (isObject(payload) && isObject(value)) {
@@ -118,7 +120,7 @@ export class DomBatcherTool {
      */
     doWrite(write) {
         const { element, methods, attributes, resolve, props, fn } = write;
-        const { remove, prepend, append, replaceChildren, removeAttribute } = methods;
+        const { remove, prepend, append, replaceChildren, replaceWith, removeAttribute } = methods;
         if (remove === true) {
             element?.remove();
             resolve?.();
@@ -126,7 +128,7 @@ export class DomBatcherTool {
             return;
         }
         for (const method of fn) {
-            if (typeof fn === 'function') {
+            if (typeof method === 'function') {
                 method();
             }
         }
@@ -137,8 +139,10 @@ export class DomBatcherTool {
             }
         }
         prepend instanceof Set && element?.prepend(...prepend);
-        append instanceof Set && element?.append(...append);
-        replaceChildren && element?.replaceChildren(replaceChildren);
+
+        append && element?.append(...Array.from(append));
+        replaceChildren && element?.replaceChildren(...Array.from(replaceChildren));
+        replaceWith && element?.replaceWith(replaceWith);
         removeAttribute instanceof Set && removeAttribute.forEach(attr => element?.removeAttribute(attr));
 
         if (isObject(attributes) && element instanceof HTMLElement) {
@@ -149,14 +153,17 @@ export class DomBatcherTool {
     }
 
     async flushWrites(config = this._config || {}) {
-        await new Promise(resolve => requestAnimationFrame(resolve));
+        await new Promise(resolve => setTimeout(resolve, 0));
         const writes = Array.from(this.writes.entries());
         if (writes.length === 0) return;
-        const { batchSize = 100, timeout = 0 } = config;
+        const { batchSize = this._config?.batchSize || 200, timeout = 0 } = config;
+
         const batch = writes.splice(0, batchSize);
         batch.forEach(([, write]) => this.doWrite(write));
 
-        setTimeout(() => this.flushWrites(config), timeout);
+        setTimeout(() => {
+            requestAnimationFrame(() => this.flushWrites(config));
+        }, timeout);
     }
 
     /**
@@ -170,7 +177,7 @@ export class DomBatcherTool {
         /** @type {BatchWriteType} */
         const write = this.getWriteStub(element);
 
-        const { method, prop, value = '', attributes, callback, fn } = config;
+        const { method, prop, value = '', attributes, callback, fn, batchSize, timeout } = config;
         if (typeof callback === 'function' && callback() === false) {
             return false;
         }
@@ -187,7 +194,11 @@ export class DomBatcherTool {
         }
         this.writes.set(element, write);
         if (this.writes.size === 1) {
-            this.flushWrites();
+            this.flushWrites({
+                ...this._config,
+                ...(typeof batchSize === 'number' ? { batchSize } : {}),
+                ...(typeof timeout === 'number' ? { timeout } : {})
+            });
         }
 
         return write.promise;
@@ -198,10 +209,11 @@ export class DomBatcherTool {
      * @param {Element} element
      * @param {import('./domBatcherTool.types').MethodWriteType} method
      * @param {any} value
+     * @param {Pick<DomBatcherToolConfigType, 'batchSize' | 'timeout'>} [config]
      * @returns {Promise<void | boolean>}
      */
-    async writeMethod(element, method, value) {
-        return this.write(element, { method, value });
+    async writeMethod(element, method, value, config = {}) {
+        return this.write(element, { method, value, ...config });
     }
 
     /**
@@ -230,10 +242,11 @@ export class DomBatcherTool {
     /**
      * @param {Element} element
      * @param {string} html
+     * @param {Pick<DomBatcherToolConfigType, 'batchSize' | 'timeout'>} [config]
      * @returns {Promise<void | boolean>}
      */
-    innerHTML(element, html) {
-        return this.write(element, { prop: 'innerHTML', value: html });
+    innerHTML(element, html, config = {}) {
+        return this.write(element, { ...config, prop: 'innerHTML', value: html });
     }
 
     /**
@@ -244,6 +257,39 @@ export class DomBatcherTool {
      */
     removeAttribute(element, name) {
         return this.write(element, { method: 'removeAttribute', value: name });
+    }
+
+    /**
+     * Appends a node to the element.
+     * @param {Element} element
+     * @param {HTMLElement[] | NodeList} nodes
+     * @param {Pick<DomBatcherToolConfigType, 'batchSize' | 'timeout'>} [config]
+     * @returns {Promise<void | boolean>}
+     */
+    append(element, nodes, config = {}) {
+        return this.writeMethod(element, 'append', nodes, config);
+    }
+
+    /**
+     * Appends a node to the element.
+     * @param {Element} element
+     * @param {HTMLElement[] | NodeList} nodes
+     * @param {Pick<DomBatcherToolConfigType, 'batchSize' | 'timeout'>} [config]
+     * @returns {Promise<void | boolean>}
+     */
+    prepend(element, nodes, config = {}) {
+        return this.writeMethod(element, 'prepend', nodes, config);
+    }
+
+    /**
+     * Replaces the element's children with nodes.
+     * @param {Element} element
+     * @param {HTMLElement[] | NodeList} nodes
+     * @param {Pick<DomBatcherToolConfigType, 'batchSize' | 'timeout'>} [config]
+     * @returns {Promise<void | boolean>}
+     */
+    replaceChildren(element, nodes, config = {}) {
+        return this.writeMethod(element, 'replaceChildren', nodes, config);
     }
 
     /**
@@ -270,11 +316,13 @@ export class DomBatcherTool {
     /**
      * Writes to the specified element with a callback function.
      * @param {Element} element
-     * @param {() => boolean} fn
+     * @param {() => boolean | undefined} fn
+     * @param {number} [batchSize]
+     * @param {number} [timeout]
      * @returns {Promise<void | boolean>}
      */
-    writeFn(element, fn) {
-        return this.write(element, { fn });
+    writeFn(element, fn, batchSize, timeout) {
+        return this.write(element, { batchSize, timeout, fn });
     }
 
     // #endregion Write Utils
